@@ -130,6 +130,7 @@ Tugas:
 - INVESTASI: Rekomendasi instrumen (reksa dana, deposito, saham, emas, sukuk/SBR) sesuai kondisi keuangan klien${useWeb && webContext ? ', diperkuat data terkini dari sumber di atas' : ', berbasis pengetahuan dari sumber terpercaya'}.
 - PERENCANAAN: Roadmap finansial — dana darurat ideal, target investasi bulanan, proyeksi pertumbuhan kekayaan berdasarkan tren historis data mereka.
 - RISIKO: Deteksi potensi defisit atau ketergantungan satu sumber pendapatan. Beri langkah mitigasi konkret.
+${useWeb && webContext ? '- KARENA PERTANYAAN INI TENTANG INFO/BERITA TERKINI (bukan audit keuangan): jawab PERTANYAAN langsung, faktual, ringkas (150-250 kata), HANYA berdasarkan DATA TERKINI di atas + pengetahuan. SERTAKAN sumber beserta tanggalnya bila ada. JANGAN memakai kerangka audit/saran investasi/roadmap yang umum kecuali diminta.\n- Dilarang mengarang angka: tanggal, harga, atau angka yang tidak ada di DATA TERKINI — tulis "per data terbaru" bila tidak pasti.' : ''}
 ${useWeb && webContext ? '- Sebutkan sumber data yang digunakan secara singkat (contoh: "Menurut BI per ' + today + '...").' : '- Jika merujuk data makro, sebutkan sumbernya (contoh: "Berdasarkan data BPS...").'}
 
 Format: Bahasa Indonesia profesional, tajam, tegas, mendetail, spesifik pembahasannya bukan umum, memotivasi. **Bold** angka/instrumen krusial. Baris baru antar ide. Tanpa ### header maupun di poin-poin yang ada nomornya. Tanpa rightarrow. Maks 400 kata kecuali diminta lebih. Identitas: "Financial Advisor AI" — jangan sebut vendor AI apapun.`;
@@ -143,7 +144,7 @@ Format: Bahasa Indonesia profesional, tajam, tegas, mendetail, spesifik pembahas
           method: 'POST',
           headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: 650 }),
-          signal: AbortSignal.timeout(i === GROQ_MODELS.length - 1 ? 20000 : 14000)
+          signal: AbortSignal.timeout(model === GROQ_MODELS[GROQ_MODELS.length - 1] ? 20000 : 14000)
         });
 
         // ── PERBAIKAN DI SINI: Menambahkan resp.status === 400 ────────────
