@@ -5928,7 +5928,7 @@
                 var resp = await fetch('/api/ai-chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ history: aiChatHistory, konteks: buatRingkasanKeuangan() })
+                    body: JSON.stringify({ history: aiChatHistory.slice(-8), konteks: buatRingkasanKeuangan() })
                 });
                 if (!resp.ok) {
                     var ed = await resp.json().catch(function(){return{};});

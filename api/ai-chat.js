@@ -110,14 +110,15 @@ export default async function handler(req, res) {
 
     // ── Tavily + Jina: ambil data real-time dari sumber terpercaya ────────────
     let webContext = '';
+    let rawResults = [];
     if (useWeb) {
       try {
         const lastMsg = [...history].reverse().find(m => m.role === 'user')?.content || '';
-        const results = await tavilySearch(lastMsg, tavilyKey);
+        rawResults = await tavilySearch(lastMsg, tavilyKey);
 
-        if (results.length > 0) {
+        if (rawResults.length > 0) {
           const contents = await Promise.all(
-            results.slice(0, 2).map(async r => {
+            rawResults.slice(0, 2).map(async r => {
               const body = await jinaFetch(r.url);
               return `Sumber: ${r.title} (${r.url})\n${body || r.snippet}`;
             })
@@ -133,13 +134,14 @@ export default async function handler(req, res) {
 
     const sourceList = `World Bank, IMF, OECD, ADB, World Economic Forum, Bloomberg, Reuters, Financial Times, Wall Street Journal, The Economist, Bank Indonesia, OJK, BPS, Kemenkeu RI, Bursa Efek Indonesia, Katadata, Bisnis Indonesia, Kontan, CNBC Indonesia, Investor Daily, KNEKS, Islamic Development Bank, Puskas BAZNAS, LPEM FEB UI, NBER, SSRN, Jurnal Ekonomi dan Pembangunan Indonesia`;
 
+    const konteksRingkas = String(konteks || '').slice(0, 1800);
     const systemPrompt = `Kamu adalah Chief Financial Advisor & Investment Manager pribadi klien — profesional keuangan senior dengan akses ke sumber data ekonomi global dan domestik terpercaya.
 
 Basis pengetahuan dan sumber rujukan kamu mencakup:
 ${sourceList}
 
 Data keuangan klien:
-${konteks}
+${konteksRingkas}
 ${webContext}
 
 Hari ini: ${today}
@@ -158,39 +160,58 @@ Format: Bahasa Indonesia profesional, tajam, tegas, mendetail, spesifik pembahas
     let lastError = '';
     const models = (await pickModels(groqKey)) || GROQ_MODELS;
     const attempts = models.slice(0, 3);
+    const provider = useWeb && webContext ? 'Groq+Tavily+Jina' : 'Groq';
+
+    async function groqChat(model, temperature, timeoutMs) {
+      const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model, messages, temperature, max_tokens: 650 }),
+        signal: AbortSignal.timeout(timeoutMs)
+      });
+      const raw = await resp.text();
+      return { resp, raw };
+    }
 
     for (let idx = 0; idx < attempts.length; idx++) {
       const model = attempts[idx];
       try {
-        const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: 650 }),
-          signal: AbortSignal.timeout(idx === attempts.length - 1 ? 20000 : 14000)
-        });
+        let { resp, raw } = await groqChat(model, 0.7, idx === attempts.length - 1 ? 20000 : 14000);
 
-        // ── PERBAIKAN DI SINI: Menambahkan resp.status === 400 ────────────
         if (resp.status === 429 || resp.status === 503 || resp.status === 400) {
-          const d = await resp.json().catch(() => ({}));
-          lastError = `Groq (${model}): ${d?.error?.message || resp.status}`; continue;
+          const d = JSON.parse(raw || '{}').error || {};
+          lastError = `Groq (${model}): ${d.message || resp.status}`; continue;
         }
         if (resp.status === 404) { lastError = `Groq: model ${model} tidak ada`; continue; }
         if (!resp.ok) {
-          const d = await resp.json().catch(() => ({}));
-          return res.status(500).json({ error: `Groq error: ${d?.error?.message || resp.status}` });
+          const d = JSON.parse(raw || '{}').error || {};
+          return res.status(500).json({ error: `Groq error: ${d.message || resp.status}` });
         }
 
-        const data = await resp.json();
-        const reply = data?.choices?.[0]?.message?.content || '';
-        if (!reply) { lastError = `Groq (${model}): kosong`; continue; }
+        let data = JSON.parse(raw || '{}');
+        let reply = data?.choices?.[0]?.message?.content || '';
+        if (!reply) {
+          const rr = await groqChat(model, 0.9, 20000);
+          if (rr.resp.ok) {
+            const rd = JSON.parse(rr.raw || '{}');
+            const r2 = rd?.choices?.[0]?.message?.content || '';
+            if (r2) return res.status(200).json({ reply: r2, model_used: model, provider });
+          }
+          lastError = `Groq (${model}): kosong`; continue;
+        }
 
-        return res.status(200).json({
-          reply,
-          model_used: model,
-          provider: useWeb && webContext ? 'Groq+Tavily+Jina' : 'Groq'
-        });
+        return res.status(200).json({ reply, model_used: model, provider });
 
       } catch (err) { lastError = `Groq (${model}): ${err.message}`; continue; }
+    }
+
+    if (rawResults.length > 0) {
+      return res.status(200).json({
+        reply: '⚠️ Model AI sedang sibuk (token/min habis). Berikut data langsung dari sumber terpercaya:\n\n' +
+          rawResults.slice(0, 3).map(r => `• ${r.title}\n${r.url}\n${(r.snippet || '').slice(0, 240)}`).join('\n\n'),
+        model_used: 'fallback-data',
+        provider: 'Tavily+Jina'
+      });
     }
 
     return res.status(503).json({ error: `AI tidak tersedia. (${lastError})` });
