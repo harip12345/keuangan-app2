@@ -222,7 +222,10 @@ async function handleAI(chatId, question, binding) {
     return sendMessage(chatId, 'Contoh: <code>/ai apa rekomendasi investasi untuk saya?</code>');
   }
   await sendMessage(chatId, '🤖 Menganalisis keuangan kamu (butuh beberapa detik)...');
-  const host = process.env.VERCEL_URL || 'finance-app-haripam.vercel.app';
+  const PROD_HOST = 'finance-app-haripam.vercel.app';
+// VERCEL_URL saat preview berisi "-git-..." (dilindungi Vercel → 401 Protected deployment),
+// jadi selalu gunakan domain produksi untuk self-call.
+const host = process.env.VERCEL_URL && !process.env.VERCEL_URL.includes('git-') ? process.env.VERCEL_URL : PROD_HOST;
   try {
     const konteks = await buildKonteks(binding.profileId);
     const resp = await fetch(`https://${host}/api/ai-chat`, {
