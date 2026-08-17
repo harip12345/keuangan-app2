@@ -228,12 +228,20 @@ async function handleAI(chatId, question, binding) {
 const host = process.env.VERCEL_URL && !process.env.VERCEL_URL.includes('git-') ? process.env.VERCEL_URL : PROD_HOST;
   try {
     const konteks = await buildKonteks(binding.profileId);
-    const resp = await fetch(`https://${host}/api/ai-chat`, {
+    let resp = await fetch(`https://${host}/api/ai-chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ history: [{ role: 'user', content: question }], konteks }),
       signal: AbortSignal.timeout(50000)
     });
+    if ((resp.status === 401 || resp.status === 403) && host !== PROD_HOST) {
+      resp = await fetch(`https://${PROD_HOST}/api/ai-chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ history: [{ role: 'user', content: question }], konteks }),
+        signal: AbortSignal.timeout(40000)
+      });
+    }
     const raw = await resp.text();
     let data = {};
     try { data = JSON.parse(raw); } catch { /* HTML/teks dari proxy */ }
