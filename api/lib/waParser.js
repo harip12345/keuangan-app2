@@ -16,7 +16,7 @@ export function ymdToCustom(ymdStr) {
 
 function isWord(c) { return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'); }
 
-function has(t, w) {
+export function has(t, w) {
   w = (w || '').trim();
   if (!w) return false;
   let i = t.indexOf(w);

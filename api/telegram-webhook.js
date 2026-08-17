@@ -5,10 +5,35 @@ import { getBindingByChat, getBindingByProfile, setBinding, removeBinding, getPe
 import { extractNota } from './lib/scanNota.js';
 import {
   ymdToCustom, parseAmount, parseDate, detectType, detectCategory, detectWallet,
-  isTransferSyntax, parseTransfer, cleanNote, formatRupiah
+  isTransferSyntax, parseTransfer, cleanNote, formatRupiah, has
 } from './lib/waParser.js';
 
 export const config = { maxDuration: 60 };
+
+// ── Routing maksud pesan: AI vs transaksi vs perintah ────────────────────────
+const QUESTION_WORDS = ['apa', 'berapa', 'bagaimana', 'gimana', 'kenapa', 'mengapa', 'kapan', 'siapa', 'apakah', 'bisakah', 'bolehkah', 'tolong', 'mohon', 'haruskah', 'sebaiknya', 'cara'];
+const AI_HINT_WORDS = ['audit', 'analisis', 'analisa', 'saran', 'rekomendasi', 'review', 'prediksi', 'proyeksi', 'evaluasi', 'strategi', 'tips', 'konsultasi', 'kesehatan', 'hemat', 'boros', 'ringkasan', 'rangkuman', 'diskusi', 'wawasan', 'rekeningku', 'keuanganku'];
+const WEB_HINT_WORDS = ['harga', 'kurs', 'ihsg', 'saham', 'emas', 'inflasi', 'suku bunga', 'bi rate', 'dolar', 'usd', 'rupiah', 'ekonomi', 'pasar', 'bursa', 'terbaru', 'terkini', 'reksa dana', 'obligasi', 'sbr', 'sukuk', 'kripto', 'bitcoin', 'forex', 'resesi', 'gdp', 'pdb', 'ojk', 'bank indonesia', 'deposito rate', 'bunga bank', 'berita', 'kondisi pasar', 'world bank', 'imf', 'oecd', 'adb', 'syariah', 'nber'];
+const TRANSACTION_VERBS = ['beli', 'bayar', 'makan', 'minum', 'ngopi', 'jajan', 'transfer', 'gaji', 'upah', 'bonus', 'topup', 'bensin', 'ojek', 'grab', 'parkir', 'kuota', 'pulsa', 'nabung', 'belanja', 'infak', 'sedekah', 'zakat', 'dapat', 'terima', 'dikasih', 'dikasi', 'cashback', 'refund', 'langganan', 'sewa', 'tagihan', 'tiket', 'kado', 'traktir', 'cicilan', 'nyicil', 'servis', 'laundry', 'donasi', 'shopping', 'skincare', 'makeup', 'sunscreen', 'saldo'];
+const GREETINGS = ['halo', 'hai', 'hi', 'hello', 'p', 'test', 'tes', 'oke', 'ok', 'sip', 'makasih', 'thanks', 'thx', 'terima kasih', 'bye', 'dadah', 'assalamualaikum', 'waalaikumsalam', 'pagi', 'siang', 'sore', 'malam'];
+
+export function routeIntent(text) {
+  const lower = text.toLowerCase().trim();
+  const first = lower.split(/\s+/)[0] || '';
+  if (first.startsWith('/')) return 'command';
+  const t = ' ' + lower + ' ';
+  if (GREETINGS.includes(first)) return 'greetings';
+  if (first === 'ai') return 'ai';
+  if (lower.endsWith('?') || lower.endsWith('？')) return 'ai';
+  if (QUESTION_WORDS.includes(first)) return 'ai';
+  if (AI_HINT_WORDS.some((w) => has(t, w))) return 'ai';
+  const { amount } = parseAmount(lower);
+  const hasVerb = TRANSACTION_VERBS.some((w) => has(t, w));
+  if (WEB_HINT_WORDS.some((w) => has(t, w)) && !(hasVerb && amount > 0)) return 'ai';
+  if (/\b(saldo|sisa uang|sisa saldo|uang saya|duit saya|saldo saya)\b/.test(t)) return 'saldo';
+  if (amount > 0 || hasVerb) return 'transaksi';
+  return 'ai';
+}
 
 function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -343,7 +368,11 @@ async function handleCommand(chatId, text, binding) {
     await removeBinding(chatId);
     return sendMessage(chatId, '🔌 Koneksi diputus. Chat ini tidak lagi terikat ke profil mana pun.');
   }
-  if (cmd === '/saldo' || cmd === 'saldo' || cmd === 'cek' || cmd === 'cek saldo' || lower === 'cek saldo') {
+  if (cmd === '/ai' || cmd === 'ai' || (cmd === 'cek' && arg)) {
+    if (!binding) return sendMessage(chatId, '⚠️ Chat ini belum terhubung ke profil mana pun.');
+    return handleAI(chatId, arg || text, binding);
+  }
+  if (cmd === '/saldo' || cmd === 'saldo' || (cmd === 'cek' && (!arg || arg === 'saldo'))) {
     const sum = await getSummary(binding.profileId);
     const wsEntries = Object.entries(sum.perWallet).sort((a, b) => b[1] - a[1]);
     return sendMessage(chatId, summaryText(sum, wsEntries));
@@ -397,16 +426,24 @@ export default async function handler(req, res) {
 
     if (!text) return res.status(200).end();
 
-    const first = text.toLowerCase().split(/\s+/)[0];
-    const isCmd = first.startsWith('/') || ['link', 'help', 'bantuan', 'menu', 'panduan', 'saldo', 'cek', 'riwayat', 'history', 'mutasi', 'status', 'unbind', 'putus', 'start', 'ai'].includes(first);
-    if (isCmd) {
+    const intent = routeIntent(text);
+    if (intent === 'command') {
       await handleCommand(chatId, text, binding);
+    } else if (intent === 'greetings') {
+      const suffix = binding
+        ? `\n\nKetik <code>help</code> untuk cara pakai.`
+        : '\n\nChat belum terhubung — buka app → Pengaturan → <b>Hubungkan Bot</b>.';
+      await sendMessage(chatId, 'Halo! 👋 ' + suffix);
+    } else if (!binding) {
+      await sendMessage(chatId, '⚠️ Chat ini belum terhubung ke profil mana pun.\n\nBuka app → Pengaturan → <b>Hubungkan Bot</b>, lalu kirim kodenya dengan: <code>link 123456</code>');
+    } else if (intent === 'ai') {
+      await handleAI(chatId, text, binding);
+    } else if (intent === 'saldo') {
+      const sum = await getSummary(binding.profileId);
+      const wsEntries = Object.entries(sum.perWallet).sort((a, b) => b[1] - a[1]);
+      await sendMessage(chatId, summaryText(sum, wsEntries));
     } else {
-      if (!binding) {
-        await sendMessage(chatId, '⚠️ Chat ini belum terhubung ke profil mana pun.\n\nBuka app → Pengaturan → <b>Hubungkan Bot</b>, lalu kirim kodenya dengan: <code>link 123456</code>');
-      } else {
-        await handleTransaction(chatId, text, binding);
-      }
+      await handleTransaction(chatId, text, binding);
     }
   } catch (err) {
     console.error('telegram-webhook error:', err);
