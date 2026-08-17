@@ -1,3 +1,5 @@
+export const config = { maxDuration: 60 };
+
 const GROQ_MODELS = [
   'llama-3.3-70b-versatile',                   // Model Utama
   'meta-llama/llama-4-scout-17b-16e-instruct', // Fallback 1: Llama 4 generasi terbaru (sangat canggih)
@@ -42,10 +44,11 @@ async function tavilySearch(query, apiKey) {
     body: JSON.stringify({
       api_key: apiKey,
       query: query + ' ekonomi Indonesia investasi',
-      max_results: 4,
+      max_results: 3,
       include_domains: TRUSTED_DOMAINS,
       search_depth: 'basic'
-    })
+    }),
+    signal: AbortSignal.timeout(8000)
   });
   if (!resp.ok) return [];
   const data = await resp.json();
@@ -60,7 +63,7 @@ async function jinaFetch(url) {
   try {
     const resp = await fetch('https://r.jina.ai/' + url, {
       headers: { 'Accept': 'text/plain', 'X-Return-Format': 'text' },
-      signal: AbortSignal.timeout(5000)
+      signal: AbortSignal.timeout(4000)
     });
     if (!resp.ok) return '';
     const text = await resp.text();
@@ -139,7 +142,8 @@ Format: Bahasa Indonesia profesional, tajam, tegas, mendetail, spesifik pembahas
         const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: 650 })
+          body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: 650 }),
+          signal: AbortSignal.timeout(i === GROQ_MODELS.length - 1 ? 20000 : 14000)
         });
 
         // ── PERBAIKAN DI SINI: Menambahkan resp.status === 400 ────────────

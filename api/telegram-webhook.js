@@ -228,16 +228,27 @@ async function handleAI(chatId, question, binding) {
     const resp = await fetch(`https://${host}/api/ai-chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ history: [{ role: 'user', content: question }], konteks })
+      body: JSON.stringify({ history: [{ role: 'user', content: question }], konteks }),
+      signal: AbortSignal.timeout(50000)
     });
-    const data = await resp.json();
-    if (!resp.ok) throw new Error(data.error || ('HTTP ' + resp.status));
+    const raw = await resp.text();
+    let data = {};
+    try { data = JSON.parse(raw); } catch { /* HTML/teks dari proxy */ }
+    if (!resp.ok) {
+      const msg = typeof data.error === 'string' ? data.error
+        : data && data.error ? JSON.stringify(data.error)
+        : ('HTTP ' + resp.status + ' — ' + String(raw).slice(0, 80));
+      throw new Error(msg);
+    }
     const reply = (data.reply || '').trim();
     if (!reply) throw new Error('AI tidak memberikan jawaban');
     return sendMessage(chatId, reply, false);
   } catch (err) {
     console.error('handleAI error:', err.message);
-    return sendMessage(chatId, '❌ AI gagal: ' + escapeHtml(err.message) + '\n\n(Periksa GROQ_API_KEY / TAVILY_API_KEY di Vercel)');
+    const friendly = err.name === 'AbortError' || /Timeout/i.test(err.message)
+      ? 'AI terlalu lama merespons (batas waktu 60 detik). Coba lagi sebentar lagi.'
+      : typeof err.message === 'string' ? err.message : 'Kesalahan tak dikenal.';
+    return sendMessage(chatId, '❌ AI gagal: ' + escapeHtml(friendly) + '\n\n(Periksa GROQ_API_KEY / TAVILY_API_KEY di Vercel)');
   }
 }
 
