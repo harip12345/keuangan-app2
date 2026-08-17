@@ -3,8 +3,27 @@ export const config = { maxDuration: 60 };
 const GROQ_MODELS = [
   'llama-3.3-70b-versatile',                   // Model Utama
   'meta-llama/llama-4-scout-17b-16e-instruct', // Fallback 1: Llama 4 generasi terbaru (sangat canggih)
-  'llama-3.1-8b-instant'                       // Fallback 2: Versi ringan, cepat, dan stabil
+  'llama-3.1-8b-instant',                      // Fallback 2: Versi ringan, cepat, dan stabil
+  'qwen/qwen3-32b',                            // Fallback 3: Qwen 3 (kuat & cepat)
+  'openai/gpt-oss-20b'                         // Fallback 4: GPT-OSS 20B
 ];
+
+async function pickModels(apiKey) {
+  try {
+    const r = await fetch('https://api.groq.com/openai/v1/models', {
+      headers: { Authorization: 'Bearer ' + apiKey },
+      signal: AbortSignal.timeout(8000)
+    });
+    if (!r.ok) return null;
+    const d = await r.json();
+    const avail = new Set((d.data || []).map((m) => m.id));
+    const hit = GROQ_MODELS.filter((id) => avail.has(id));
+    return hit.length ? hit : null;
+  } catch (e) {
+    console.warn('pickModels gagal:', e.message);
+    return null;
+  }
+}
 
 const WEB_TRIGGERS = [
   'harga','kurs','ihsg','saham','emas','inflasi','suku bunga','bi rate',
@@ -137,14 +156,17 @@ Format: Bahasa Indonesia profesional, tajam, tegas, mendetail, spesifik pembahas
 
     const messages = [{ role: 'system', content: systemPrompt }, ...history];
     let lastError = '';
+    const models = (await pickModels(groqKey)) || GROQ_MODELS;
+    const attempts = models.slice(0, 3);
 
-    for (const model of GROQ_MODELS) {
+    for (let idx = 0; idx < attempts.length; idx++) {
+      const model = attempts[idx];
       try {
         const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: 650 }),
-          signal: AbortSignal.timeout(model === GROQ_MODELS[GROQ_MODELS.length - 1] ? 20000 : 14000)
+          signal: AbortSignal.timeout(idx === attempts.length - 1 ? 20000 : 14000)
         });
 
         // ── PERBAIKAN DI SINI: Menambahkan resp.status === 400 ────────────
