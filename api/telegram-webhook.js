@@ -27,8 +27,10 @@ async function tgApi(method, params = {}) {
   return data.result;
 }
 
-async function sendMessage(chatId, text) {
-  return tgApi('sendMessage', { chat_id: chatId, text, parse_mode: 'HTML', disable_web_page_preview: true });
+async function sendMessage(chatId, text, useHtml = true) {
+  const params = { chat_id: chatId, text, disable_web_page_preview: true };
+  if (useHtml) params.parse_mode = 'HTML';
+  return tgApi('sendMessage', params);
 }
 
 const HELP_TEXT = `📋 <b>Cara Pakai Bot</b>
@@ -42,6 +44,7 @@ Kirim pesan singkat, contoh:
 • Foto nota/struk → otomatis discan & dicatat
 
 Perintah lain:
+• <code>/ai pertanyaan</code> — tanya asisten AI (bisa cari data terkini di web)
 • <code>saldo</code> — ringkasan keuangan
 • <code>riwayat</code> — 10 transaksi terakhir
 • <code>status</code> — profil yang terhubung
@@ -123,6 +126,94 @@ function summaryText(sum, wsEntries) {
     lines.push('Belum ada transaksi tercatat.');
   }
   return lines.join('\n');
+}
+
+const MONTH_NUM = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, Mei: 5, Jun: 6, Jul: 7, Agt: 8, Sep: 9, Okt: 10, Nov: 11, Des: 12 };
+
+// Ringkasan keuangan profil — dikirim sebagai konteks ke asisten AI (mirip buatRingkasanKeuangan di app).
+async function buildKonteks(profileId) {
+  const base = getDb().collection(BOT_COLLECTION).doc(profileId);
+  const [trxSnap, savSnap, goalSnap] = await Promise.all([
+    base.collection('transactions').get(),
+    base.collection('savings').get(),
+    base.collection('goals').get()
+  ]);
+  const trx = trxSnap.docs.map((d) => d.data());
+  const sav = savSnap.docs.map((d) => d.data());
+  const goals = goalSnap.docs.map((d) => d.data());
+
+  const now = new Date();
+  const nowKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  const monthKey = (t) => {
+    const p = (t.date || '').split(' ');
+    if (p.length !== 3) return null;
+    const m = MONTH_NUM[p[1]];
+    if (!m) return null;
+    return p[2] + '-' + String(m).padStart(2, '0');
+  };
+
+  let inc = 0, exp = 0;
+  const walletBal = {};
+  const catExp = {};
+  for (const t of trx) {
+    if (t.type === 'transfer' || t.category === 'Transfer Mutasi') continue;
+    if (monthKey(t) !== nowKey) continue;
+    const amt = Number(t.amount) || 0;
+    const w = t.wallet || 'Tunai';
+    if (t.type === 'income') {
+      inc += amt;
+      walletBal[w] = (walletBal[w] || 0) + amt;
+    } else {
+      exp += amt;
+      walletBal[w] = (walletBal[w] || 0) - amt;
+      const c = t.category || 'Lainnya';
+      catExp[c] = (catExp[c] || 0) + amt;
+    }
+  }
+  const surplus = inc - exp;
+  const savingRate = inc > 0 ? ((surplus / inc) * 100).toFixed(1) + '%' : '0%';
+  const totalTab = sav.filter((s) => s.type === 'savings' || !s.type).reduce((a, s) => a + (Number(s.amount) || 0), 0);
+  const totalInv = sav.filter((s) => s.type === 'investment').reduce((a, s) => a + (Number(s.amount) || 0), 0);
+  const totalFis = sav.filter((s) => s.type === 'tangible').reduce((a, s) => a + (Number(s.amount) || 0), 0);
+  const totalKas = Object.values(walletBal).filter((v) => v > 0).reduce((a, b) => a + b, 0);
+  const topCat = Object.entries(catExp).sort((a, b) => b[1] - a[1]).slice(0, 5)
+    .map(([c, v]) => `${c}: Rp${Number(v).toLocaleString('id-ID')}`);
+
+  const lines = [
+    `Konteks keuangan klien (bulan berjalan ${nowKey}):`,
+    `Pemasukan: Rp${inc.toLocaleString('id-ID')}; Pengeluaran: Rp${exp.toLocaleString('id-ID')}; Surplus/Defisit: Rp${surplus.toLocaleString('id-ID')}; Saving rate: ${savingRate}`,
+    `Saldo per wallet: ${Object.entries(walletBal).filter(([, v]) => v !== 0).map(([w, v]) => `${w} Rp${v.toLocaleString('id-ID')}`).join('; ') || '-'}`,
+    `Top kategori pengeluaran bulan ini: ${topCat.join('; ') || '-'}`,
+    `Tabungan: Rp${totalTab.toLocaleString('id-ID')}; Investasi: Rp${totalInv.toLocaleString('id-ID')}; Aset fisik: Rp${totalFis.toLocaleString('id-ID')}; Kas: Rp${totalKas.toLocaleString('id-ID')}`,
+    goals.length > 0
+      ? 'Goals: ' + goals.map((g) => `${g.name || '?'}: Rp${(Number(g.saved) || 0).toLocaleString('id-ID')}/${g.target ? 'Rp' + Number(g.target).toLocaleString('id-ID') : '?'}`).join('; ')
+      : 'Belum ada goals.'
+  ];
+  return lines.join('\n');
+}
+
+async function handleAI(chatId, question, binding) {
+  if (!question || !question.trim()) {
+    return sendMessage(chatId, 'Contoh: <code>/ai apa rekomendasi investasi untuk saya?</code>');
+  }
+  await sendMessage(chatId, '🤖 Menganalisis keuangan kamu (butuh beberapa detik)...');
+  const host = process.env.VERCEL_URL || 'finance-app-haripam.vercel.app';
+  try {
+    const konteks = await buildKonteks(binding.profileId);
+    const resp = await fetch(`https://${host}/api/ai-chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ history: [{ role: 'user', content: question }], konteks })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || ('HTTP ' + resp.status));
+    const reply = (data.reply || '').trim();
+    if (!reply) throw new Error('AI tidak memberikan jawaban');
+    return sendMessage(chatId, reply, false);
+  } catch (err) {
+    console.error('handleAI error:', err.message);
+    return sendMessage(chatId, '❌ AI gagal: ' + escapeHtml(err.message) + '\n\n(Periksa GROQ_API_KEY / TAVILY_API_KEY di Vercel)');
+  }
 }
 
 async function handlePhoto(msg, chatId, binding) {
@@ -233,8 +324,12 @@ async function handleCommand(chatId, text, binding) {
   if (cmd === '/link' || cmd === 'link') {
     return handleBind(chatId, arg, 'User');
   }
-  if (['/help', 'help', '/bantuan', 'bantuan', 'menu', '/menu', 'panduan', '/panduan'].includes(cmd)) {
+  if (cmd === '/help' || cmd === 'help' || cmd === '/bantuan' || cmd === 'bantuan' || cmd === 'menu' || cmd === '/menu' || cmd === 'panduan' || cmd === '/panduan') {
     return sendMessage(chatId, (binding ? `Profil: <b>${escapeHtml(binding.name)}</b>\n\n` : '') + HELP_TEXT);
+  }
+  if (cmd === '/ai' || cmd === 'ai') {
+    if (!binding) return sendMessage(chatId, '⚠️ Chat ini belum terhubung ke profil mana pun.');
+    return handleAI(chatId, arg, binding);
   }
 
   if (!binding) {
@@ -303,7 +398,7 @@ export default async function handler(req, res) {
     if (!text) return res.status(200).end();
 
     const first = text.toLowerCase().split(/\s+/)[0];
-    const isCmd = first.startsWith('/') || ['link', 'help', 'bantuan', 'menu', 'panduan', 'saldo', 'cek', 'riwayat', 'history', 'mutasi', 'status', 'unbind', 'putus', 'start'].includes(first);
+    const isCmd = first.startsWith('/') || ['link', 'help', 'bantuan', 'menu', 'panduan', 'saldo', 'cek', 'riwayat', 'history', 'mutasi', 'status', 'unbind', 'putus', 'start', 'ai'].includes(first);
     if (isCmd) {
       await handleCommand(chatId, text, binding);
     } else {
