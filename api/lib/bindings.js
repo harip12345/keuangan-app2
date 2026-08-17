@@ -1,7 +1,7 @@
 import { getDb, BOT_COLLECTION } from './firebaseAdmin.js';
 
 const BINDINGS_DOC = 'bot_bindings';
-const PENDING_COLLECTION = 'bot_pending';
+const PENDING_COLLECTION = 'pending_codes';
 const CODE_TTL_MS = 10 * 60 * 1000;
 
 export async function getBindings() {
@@ -48,7 +48,7 @@ export async function removeBindingByProfile(profileId) {
 
 export async function createPending(profileId, name) {
   const db = getDb();
-  const col = db.collection(BOT_COLLECTION).collection(PENDING_COLLECTION);
+  const col = db.collection(PENDING_COLLECTION);
   let code = '';
   for (let i = 0; i < 10; i++) {
     code = String(Math.floor(100000 + Math.random() * 900000));
@@ -62,11 +62,11 @@ export async function createPending(profileId, name) {
 
 export async function getPending(code) {
   if (!code) return null;
-  const doc = await getDb().collection(BOT_COLLECTION).collection(PENDING_COLLECTION).doc(String(code)).get();
+  const doc = await getDb().collection(PENDING_COLLECTION).doc(String(code)).get();
   return doc.exists ? doc.data() : null;
 }
 
 export async function deletePending(code) {
   if (!code) return;
-  await getDb().collection(BOT_COLLECTION).collection(PENDING_COLLECTION).doc(String(code)).delete().catch(() => {});
+  await getDb().collection(PENDING_COLLECTION).doc(String(code)).delete().catch(() => {});
 }
