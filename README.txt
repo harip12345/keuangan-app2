@@ -51,7 +51,8 @@ FITUR BOT TELEGRAM (input transaksi via chat)
    plus foto nota untuk scan otomatis.
 
 Struktur file baru:
-- api/_lib/            (firebaseAdmin, bindings, waParser, scanNota)
+- api/lib/             (firebaseAdmin, bindings, waParser, scanNota — tanpa underscore
+                        karena Vercel mengabaikan folder berawalan "_")
 - api/gen-link.js      (kode pairing / status / putus koneksi)
 - api/telegram-webhook.js (otak bot)
 - api/telegram-register-webhook.js

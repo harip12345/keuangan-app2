@@ -3,8 +3,8 @@
 // - action "status" : cek apakah profileId sudah terikat ke chat bot
 // - action "unbind" : butuh idToken → lepas ikatan profileId dari bot
 import { getAuth } from 'firebase-admin/auth';
-import { getDb } from './_lib/firebaseAdmin.js';
-import { createPending, getBindingByProfile, removeBindingByProfile } from './_lib/bindings.js';
+import { getDb } from './lib/firebaseAdmin.js';
+import { createPending, getBindingByProfile, removeBindingByProfile } from './lib/bindings.js';
 
 async function tgGetMe() {
   const token = process.env.TELEGRAM_BOT_TOKEN;

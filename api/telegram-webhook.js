@@ -1,12 +1,12 @@
 // Webhook bot Telegram — menerima pesan masuk, mengikat chat ke profil, mencatat transaksi
 // (teks bebas / foto nota), dan membalas konfirmasi otomatis.
-import { getDb, BOT_COLLECTION, FieldValue } from './_lib/firebaseAdmin.js';
-import { getBindingByChat, getBindingByProfile, setBinding, removeBinding, getPending, deletePending } from './_lib/bindings.js';
-import { extractNota } from './_lib/scanNota.js';
+import { getDb, BOT_COLLECTION, FieldValue } from './lib/firebaseAdmin.js';
+import { getBindingByChat, getBindingByProfile, setBinding, removeBinding, getPending, deletePending } from './lib/bindings.js';
+import { extractNota } from './lib/scanNota.js';
 import {
   ymdToCustom, parseAmount, parseDate, detectType, detectCategory, detectWallet,
   isTransferSyntax, parseTransfer, cleanNote, formatRupiah
-} from './_lib/waParser.js';
+} from './lib/waParser.js';
 
 export const config = { maxDuration: 60 };
 
