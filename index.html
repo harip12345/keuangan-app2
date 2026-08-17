@@ -2067,7 +2067,7 @@
                     style="flex:1;overflow-y:auto;overflow-x:hidden;padding:0 1rem .5rem;display:flex;flex-direction:column;gap:10px;min-height:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;">
                     <div class="ai-bubble ai-bubble-bot">
                         <div class="ai-avatar">🤖</div>
-                        <div class="ai-bubble-content">Halo! Saya <strong>Asisten AI Cerdas</strong> Anda 🤖<br>Tanya apapun tentang keuangan — analisis, saran hemat, atau prediksi pengeluaran!<br><br><span style="font-size:.76rem;opacity:.7;">💡 Ketuk pesan untuk opsi hapus</span></div>
+                        <div class="ai-bubble-content">Halo! Saya <strong>Asisten AI Cerdas</strong> Anda 🤖<br>Tanya apapun tentang keuangan — analisis, saran hemat, atau prediksi pengeluaran!<br><br><span style="font-size:.76rem;opacity:.7;">💡 Riwayat hanya tersimpan bila kamu pilih "Simpan" saat menutup chat</span></div>
                     </div>
                 </div>
                 <!-- Input area: flex-shrink:0 agar tidak tertekan keyboard -->
@@ -2086,6 +2086,20 @@
             </div>
         </div>
         <!-- ===== /MODAL ASISTEN AI CERDAS ===== -->
+
+        <!-- ===== OPSI SIMPAN/HAPUS RIWAYAT AI (muncul saat chat ditutup) ===== -->
+        <div id="aiClosePrompt" class="modal-overlay">
+            <div class="modal-card" style="text-align:center;">
+                <div class="modal-header" style="justify-content:center;margin-bottom:.5rem;">
+                    <h3 class="modal-title">🤖 Riwayat Chat AI</h3>
+                </div>
+                <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1.5rem;">Chat tidak disimpan otomatis. Simpan riwayat ke cloud, atau hapus?</p>
+                <button class="btn-submit" style="width:100%;margin-bottom:.75rem;background:var(--warning-bg);color:var(--warning-text);border:1px solid #FECACA;box-shadow:none;" onclick="finishAiClose('delete')">🗑 Hapus Riwayat</button>
+                <button class="btn-submit" style="width:100%;margin-bottom:.75rem;background:var(--surface-color);color:var(--text-main);border:1px solid var(--border);box-shadow:none;" onclick="finishAiClose('save')">💾 Simpan Riwayat</button>
+                <button class="btn-submit" style="width:100%;background:var(--primary);" onclick="cancelAiClose()">← Lanjut Chat</button>
+            </div>
+        </div>
+        <!-- ===== /OPSI SIMPAN/HAPUS RIWAYAT AI ===== -->
 
     <!-- MAIN SCRIPT -->
     <script>
@@ -5397,6 +5411,7 @@
         var aiModalOpen   = false;
         var aiMsgData     = [];
         var aiDeletePopupTarget = null;
+        var aiDirty       = false;
 
         function toggleAiModal() {
             var modal    = document.getElementById('aiModal');
@@ -5421,15 +5436,86 @@
                     adjustDrawerForKeyboard();
                 }, 350);
             } else {
-                aiModalOpen = false;
-                backdrop.style.opacity = '0';
-                backdrop.style.pointerEvents = 'none';
-                drawer.style.transform = 'translateY(100%)';
-                setTimeout(function() {
-                    modal.style.display = 'none';
-                    modal.style.pointerEvents = 'none';
-                }, 320);
-                closeDeletePopup();
+                // Saat ditutup: kalau ada chat baru yang belum disimpan, tanya dulu (hapus = default)
+                if (aiDirty && aiChatHistory.length > 0) {
+                    showAiClosePrompt();
+                    return;
+                }
+                performAiClose();
+            }
+        }
+
+        function performAiClose() {
+            var modal    = document.getElementById('aiModal');
+            var drawer   = document.getElementById('aiModalDrawer');
+            var backdrop = document.getElementById('aiModalBackdrop');
+            if (!modal) return;
+            aiModalOpen = false;
+            backdrop.style.opacity = '0';
+            backdrop.style.pointerEvents = 'none';
+            drawer.style.transform = 'translateY(100%)';
+            setTimeout(function() {
+                modal.style.display = 'none';
+                modal.style.pointerEvents = 'none';
+            }, 320);
+            closeDeletePopup();
+            aiDirty = false;
+        }
+
+        function showAiClosePrompt() {
+            var p = document.getElementById('aiClosePrompt');
+            if (p) p.classList.add('show');
+        }
+
+        function cancelAiClose() {
+            var p = document.getElementById('aiClosePrompt');
+            if (p) p.classList.remove('show');
+        }
+
+        function finishAiClose(action) {
+            if (action === 'save') {
+                saveAiHistory();
+            } else {
+                clearAiHistory();
+            }
+            cancelAiClose();
+            performAiClose();
+        }
+
+        function saveAiHistory() {
+            if (!currentProfileId || !db) return;
+            var msgs = [];
+            for (var i = 0; i < aiChatHistory.length; i++) {
+                var m = aiChatHistory[i];
+                msgs.push({ role: m.role === 'assistant' ? 'bot' : 'user', text: m.content });
+            }
+            if (msgs.length === 0) return;
+            Promise.all(msgs.map(function(m) {
+                return db.collection(DB_COLLECTION).doc(currentProfileId)
+                  .collection('ai_chat').add(Object.assign({}, m, { ts: firebase.firestore.FieldValue.serverTimestamp() }));
+            })).then(function() {
+                aiMsgData = msgs.map(function(m) { return { id: null, role: m.role, text: m.text }; });
+                showToast("Riwayat AI disimpan 📥");
+            }).catch(function(e) { console.warn('saveAiHistory:', e); showToast("Gagal menyimpan riwayat"); });
+        }
+
+        function clearAiHistory() {
+            aiChatHistory = [];
+            aiMsgData = [];
+            var container = document.getElementById('aiChatMessages');
+            if (container) {
+                while (container.children.length > 1) container.removeChild(container.lastChild);
+            }
+            if (currentProfileId && db) {
+                db.collection(DB_COLLECTION).doc(currentProfileId)
+                  .collection('ai_chat').get().then(function(snap) {
+                    var batch = db.batch();
+                    snap.forEach(function(doc) { batch.delete(doc.ref); });
+                    return batch.commit();
+                  }).then(function() { showToast("Riwayat AI dihapus 🗑"); })
+                  .catch(function(e) { console.warn('clearAiHistory:', e); showToast("Gagal hapus riwayat"); });
+            } else {
+                showToast("Riwayat AI dihapus 🗑");
             }
         }
 
@@ -5830,10 +5916,9 @@
             var qp = document.getElementById('quickPrompts');
             if (qp) qp.style.display = 'none';
 
-            // Simpan & render pesan user
-            var userDocId = null;
-            try { var uRef = await saveAiMsg('user', userText); if (uRef) userDocId = uRef.id; } catch(e){}
-            appendBubble('user', userText, false, userDocId);
+            // Render pesan user (tidak disimpan otomatis — hanya bila dipilih "Simpan" saat menutup chat)
+            aiDirty = true;
+            appendBubble('user', userText, false, null);
             aiChatHistory.push({ role:'user', content: userText });
             if (aiChatHistory.length > 14) aiChatHistory = aiChatHistory.slice(-14);
 
@@ -5852,11 +5937,9 @@
                 var data = await resp.json();
                 var replyText = data.reply || 'Maaf, tidak ada respons.';
 
-                // Simpan & render balasan AI
-                var botDocId = null;
-                try { var bRef = await saveAiMsg('bot', replyText); if (bRef) botDocId = bRef.id; } catch(e){}
+                // Render balasan AI (tidak disimpan otomatis)
                 if (typingBubble && typingBubble.parentNode) typingBubble.remove();
-                appendBubble('bot', replyText, false, botDocId);
+                appendBubble('bot', replyText, false, null);
                 aiChatHistory.push({ role:'assistant', content: replyText });
 
             } catch(err) {
