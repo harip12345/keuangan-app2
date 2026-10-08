@@ -1,9 +1,12 @@
 Ikon Finance App by Haripam - untuk di-deploy ke Vercel
 =======================================================
 
-Letakkan SEMUA file ini di ROOT project Vercel (folder yang sama dengan index.html):
+Letakkan SEMUA file ini di ROOT project Vercel:
 
-  index.html
+  index.html             (landing page)
+  landing.css            (gaya landing page)
+  landing.js             (interaksi landing page)
+  app.html               (aplikasi keuangan)
   manifest.webmanifest
   icon.svg
   icon-192.png
@@ -12,7 +15,7 @@ Letakkan SEMUA file ini di ROOT project Vercel (folder yang sama dengan index.ht
   apple-touch-icon.png
   favicon-32.png   (opsional)
 
-index.html sudah otomatis menautkan:
+app.html sudah otomatis menautkan:
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
@@ -20,6 +23,8 @@ Cara pakai di HP:
 - Android (Chrome): buka situs -> menu -> "Add to Home screen" / "Install app".
 - iPhone (Safari): buka situs -> Share -> "Add to Home Screen".
   (iOS memakai apple-touch-icon.png 180x180.)
+  Buka /app.html terlebih dahulu agar shortcut menuju aplikasi. Manifest PWA
+  juga memakai /app.html sebagai start_url.
 
 Catatan: ikon home screen butuh diakses lewat HTTPS (domain Vercel), bukan file lokal.
 

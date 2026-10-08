@@ -2,7 +2,7 @@
   "name": "Finance App by Haripam",
   "short_name": "Finance App",
   "description": "Kelola Keuangan Jadi Lebih Mudah",
-  "start_url": "/",
+  "start_url": "/app.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
