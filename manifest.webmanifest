@@ -1,6 +1,6 @@
 {
-  "name": "Finance App by Haripam",
-  "short_name": "Finance App",
+  "name": "MyFinanceApp",
+  "short_name": "MyFinanceApp",
   "description": "Kelola Keuangan Jadi Lebih Mudah",
   "start_url": "/app.html",
   "scope": "/",
@@ -10,25 +10,25 @@
   "theme_color": "#4F46E5",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "/icon.svg?v=20261008",
       "type": "image/svg+xml",
       "sizes": "any",
       "purpose": "any"
     },
     {
-      "src": "/icon-192.png",
+      "src": "/icon-192.png?v=20261008",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/icon-512.png?v=20261008",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any"
     },
     {
-      "src": "/icon-maskable-512.png",
+      "src": "/icon-maskable-512.png?v=20261008",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "maskable"

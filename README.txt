@@ -1,4 +1,4 @@
-Ikon Finance App by Haripam - untuk di-deploy ke Vercel
+Ikon MyFinanceApp - untuk di-deploy ke Vercel
 =======================================================
 
 Letakkan SEMUA file ini di ROOT project Vercel:

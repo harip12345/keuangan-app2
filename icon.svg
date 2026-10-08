@@ -1,1 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Finance App by Haripam"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4F46E5"/><stop offset="100%" stop-color="#10B981"/></linearGradient></defs><rect width="24" height="24" rx="5" fill="url(#g)"/><path d="M7 6v12h2.5v-4.5h5V18H17V6h-2.5v4.5h-5V6H7z" fill="#ffffff"/><path d="M10 14l3-3 3 3" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-label="MyFinanceApp">
+  <defs><linearGradient id="brand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#645CEA"/><stop offset="1" stop-color="#3E31C5"/></linearGradient></defs>
+  <rect width="40" height="40" rx="11" fill="url(#brand)"/>
+  <g transform="translate(5.15 5.15) scale(.9286)">
+    <path d="M6 23V9h4.3l5.7 8.1L21.7 9H26v14h-4.5v-7.3L16 23l-5.5-7.3V23H6Z" fill="#fff"/>
+    <path d="m21 7 3.6-3 2.4 3" fill="none" stroke="#91F4C0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

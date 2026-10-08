@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finance App by Haripam</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%234F46E5' /><stop offset='100%' stop-color='%2310B981' /></linearGradient></defs><rect width='24' height='24' rx='5' fill='url(%23grad)'/><path d='M7 6v12h2.5v-4.5h5V18H17V6h-2.5v4.5h-5V6H7z' fill='white'/><path d='M10 14l3-3 3 3' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>" type="image/svg+xml">
+    <title>MyFinanceApp</title>
+    <link rel="icon" href="/icon.svg?v=20261008" type="image/svg+xml">
     
     <!-- PWA / Ikon Layar Utama (Add to Home Screen) -->
     <meta name="theme-color" content="#4F46E5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Finance App">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="apple-mobile-web-app-title" content="MyFinanceApp">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20261008">
+    <link rel="manifest" href="/manifest.webmanifest?v=20261008">
     <link rel="dns-prefetch" href="https://www.gstatic.com">
     <link rel="dns-prefetch" href="https://firestore.googleapis.com">
     <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com">
@@ -113,7 +113,7 @@
             box-shadow: 0 18px 40px rgba(0,0,0,0.25);
             animation: pulseLogo 1.8s ease-in-out infinite;
         }
-        .app-splash-logo svg { width: 100%; height: 100%; display: block; }
+        .app-splash-logo img { width: 100%; height: 100%; display: block; }
         .app-splash-title { font-family: 'Poppins', sans-serif; color: #fff; font-weight: 800; font-size: 1.15rem; letter-spacing: 0.3px; text-shadow: 0 2px 10px rgba(0,0,0,0.18); }
         .app-splash-spinner { width: 26px; height: 26px; border: 3px solid rgba(255,255,255,0.45); border-top-color: #fff; border-radius: 50%; animation: splashSpin 0.8s linear infinite; }
         @keyframes splashSpin { to { transform: rotate(360deg); } }
@@ -174,9 +174,10 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.08); 
         }
         body.dark-mode .login-logo { background: #1E293B; }
-        /* Samakan logo login dengan logo tab (kotak gradient) */
+        /* Samakan logo login dengan logo landing page dan tab */
         .login-logo { background: transparent; overflow: hidden; box-shadow: 0 10px 24px rgba(79,70,229,0.30); }
         body.dark-mode .login-logo { background: transparent; box-shadow: 0 10px 24px rgba(0,0,0,0.35); }
+        .login-logo img { width: 100%; height: 100%; display: block; }
         
         .login-title { font-family: 'Poppins', sans-serif; font-size: 1.4rem; font-weight: 800; color: #111827; line-height: 1.2; text-align: center;}
         body.dark-mode .login-title { color: #F8FAFC; }
@@ -930,15 +931,8 @@
 <body>
     <!-- ================= SPLASH SCREEN ================= -->
     <div id="appSplash" class="app-splash">
-        <div class="app-splash-logo">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Finance App by Haripam">
-                <defs><linearGradient id="gradSplash" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4F46E5"/><stop offset="100%" stop-color="#10B981"/></linearGradient></defs>
-                <rect width="24" height="24" rx="5" fill="url(#gradSplash)"/>
-                <path d="M7 6v12h2.5v-4.5h5V18H17V6h-2.5v4.5h-5V6H7z" fill="#ffffff"/>
-                <path d="M10 14l3-3 3 3" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            </svg>
-        </div>
-        <div class="app-splash-title">Finance App by Haripam</div>
+        <div class="app-splash-logo"><img src="/icon.svg?v=20261008" alt="" width="104" height="104"></div>
+        <div class="app-splash-title">MyFinanceApp</div>
         <div class="app-splash-spinner"></div>
     </div>
     <script>
@@ -962,17 +956,12 @@
     <div id="loginScreen" class="login-container">
         <div class="login-card">
             
-            <!-- Logo Custom: Huruf H abstrak dengan aksen panah hijau (seperti di gambar) -->
+            <!-- Logo yang sama dengan landing page dan ikon PWA -->
             <div class="login-logo">
-                <svg viewBox="0 0 24 24" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Finance App by Haripam">
-                    <defs><linearGradient id="gradLogin" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4F46E5"/><stop offset="100%" stop-color="#10B981"/></linearGradient></defs>
-                    <rect width="24" height="24" rx="5" fill="url(#gradLogin)"/>
-                    <path d="M7 6v12h2.5v-4.5h5V18H17V6h-2.5v4.5h-5V6H7z" fill="#ffffff"/>
-                    <path d="M10 14l3-3 3 3" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                </svg>
+                <img src="/icon.svg?v=20261008" alt="" width="68" height="68">
             </div>
             
-            <h1 class="login-title">Finance App by Haripam</h1>
+            <h1 class="login-title">MyFinanceApp</h1>
             <p class="login-subtitle">Kelola Keuangan Jadi Lebih Mudah</p>
 
             <!-- Segmented Control Tab -->
