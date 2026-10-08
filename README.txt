@@ -7,6 +7,7 @@ Letakkan SEMUA file ini di ROOT project Vercel:
   landing.css            (gaya landing page)
   landing.js             (interaksi landing page)
   app.html               (aplikasi keuangan)
+  vercel.json            (URL bersih: /app tanpa .html)
   manifest.webmanifest
   icon.svg
   icon-192.png
@@ -23,8 +24,9 @@ Cara pakai di HP:
 - Android (Chrome): buka situs -> menu -> "Add to Home screen" / "Install app".
 - iPhone (Safari): buka situs -> Share -> "Add to Home Screen".
   (iOS memakai apple-touch-icon.png 180x180.)
-  Buka /app.html terlebih dahulu agar shortcut menuju aplikasi. Manifest PWA
-  juga memakai /app.html sebagai start_url.
+  Buka /app terlebih dahulu agar shortcut menuju aplikasi. Manifest PWA
+  juga memakai /app sebagai start_url. URL /app.html lama otomatis dialihkan
+  ke /app oleh konfigurasi Vercel.
 
 Catatan: ikon home screen butuh diakses lewat HTTPS (domain Vercel), bukan file lokal.
 

@@ -2160,6 +2160,13 @@
         });
         const auth = firebase.auth();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
+        const initialAppView = (() => {
+            const view = (location.hash || '').replace(/^#\/?/, '');
+            return ['transaksi', 'tabungan', 'goals', 'analisis', 'laporan'].includes(view) ? view : 'transaksi';
+        })();
+        if (location.hash) {
+            try { history.replaceState(history.state, '', location.pathname + location.search); } catch(e){}
+        }
 
         // ================== LOGIKA TAMPILAN LOGIN & TAB ==================
         function switchAuthTab(tab) {
@@ -2230,7 +2237,7 @@
                 navItems['analisis']  = document.getElementById('navAnalisis');
                 navItems['laporan']   = document.getElementById('navLaporan');
                 navItems['goals']     = document.getElementById('navGoals');
-                switchView(_getHashView() || 'transaksi');
+                switchView(initialAppView);
             } catch(e) { console.warn('switchToMainApp view init:', e); }
 
             currentProfileId = uid;
@@ -3510,20 +3517,8 @@
             if(fab) fab.style.display = 'flex';
             const fabAi = document.getElementById('fabAiBtn');
             if(fabAi) fabAi.style.display = 'flex';
-            try { history.replaceState(null, '', '#' + viewName); } catch(e){}
         };
-        function _getHashView(){
-            var valid = ['transaksi','tabungan','goals','analisis','laporan'];
-            var h = (location.hash || '').replace(/^#\/?/, '');
-            return valid.indexOf(h) !== -1 ? h : '';
-        }
-        window.addEventListener('hashchange', function(){
-            var app = document.getElementById('mainAppContainer');
-            if(!app || app.style.display === 'none') return;
-            var v = _getHashView();
-            if(v) switchView(v);
-        });
-        switchView(_getHashView() || 'transaksi');
+        switchView(initialAppView);
 
         const trxForm = document.getElementById('transactionForm');
         if(trxForm) {

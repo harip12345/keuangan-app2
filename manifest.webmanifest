@@ -2,7 +2,7 @@
   "name": "MyFinanceApp",
   "short_name": "MyFinanceApp",
   "description": "Kelola Keuangan Jadi Lebih Mudah",
-  "start_url": "/app.html",
+  "start_url": "/app",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
