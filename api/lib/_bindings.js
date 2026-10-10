@@ -1,5 +1,5 @@
 import { randomInt } from 'crypto';
-import { getDb, BOT_COLLECTION } from './firebaseAdmin.js';
+import { getDb, BOT_COLLECTION } from './_firebaseAdmin.js';
 
 const BINDINGS_DOC = 'bot_bindings';
 const PENDING_COLLECTION = 'pending_codes';

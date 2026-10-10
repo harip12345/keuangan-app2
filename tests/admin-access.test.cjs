@@ -2,7 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 
 test('admin hanya akun Google yang emailnya tepat dan terverifikasi', async () => {
-  const { isAdminUser } = await import('../api/lib/adminAccess.js');
+  const { isAdminUser } = await import('../api/lib/_adminAccess.js');
   const valid = {
     email: 'haripamungkas519@gmail.com', email_verified: true,
     firebase: { sign_in_provider: 'google.com' },

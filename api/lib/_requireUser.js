@@ -1,5 +1,5 @@
 import { getAuth } from 'firebase-admin/auth';
-import { getDb } from './firebaseAdmin.js';
+import { getDb } from './_firebaseAdmin.js';
 
 export async function requireUser(req) {
   const match = /^Bearer (\S+)$/i.exec(req.headers.authorization || '');

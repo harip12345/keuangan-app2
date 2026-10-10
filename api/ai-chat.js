@@ -1,4 +1,4 @@
-import { requireUser } from './lib/requireUser.js';
+import { requireUser } from './lib/_requireUser.js';
 
 export const config = { maxDuration: 60 };
 

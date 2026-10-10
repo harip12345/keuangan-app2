@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import { getDb, BOT_COLLECTION } from './lib/firebaseAdmin.js';
-import { requireUser } from './lib/requireUser.js';
+import { getDb, BOT_COLLECTION } from './lib/_firebaseAdmin.js';
+import { requireUser } from './lib/_requireUser.js';
 
 export async function claimLegacyProfile(db, uid, code, now = Date.now()) {
   const hash = createHash('sha256').update(code).digest('hex');

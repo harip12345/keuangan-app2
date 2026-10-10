@@ -1,6 +1,6 @@
-// Endpoint scan-nota — delegasi ke _lib/scanNota.js (logika Vision dibagi dengan webhook Telegram).
-import { extractNota } from './lib/scanNota.js';
-import { requireUser } from './lib/requireUser.js';
+// Endpoint scan-nota — logika Vision dibagi dengan webhook Telegram.
+import { extractNota } from './lib/_scanNota.js';
+import { requireUser } from './lib/_requireUser.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });

@@ -1,7 +1,7 @@
 import { getAuth } from 'firebase-admin/auth';
-import { getDb, BOT_COLLECTION } from './lib/firebaseAdmin.js';
-import { getOwnedProfileId } from './lib/profileAccess.js';
-import { isAdminUser } from './lib/adminAccess.js';
+import { getDb, BOT_COLLECTION } from './lib/_firebaseAdmin.js';
+import { getOwnedProfileId } from './lib/_profileAccess.js';
+import { isAdminUser } from './lib/_adminAccess.js';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');

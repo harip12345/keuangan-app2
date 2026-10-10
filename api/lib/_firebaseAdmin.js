@@ -27,4 +27,14 @@ export function getDb() {
   return db;
 }
 
+// Profil yang dimiliki `uid` (Firebase Auth), berdasarkan dokumen
+// keuangan_v2/uid_mappings: { "<uid>": "<profileId>", ... }.
+// Meniru fallback yang sama dengan app.html (checkLoginStatus): kalau uid
+// tidak ada di mapping, profileId-nya adalah uid itu sendiri.
+export async function getOwnedProfileId(uid) {
+  const doc = await getDb().collection(BOT_COLLECTION).doc('uid_mappings').get();
+  const data = doc.exists ? doc.data() : {};
+  return data[uid] || uid;
+}
+
 export { FieldValue };

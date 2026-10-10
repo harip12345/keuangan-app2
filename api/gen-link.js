@@ -2,9 +2,9 @@
 // - action "link"   : butuh idToken Firebase + profileId → kembalikan kode 6 digit (expire 10 menit) + username bot
 // - action "status" : cek apakah profileId sudah terikat ke chat bot
 // - action "unbind" : butuh idToken → lepas ikatan profileId dari bot
-import { getOwnedProfileId } from './lib/profileAccess.js';
-import { requireUser } from './lib/requireUser.js';
-import { createPending, getBindingByProfile, removeBindingByProfile } from './lib/bindings.js';
+import { getOwnedProfileId } from './lib/_profileAccess.js';
+import { requireUser } from './lib/_requireUser.js';
+import { createPending, getBindingByProfile, removeBindingByProfile } from './lib/_bindings.js';
 
 async function tgGetMe() {
   const token = process.env.TELEGRAM_BOT_TOKEN;

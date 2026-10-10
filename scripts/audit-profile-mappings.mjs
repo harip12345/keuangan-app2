@@ -1,5 +1,5 @@
 import { getAuth } from 'firebase-admin/auth';
-import { getDb, BOT_COLLECTION } from '../api/lib/firebaseAdmin.js';
+import { getDb, BOT_COLLECTION } from '../api/lib/_firebaseAdmin.js';
 
 const db = getDb();
 const [mappingDoc, legacyDoc] = await Promise.all([

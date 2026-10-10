@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
-import { getDb, BOT_COLLECTION } from '../api/lib/firebaseAdmin.js';
+import { getDb, BOT_COLLECTION } from '../api/lib/_firebaseAdmin.js';
 
 const profileId = process.argv[2];
 if (!profileId || !/^[A-Za-z0-9_-]{2,128}$/.test(profileId)) {

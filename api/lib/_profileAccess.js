@@ -1,4 +1,4 @@
-import { getDb, BOT_COLLECTION } from './firebaseAdmin.js';
+import { getDb, BOT_COLLECTION } from './_firebaseAdmin.js';
 
 export async function getOwnedProfileId(uid) {
   const doc = await getDb().collection(BOT_COLLECTION).doc('uid_mappings').get();
