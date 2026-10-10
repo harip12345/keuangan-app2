@@ -239,8 +239,8 @@
         /* ======================================================= */
 
         .app-container {
-            width: 100%; max-width: 480px; min-height: 100dvh; height: 100dvh; flex: 0 0 min(100%, 480px); margin-inline: auto; background-color: var(--bg-color);
-            position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.15); overflow: hidden;
+            position: fixed; inset: 0; width: min(100%, 480px); height: 100dvh; min-height: 0; margin: auto;
+            background-color: var(--bg-color); box-shadow: 0 0 40px rgba(0,0,0,0.15); overflow: hidden;
             display: flex; flex-direction: column;
         }
 
