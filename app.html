@@ -1083,7 +1083,8 @@
         
         <div id="cloudLoader">
             <div class="spinner"></div>
-            <p style="margin-top: 1.5rem; font-weight: 700; color: var(--text-main); letter-spacing: 0.5px;">Memuat Data...</p>
+            <p id="cloudLoaderMessage" style="margin-top: 1.5rem; font-weight: 700; color: var(--text-main); letter-spacing: 0.5px;">Memuat Data...</p>
+            <button type="button" id="cloudLoaderRetry" onclick="refreshApp()" style="display:none; margin-top:1rem; padding:0.75rem 1.25rem; border:0; border-radius:12px; background:var(--primary); color:white; font-weight:700; cursor:pointer;">Coba lagi</button>
         </div>
 
         <div id="toastMsg"><span id="toastText">Tersimpan ✅</span></div>
@@ -2160,6 +2161,7 @@
         });
         const auth = firebase.auth();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
+        let pendingLegacyGoogleLink = false;
         const initialAppView = (() => {
             const view = (location.hash || '').replace(/^#\/?/, '');
             return ['transaksi', 'tabungan', 'goals', 'analisis', 'laporan'].includes(view) ? view : 'transaksi';
@@ -2193,17 +2195,25 @@
 
         function checkLoginStatus() {
             auth.onAuthStateChanged(async (user) => {
+                if (pendingLegacyGoogleLink) return;
                 if (user) {
+                    let actualProfileId;
                     try {
                         const mapDoc = await db.collection(DB_COLLECTION).doc("uid_mappings").get();
                         const mapData = mapDoc.exists ? mapDoc.data() : {};
-                        
-                        const actualProfileId = mapData[user.uid] || user.uid;
-                        
-                        switchToMainApp(actualProfileId, user.displayName || user.email.split('@')[0], user.photoURL);
+                        actualProfileId = mapData[user.uid] || user.uid;
                     } catch (e) {
-                        switchToMainApp(user.uid, user.displayName || user.email.split('@')[0], user.photoURL);
+                        console.error('Gagal membaca pemetaan akun:', e);
+                        const errBox = document.getElementById('loginError');
+                        if (errBox) {
+                            errBox.innerText = 'Akun Google berhasil masuk, tetapi data akun belum bisa dibaca. Coba muat ulang halaman. Data lama tidak dihapus.';
+                            errBox.style.display = 'block';
+                        }
+                        document.getElementById('loginScreen').style.display = 'flex';
+                        document.getElementById('mainAppContainer').style.display = 'none';
+                        return;
                     }
+                    switchToMainApp(actualProfileId, user.displayName || (user.email || '').split('@')[0] || 'Pengguna', user.photoURL);
                 } else {
                     const legacyId = safeGetLocal('legacyLoggedInUser');
                     if(legacyId && APP_USERS[legacyId]) {
@@ -2213,6 +2223,14 @@
                         var appEl   = document.getElementById('mainAppContainer');
                         if (loginEl) { loginEl.style.display = 'flex'; loginEl.style.opacity = '1'; }
                         if (appEl)   appEl.style.display = 'none';
+                        if (safeGetLocal('legacyRecoveryHint') === '1') {
+                            localStorage.removeItem('legacyRecoveryHint');
+                            const errBox = document.getElementById('loginError');
+                            if (errBox) {
+                                errBox.innerText = 'Masuk dengan username lama. Setelah data terlihat, buka Pengaturan lalu pilih Hubungkan Akun Google.';
+                                errBox.style.display = 'block';
+                            }
+                        }
                     }
                 }
             });
@@ -2640,26 +2658,44 @@
             const legacyId = safeGetLocal('legacyLoggedInUser');
             if(legacyId && APP_USERS[legacyId]) {
                 requireConfirm("Yakin ingin menghubungkan data lokal ini ke akun Google Anda?", () => {
+                    // Jangan buka profil UID Google yang kosong sebelum mapping akun lama tersimpan.
+                    pendingLegacyGoogleLink = true;
                     auth.signInWithPopup(googleProvider).then(async (result) => {
                         const googleUid = result.user.uid;
                         const localProfileId = currentProfileId; 
-
-                        await db.collection(DB_COLLECTION).doc("uid_mappings").set({
-                            [googleUid]: localProfileId
-                        }, { merge: true });
+                        const profileBase = db.collection(DB_COLLECTION);
+                        const existingData = await Promise.all(['transactions', 'savings', 'goals', 'ai_chat'].map(
+                            collection => profileBase.doc(googleUid).collection(collection).limit(1).get()
+                        ));
+                        if (googleUid !== localProfileId && existingData.some(snapshot => !snapshot.empty)) {
+                            throw new Error('Akun Google ini sudah memiliki data sendiri. Hubungi admin agar kedua profil diperiksa sebelum dihubungkan.');
+                        }
+                        const mappingRef = profileBase.doc('uid_mappings');
+                        await db.runTransaction(async transaction => {
+                            const mappingDoc = await transaction.get(mappingRef);
+                            const previousProfileId = mappingDoc.exists ? mappingDoc.data()[googleUid] : null;
+                            if (previousProfileId && previousProfileId !== localProfileId) {
+                                throw new Error('Akun Google ini sudah terhubung ke profil lain. Hubungi admin sebelum mengubahnya.');
+                            }
+                            transaction.set(mappingRef, { [googleUid]: localProfileId }, { merge: true });
+                        });
 
                         const targetProfile = profiles.find(p => p.id === localProfileId);
                         if (targetProfile) {
                             targetProfile.name = result.user.displayName || targetProfile.name;
                             targetProfile.photo = result.user.photoURL || targetProfile.photo;
-                            await db.collection(DB_COLLECTION).doc("profiles").set({ list: profiles });
+                            try { await db.collection(DB_COLLECTION).doc("profiles").set({ list: profiles }); }
+                            catch (e) { console.warn('Profil terhubung, tetapi metadata gagal diperbarui:', e); }
                         }
 
                         localStorage.removeItem('legacyLoggedInUser');
-                        
-                        alert("Sukses! Data lokal berhasil ditarik ke Gmail Anda.");
+                        pendingLegacyGoogleLink = false;
+                        alert("Sukses! Data akun lama berhasil dihubungkan ke akun Google Anda.");
                         window.location.reload();
-                    }).catch((error) => {
+                    }).catch(async (error) => {
+                        pendingLegacyGoogleLink = false;
+                        // Kembali ke akun lama bila penyimpanan mapping gagal.
+                        if (auth.currentUser) await auth.signOut().catch(() => {});
                         alert("Gagal menghubungkan ke Google: " + error.message);
                     });
                 });
@@ -2720,6 +2756,24 @@
                     window.location.reload();
                 });
             });
+        }
+
+        function startLegacyRecovery() {
+            requireConfirm('Aplikasi akan keluar dari Google. Masuk kembali dengan username lama; setelah data terlihat, buka Pengaturan dan pilih Hubungkan Akun Google. Lanjutkan?', () => {
+                safeSetLocal('legacyRecoveryHint', '1');
+                auth.signOut().then(() => window.location.reload()).catch(error => {
+                    console.error('Gagal keluar dari Google:', error);
+                    showToast('Gagal keluar. Coba lagi.');
+                });
+            });
+        }
+
+        function showAllTransactionPeriods() {
+            globalStartDate = '';
+            globalEndDate = '';
+            safeSetLocal('globalStartDate', '');
+            safeSetLocal('globalEndDate', '');
+            applyDateFilter();
         }
 
         function deleteAccountPermanently() {
@@ -2895,6 +2949,7 @@
         let editingTrxId = null; 
         let editingAssetId = null; 
         let unsubscribeTrx = null; 
+        let transactionDataConfirmed = false;
         let unsubscribeSav = null;
         let unsubscribeGoals = null;
         let goals = [];
@@ -3226,35 +3281,61 @@
         }
 
         // ================== INISIALISASI APLIKASI ==================
+        let dataLoadFailed = false;
+        function showDataLoadError(error) {
+            dataLoadFailed = true;
+            console.error('Gagal memuat data akun:', error);
+            const loader = document.getElementById('cloudLoader');
+            if (!loader) return;
+            loader.style.display = 'flex';
+            const spinner = loader.querySelector('.spinner');
+            if (spinner) spinner.style.display = 'none';
+            const message = document.getElementById('cloudLoaderMessage');
+            if (message) message.textContent = 'Data belum bisa dimuat. Data Anda tidak dihapus. Periksa koneksi atau akses akun, lalu coba lagi.';
+            const retry = document.getElementById('cloudLoaderRetry');
+            if (retry) retry.style.display = 'block';
+        }
         async function initApp(authObj) { 
+            dataLoadFailed = false;
             document.getElementById('trxDate').value = getTodayYMD();
             document.getElementById('savingsDate').value = getTodayYMD();
             
             const loader = document.getElementById('cloudLoader');
-            if(loader) loader.style.display = 'flex';
+            if(loader) {
+                loader.style.display = 'flex';
+                const spinner = loader.querySelector('.spinner');
+                if (spinner) spinner.style.display = '';
+                const message = document.getElementById('cloudLoaderMessage');
+                if (message) message.textContent = 'Memuat Data...';
+                const retry = document.getElementById('cloudLoaderRetry');
+                if (retry) retry.style.display = 'none';
+            }
 
             try {
                 db.collection(DB_COLLECTION).doc("profiles").onSnapshot(async (doc) => { 
-                    let updateNeeded = false;
-                    if (doc.exists) { 
-                        profiles = doc.data().list || []; 
-                    } else { 
-                        profiles = []; updateNeeded = true;
-                    } 
-                    
-                    if(authObj && !profiles.find(p => p.id === authObj.uid)) {
-                        profiles.push({ id: authObj.uid, name: authObj.displayName || "User", photo: authObj.photoURL || '' });
-                        updateNeeded = true;
-                    }
+                    try {
+                        let updateNeeded = false;
+                        if (doc.exists) {
+                            profiles = doc.data().list || [];
+                        } else {
+                            profiles = []; updateNeeded = true;
+                        }
 
-                    if(updateNeeded) { await db.collection(DB_COLLECTION).doc("profiles").set({ list: profiles }, { merge: true }); }
-                    loadProfileData(currentProfileId); 
-                }, (error) => { if(loader) loader.style.display = 'none'; }); 
-            } catch (error) { if(loader) loader.style.display = 'none'; }
+                        if(authObj && !profiles.find(p => p.id === authObj.uid)) {
+                            profiles.push({ id: authObj.uid, name: authObj.displayName || "User", photo: authObj.photoURL || '' });
+                            updateNeeded = true;
+                        }
+
+                        if(updateNeeded) await db.collection(DB_COLLECTION).doc("profiles").set({ list: profiles }, { merge: true });
+                        loadProfileData(currentProfileId);
+                    } catch (error) { showDataLoadError(error); }
+                }, showDataLoadError);
+            } catch (error) { showDataLoadError(error); }
         }
 
         function loadProfileData(id) { 
             currentProfileId = id; 
+            transactionDataConfirmed = false;
             safeSetLocal('lastProfileId', id); 
             
             const savedBudgets = safeGetLocal(`catBudgets_${id}`);
@@ -3264,7 +3345,7 @@
             if (savedWallets) { wallets = JSON.parse(savedWallets); } else { wallets = [...defaultWallets]; safeSetLocal(`wallets_${id}`, JSON.stringify(wallets)); }
             renderWalletOptions();
             
-            const prof = profiles.find(p => p.id === id) || profiles[0] || { name: 'User', photo: ''}; 
+            const prof = profiles.find(p => p.id === id) || { name: auth.currentUser?.displayName || (auth.currentUser?.email || '').split('@')[0] || 'User', photo: '' };
             const nameEl = document.getElementById('displayProfileName'); if(nameEl) nameEl.innerText = prof.name; 
             const imgEl = document.getElementById('profileImg'); if(imgEl) imgEl.src = prof.photo || `https://ui-avatars.com/api/?name=${prof.name.replace(/\s+/g, '+')}&background=FFFFFF&color=4F46E5&bold=true`; 
             
@@ -3272,17 +3353,18 @@
             if (unsubscribeSav) unsubscribeSav(); 
             
             unsubscribeTrx = db.collection(DB_COLLECTION).doc(id).collection("transactions")
-                .orderBy("timestamp", "desc").onSnapshot((snapshot) => { 
+                .orderBy("timestamp", "desc").onSnapshot({ includeMetadataChanges: true }, (snapshot) => {
+                    transactionDataConfirmed = !snapshot.metadata.fromCache;
                     transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); 
                     syncDateInputs(); applyDateFilter(); 
-                    const loader = document.getElementById('cloudLoader'); if(loader) loader.style.display = 'none'; 
-                }); 
+                    const loader = document.getElementById('cloudLoader'); if(loader && !dataLoadFailed) loader.style.display = 'none';
+                }, showDataLoadError);
                 
             unsubscribeSav = db.collection(DB_COLLECTION).doc(id).collection("savings")
                 .orderBy("timestamp", "desc").onSnapshot((snapshot) => { 
                     savings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); 
                     syncDateInputs(); applyDateFilter(); 
-                });
+                }, showDataLoadError);
 
             // Goals real-time listener
             if(unsubscribeGoals) unsubscribeGoals();
@@ -3291,7 +3373,7 @@
                     goals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     const gView = document.getElementById('viewGoals');
                     if(gView && !gView.classList.contains('hidden')) renderGoals();
-                });
+                }, showDataLoadError);
         }
 
         function renderWalletOptions() {
@@ -3463,7 +3545,17 @@
             }
 
             const listEl = document.getElementById('transactionList'); if(!listEl) return; listEl.innerHTML = ''; 
-            if(filteredTrx.length === 0) listEl.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding: 1rem 0;">Belum ada transaksi</p>'; 
+            if(filteredTrx.length === 0) {
+                if (transactions.length > 0) {
+                    listEl.innerHTML = '<li style="list-style:none; text-align:center; color:var(--text-muted); font-size:0.82rem; padding:1rem;">Tidak ada transaksi pada periode ini.<br><button type="button" onclick="showAllTransactionPeriods()" style="margin-top:0.7rem; border:0; background:var(--primary); color:white; border-radius:9px; padding:0.55rem 0.9rem; cursor:pointer;">Tampilkan semua periode</button></li>';
+                } else if (!transactionDataConfirmed) {
+                    listEl.innerHTML = '<li style="list-style:none; text-align:center; color:var(--text-muted); font-size:0.82rem; padding:1rem;">Memastikan data akun dari server...</li>';
+                } else if (auth.currentUser) {
+                    listEl.innerHTML = '<li style="list-style:none; text-align:center; color:var(--text-muted); font-size:0.82rem; padding:1rem;">Belum ada transaksi pada profil Google ini.<br><button type="button" onclick="startLegacyRecovery()" style="margin-top:0.7rem; border:0; background:var(--primary); color:white; border-radius:9px; padding:0.55rem 0.9rem; cursor:pointer;">Data akun lama tidak muncul?</button></li>';
+                } else {
+                    listEl.innerHTML = '<li style="list-style:none; text-align:center; color:var(--text-muted); font-size:0.82rem; padding:1rem;">Belum ada transaksi</li>';
+                }
+            }
             
             filteredTrx.forEach((t) => { 
                 const isTransfer = t.type === 'transfer'; const sign = t.type === 'income' ? '+' : t.type === 'expense' ? '-' : '⇄'; 
