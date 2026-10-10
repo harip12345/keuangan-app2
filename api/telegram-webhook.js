@@ -420,8 +420,15 @@ function esc(s) { return escapeHtml(s); }
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  // Wajib: tanpa TELEGRAM_WEBHOOK_SECRET ter-set, siapa pun yang menemukan URL
+  // endpoint ini bisa memalsukan update Telegram (kirim transaksi/pertanyaan AI
+  // atas nama binding manapun). Fail closed, bukan fail open.
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
-  if (secret && req.headers['x-telegram-bot-api-secret-token'] !== secret) {
+  if (!secret) {
+    console.error('TELEGRAM_WEBHOOK_SECRET belum di-set di environment.');
+    return res.status(500).json({ error: 'Server misconfigured: TELEGRAM_WEBHOOK_SECRET belum di-set' });
+  }
+  if (req.headers['x-telegram-bot-api-secret-token'] !== secret) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 

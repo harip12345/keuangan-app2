@@ -31,14 +31,15 @@ export default async function handler(req, res) {
     const host = req.body.url ? null : req.headers.host;
     if (!host && !req.body.url) return res.status(400).json({ error: 'Tidak bisa menentukan host' });
     const url = req.body.url || `https://${host}/api/telegram-webhook`;
-    const secret = process.env.TELEGRAM_WEBHOOK_SECRET || '';
+    const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
+    if (!secret) return res.status(500).json({ error: 'TELEGRAM_WEBHOOK_SECRET belum di-set di Vercel' });
 
     const resp = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         url,
-        secret_token: secret || undefined,
+        secret_token: secret,
         allowed_updates: ['message']
       })
     });

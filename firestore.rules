@@ -1,0 +1,29 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Dokumen mapping dan daftar profil lama hanya dikelola Admin SDK.
+    // Browser tidak boleh membaca data semua pengguna atau memilih profileId sendiri.
+    function mappingPath() {
+      return /databases/$(database)/documents/keuangan_v2/uid_mappings;
+    }
+
+    function ownedProfileId() {
+      return exists(mappingPath()) && request.auth.uid in get(mappingPath()).data
+        ? get(mappingPath()).data[request.auth.uid]
+        : request.auth.uid;
+    }
+
+    function ownsProfile(profileId) {
+      return request.auth != null && ownedProfileId() == profileId;
+    }
+
+    match /keuangan_v2/{profileId}/{collectionName}/{docId} {
+      allow read, write: if ownsProfile(profileId)
+        && collectionName in ['transactions', 'savings', 'goals', 'ai_chat', 'meta'];
+    }
+
+    // Tidak ada allow untuk keuangan_v2/profiles, uid_mappings,
+    // bot_bindings, atau legacy_invites. Akses server memakai Admin SDK.
+  }
+}

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Panel Admin · MyFinanceApp</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/admin.css?v=20261010">
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="/"><span class="brand-icon">H</span><span>MyFinanceApp <small>ADMIN</small></span></a>
+      <a class="back-link" href="/app">← Kembali ke aplikasi</a>
+    </header>
+    <section class="hero">
+      <div class="eyebrow">RUANG KERJA FOUNDER</div>
+      <h1>Kelola pengguna<br><span>dengan jelas.</span></h1>
+      <p>Daftar akun Firebase dan profil lama yang menunggu migrasi. Informasi keuangan pribadi pengguna tidak ditampilkan di sini.</p>
+    </section>
+    <section class="panel" aria-labelledby="panelTitle">
+      <div class="panel-head">
+        <div><h2 id="panelTitle">Pengguna aplikasi</h2><p id="status">Memeriksa akses admin…</p></div>
+        <div class="actions"><span id="count" class="count">0 pengguna</span><button id="refresh" type="button">Muat ulang</button></div>
+      </div>
+      <div id="loginPrompt" class="empty" hidden><h3>Masuk sebagai admin</h3><p>Gunakan akun Google admin yang telah ditetapkan untuk membuka daftar pengguna.</p><button id="loginGoogle" type="button">Masuk dengan Google</button></div>
+      <div id="userArea" hidden>
+        <label class="search-label" for="search">Cari pengguna</label>
+        <input id="search" type="search" placeholder="Nama, email, atau ID profil…" autocomplete="off">
+        <div class="table-wrap"><table><thead><tr><th>Pengguna</th><th>Profil</th><th>Status</th><th>Terakhir masuk</th></tr></thead><tbody id="rows"></tbody></table></div>
+        <button id="more" class="more" type="button" hidden>Muat pengguna berikutnya</button>
+      </div>
+    </section>
+    <footer>MyFinanceApp · Hari Pamungkas</footer>
+  </main>
+  <script src="/assets/js/admin.js?v=20261010"></script>
+</body>
+</html>

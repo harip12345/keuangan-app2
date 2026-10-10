@@ -2,8 +2,8 @@
 // - action "link"   : butuh idToken Firebase + profileId → kembalikan kode 6 digit (expire 10 menit) + username bot
 // - action "status" : cek apakah profileId sudah terikat ke chat bot
 // - action "unbind" : butuh idToken → lepas ikatan profileId dari bot
-import { getAuth } from 'firebase-admin/auth';
-import { getDb } from './lib/firebaseAdmin.js';
+import { getOwnedProfileId } from './lib/profileAccess.js';
+import { requireUser } from './lib/requireUser.js';
 import { createPending, getBindingByProfile, removeBindingByProfile } from './lib/bindings.js';
 
 async function tgGetMe() {
@@ -15,30 +15,26 @@ async function tgGetMe() {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  const decoded = await requireUser(req);
+  if (!decoded) return res.status(401).json({ error: 'Masuk kembali untuk memakai bot Telegram' });
 
   try {
     if (!process.env.TELEGRAM_BOT_TOKEN) {
       return res.status(500).json({ error: 'TELEGRAM_BOT_TOKEN belum di-set di Vercel' });
     }
 
-    const { action = 'status', profileId } = req.body;
+    const { action = 'status', profileId } = req.body || {};
     if (!profileId) return res.status(400).json({ error: 'profileId wajib diisi' });
+
+    const uid = decoded.uid;
+    const ownedProfileId = await getOwnedProfileId(uid);
+    if (ownedProfileId !== profileId) return res.status(403).json({ error: 'profileId bukan milik akun ini' });
 
     if (action === 'status') {
       const binding = await getBindingByProfile(profileId);
       return res.status(200).json({ bound: !!binding, name: binding ? binding.name : '', chatId: binding ? binding.chatId : null });
     }
-
-    const { idToken } = req.body;
-    if (!idToken) return res.status(401).json({ error: 'idToken wajib diisi (login Firebase)' });
-
-    const decoded = await getAuth().verifyIdToken(idToken);
-    const uid = decoded.uid;
 
     if (action === 'unbind') {
       const removed = await removeBindingByProfile(profileId);

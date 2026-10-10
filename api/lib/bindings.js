@@ -1,3 +1,4 @@
+import { randomInt } from 'crypto';
 import { getDb, BOT_COLLECTION } from './firebaseAdmin.js';
 
 const BINDINGS_DOC = 'bot_bindings';
@@ -51,7 +52,9 @@ export async function createPending(profileId, name) {
   const col = db.collection(PENDING_COLLECTION);
   let code = '';
   for (let i = 0; i < 10; i++) {
-    code = String(Math.floor(100000 + Math.random() * 900000));
+    // crypto.randomInt: acak yang aman secara kriptografis (bukan Math.random),
+    // agar kode pairing 6 digit tidak mudah ditebak/di-brute-force.
+    code = String(randomInt(100000, 1000000));
     const existing = await col.doc(code).get();
     if (!existing.exists) break;
   }
