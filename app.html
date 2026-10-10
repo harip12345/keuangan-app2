@@ -22,16 +22,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Library Eksternal -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" defer></script>
 
     <style>
         :root {
@@ -204,6 +200,7 @@
         body.dark-mode .auth-tab.active { color: #FFFFFF; }
         
         .login-input-group { margin-bottom: 1rem; position: relative; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
         .login-input-group .form-control { 
             background: #FFFFFF; border: none; padding-left: 3rem; height: 3.5rem; min-height: 3.5rem;
@@ -263,6 +260,8 @@
         .btn-social-circle:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
         .btn-social-circle:active { transform: scale(0.95); }
         .btn-social-circle svg { width: 22px; height: 22px; }
+        .btn-social-circle { position: relative; margin-bottom: 1.1rem; }
+        .btn-social-circle::after { content: attr(data-label); position: absolute; top: calc(100% + 0.35rem); left: 50%; transform: translateX(-50%); color: var(--text-muted); font-size: 0.65rem; font-weight: 600; white-space: nowrap; }
 
         /* ======================================================= */
         /* SISA KODE CSS APLIKASI UTAMA TETAP SAMA SEPERTI SEBELUMNYA */
@@ -973,6 +972,7 @@
             <!-- Form Login -->
             <form id="formLoginView" onsubmit="handleAppLogin(event)">
                 <div class="login-input-group">
+                    <label class="sr-only" for="loginUser">Username atau email</label>
                     <input type="text" id="loginUser" class="form-control" placeholder="Username / Email" required autocomplete="username">
                     <!-- Icon User Outline -->
                     <svg class="input-icon" viewBox="0 0 24 24">
@@ -981,14 +981,15 @@
                     </svg>
                 </div>
                 <div class="login-input-group">
-                    <input type="password" id="loginPass" class="form-control has-eye" placeholder="Password" required>
+                    <label class="sr-only" for="loginPass">Password</label>
+                    <input type="password" id="loginPass" class="form-control has-eye" placeholder="Password" required autocomplete="current-password">
                     <!-- Icon Lock Outline -->
                     <svg class="input-icon" viewBox="0 0 24 24">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                     </svg>
                     <!-- Ikon Lihat Password -->
-                    <button type="button" class="eye-btn" onclick="togglePass('loginPass', this)" title="Lihat Password">
+                    <button type="button" class="eye-btn" onclick="togglePass('loginPass', this)" title="Lihat Password" aria-label="Tampilkan password">
                         <svg viewBox="0 0 24 24">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                             <circle cx="12" cy="12" r="3"></circle>
@@ -998,7 +999,7 @@
                 
                 <a href="#" class="forgot-pass" onclick="handleForgotPassword(event)">Lupa Password?</a>
 
-                <div id="loginError" class="login-error">Username atau Password salah!</div>
+                <div id="loginError" class="login-error" role="alert" aria-live="assertive">Username atau Password salah!</div>
                 
                 <button type="submit" class="login-btn">
                     MASUK APLIKASI
@@ -1009,13 +1010,15 @@
             <!-- Form Register (Disembunyikan secara default) -->
             <form id="formRegisterView" onsubmit="handleAppRegister(event)" style="display:none;">
                 <div class="login-input-group">
-                    <input type="text" id="regName" class="form-control" placeholder="Nama Lengkap" required>
+                    <label class="sr-only" for="regName">Nama lengkap</label>
+                    <input type="text" id="regName" class="form-control" placeholder="Nama Lengkap" required autocomplete="name">
                     <svg class="input-icon" viewBox="0 0 24 24">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                 </div>
                 <div class="login-input-group">
+                    <label class="sr-only" for="regUser">Email pendaftaran</label>
                     <input type="email" id="regUser" class="form-control" placeholder="Email" required autocomplete="email">
                     <svg class="input-icon" viewBox="0 0 24 24">
                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -1023,19 +1026,21 @@
                     </svg>
                 </div>
                 <div class="login-input-group">
-                    <input type="password" id="regPass" class="form-control has-eye" placeholder="Buat Password" required minlength="6">
+                    <label class="sr-only" for="regPass">Buat password</label>
+                    <input type="password" id="regPass" class="form-control has-eye" placeholder="Buat Password" required minlength="6" autocomplete="new-password">
                     <svg class="input-icon" viewBox="0 0 24 24">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                     </svg>
                     <!-- Ikon Lihat Password -->
-                    <button type="button" class="eye-btn" onclick="togglePass('regPass', this)" title="Lihat Password">
+                    <button type="button" class="eye-btn" onclick="togglePass('regPass', this)" title="Lihat Password" aria-label="Tampilkan password">
                         <svg viewBox="0 0 24 24">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                             <circle cx="12" cy="12" r="3"></circle>
                         </svg>
                     </button>
                 </div>
+                <div id="registerError" class="login-error" role="alert" aria-live="assertive"></div>
                 <button type="submit" class="login-btn">
                     DAFTAR APLIKASI
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -1047,7 +1052,7 @@
             <!-- Opsi Social & Biometrik di dalam satu baris (row) membulat -->
             <div class="social-login-row">
                 <!-- Google -->
-                <button type="button" class="btn-social-circle" onclick="handleGoogleLogin()" title="Google">
+                <button type="button" class="btn-social-circle" onclick="handleGoogleLogin()" title="Masuk dengan Google" aria-label="Masuk dengan Google" data-label="Google">
                     <svg viewBox="0 0 24 24">
                         <path fill="#EA4335" d="M12 4.62c1.66 0 3.15.57 4.33 1.5l3.24-3.24C17.58 1.15 15.02 0 12 0 7.37 0 3.36 2.64 1.25 6.55l3.8 2.95C6.01 6.55 8.76 4.62 12 4.62z"/>
                         <path fill="#4285F4" d="M23.74 12.27c0-.82-.07-1.63-.21-2.43H12v4.61h6.6c-.28 1.5-1.12 2.76-2.4 3.63v3.01h3.87c2.27-2.09 3.67-5.18 3.67-8.82z"/>
@@ -1056,7 +1061,7 @@
                     </svg>
                 </button>
               <!-- Face ID -->
-<button type="button" class="btn-social-circle" onclick="loginDenganBiometrikAsli()" title="Face ID">
+<button type="button" class="btn-social-circle" onclick="loginDenganBiometrikAsli()" title="Masuk dengan Face ID" aria-label="Masuk dengan Face ID" data-label="Face ID">
     <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
         <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
@@ -1069,7 +1074,7 @@
     </svg>
 </button>
                 <!-- Fingerprint -->
-                <button type="button" class="btn-social-circle" onclick="loginDenganBiometrikAsli()" title="Sidik Jari">
+                <button type="button" class="btn-social-circle" onclick="loginDenganBiometrikAsli()" title="Masuk dengan sidik jari" aria-label="Masuk dengan sidik jari" data-label="Sidik jari">
                     <svg viewBox="0 0 24 24" fill="#3B82F6">
                         <path d="M17.81 4.47c-.08 0-.16-.02-.23-.06C15.66 3.42 14 3 12.01 3c-1.98 0-3.86.47-5.57 1.41-.24.13-.54.04-.68-.2-.13-.24-.04-.55.2-.68C7.82 2.52 9.86 2 12.01 2c2.13 0 3.99.47 6.03 1.52.25.13.34.43.21.67-.09.18-.26.28-.44.28zM3.5 9.72c-.1 0-.2-.03-.29-.09-.23-.16-.28-.47-.12-.7.99-1.4 2.25-2.5 3.75-3.27C9.98 4.04 14 4.03 17.15 5.65c1.5.77 2.76 1.86 3.75 3.25.16.22.11.54-.12.7-.23.16-.54.11-.7-.12-.89-1.24-2.01-2.2-3.35-2.89-2.81-1.43-6.4-1.43-9.26.04-1.33.68-2.45 1.64-3.35 2.89-.13.18-.33.28-.52.28zM22 15.36c-.22 0-.42-.14-.48-.36-.45-1.74-1.5-3.27-3.03-4.38-3.9-2.82-9.1-2.8-13 0-1.53 1.11-2.58 2.64-3.03 4.38-.07.27-.34.43-.61.36-.27-.07-.43-.34-.36-.61.52-1.99 1.72-3.73 3.46-4.99 4.37-3.16 10.18-3.14 14.53 0 1.74 1.26 2.94 3 3.46 4.99.07.27-.1.54-.36.61-.03.01-.06.01-.09.01zM11.99 11.51c-2.31 0-4.33.8-5.8 2.31-.2.2-.2.53 0 .73.2.2.53.2.73 0 1.28-1.28 3.03-1.96 5.07-1.96 2.05 0 3.79.68 5.07 1.96.2.2.53.2.73 0 .2-.2.2-.53 0-.73-1.47-1.51-3.49-2.31-5.8-2.31zM12 14c-1.77 0-3.35.53-4.57 1.48-.22.17-.26.49-.09.71.17.22.49.26.71.09 1.01-.79 2.35-1.22 3.95-1.22s2.94.43 3.95 1.22c.22.17.54.13.71-.09.17-.22.13-.54-.09-.71C15.35 14.53 13.77 14 12 14zm-1.89 3.65c-.2 0-.4-.11-.5-.31-.15-.29.43-.34.5-.34 1.1 0 2.21.28 3.12.8.24.14.32.44.18.68-.14.24-.44.32-.68.18-.73-.42-1.63-.64-2.52-.64-.03 0-.07 0-.1 0z"/>
                     </svg>
@@ -1115,7 +1120,7 @@
                     </div>
                 </div>
                 <div class="header-title">
-                    Sisa Saldo Bulan Ini 
+                    Arus Kas Bersih Periode Ini
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="opacity:0.8; margin-left:4px; cursor:pointer;" onclick="openWalletModal()"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
                 </div>
                 <div class="balance-amount" id="totalBalance" onclick="openWalletModal()" title="Klik untuk rincian per rekening">Rp 0</div>
@@ -2103,11 +2108,48 @@
                 input.type = 'text';
                 btn.innerHTML = iconOpen;
                 btn.style.color = '#3B82F6'; 
+                btn.setAttribute('aria-label', 'Sembunyikan password');
             } else {
                 input.type = 'password';
                 btn.innerHTML = iconClosed;
                 btn.style.color = '#9CA3AF';
+                btn.setAttribute('aria-label', 'Tampilkan password');
             }
+        }
+
+        const optionalLibraries = {};
+        function loadOptionalScript(key, url) {
+            if (!optionalLibraries[key]) {
+                optionalLibraries[key] = new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = url;
+                    script.onload = resolve;
+                    script.onerror = () => reject(new Error('Gagal memuat fitur ' + key));
+                    document.head.appendChild(script);
+                }).catch(error => {
+                    delete optionalLibraries[key];
+                    throw error;
+                });
+            }
+            return optionalLibraries[key];
+        }
+        function ensureCharts() {
+            return typeof Chart !== 'undefined' ? Promise.resolve() : loadOptionalScript('grafik', 'https://cdn.jsdelivr.net/npm/chart.js');
+        }
+        function ensureCropper() {
+            if (!document.getElementById('cropperStyles')) {
+                const style = document.createElement('link');
+                style.id = 'cropperStyles';
+                style.rel = 'stylesheet';
+                style.href = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css';
+                document.head.appendChild(style);
+            }
+            return typeof Cropper !== 'undefined' ? Promise.resolve() : loadOptionalScript('potong foto', 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js');
+        }
+        function celebrate(options) {
+            loadOptionalScript('animasi', 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js')
+                .then(() => { if (typeof confetti === 'function') confetti(options); })
+                .catch(error => console.warn(error));
         }
 
         // =========================================================================
@@ -2177,8 +2219,10 @@
             const tabLoginBtn = document.getElementById('tabLoginBtn');
             const tabRegisterBtn = document.getElementById('tabRegisterBtn');
             const errBox = document.getElementById('loginError');
+            const regErrBox = document.getElementById('registerError');
             
             errBox.style.display = 'none';
+            regErrBox.style.display = 'none';
 
             if(tab === 'login') {
                 loginForm.style.display = 'block';
@@ -2294,22 +2338,27 @@
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regUser').value.trim();
             const passInp = document.getElementById('regPass').value;
+            const errBox = document.getElementById('registerError');
+            errBox.style.display = 'none';
 
             auth.createUserWithEmailAndPassword(email, passInp)
                 .then((userCredential) => {
                     return userCredential.user.updateProfile({ displayName: name });
                 })
                 .then(() => {
-                    alert("Pendaftaran berhasil! Mengalihkan ke aplikasi...");
+                    showToast('✅ Pendaftaran berhasil!');
                 })
                 .catch((error) => {
-                    alert("Gagal mendaftar: " + error.message);
+                    errBox.innerText = 'Gagal mendaftar: ' + error.message;
+                    errBox.style.display = 'block';
                 });
         }
 
         function handleGoogleLogin() {
             auth.signInWithPopup(googleProvider).catch((error) => {
-                alert("Gagal login dengan Google: " + error.message);
+                const errBox = document.getElementById('loginError');
+                errBox.innerText = 'Gagal masuk dengan Google: ' + error.message;
+                errBox.style.display = 'block';
             });
         }
 
@@ -3189,9 +3238,11 @@
                 if (file) { 
                     closePhotoActionModal(); 
                     const reader = new FileReader(); 
-                    reader.onload = function(event) { 
+                    reader.onload = async function(event) {
                         const imageEl = document.getElementById('cropImage'); 
                         if(!imageEl) return;
+                        try { await ensureCropper(); }
+                        catch(error) { showToast('❌ ' + error.message); return; }
                         imageEl.src = event.target.result; 
                         const cropM = document.getElementById('cropModal');
                         if(cropM) cropM.classList.add('show'); 
@@ -3469,7 +3520,7 @@
 
         const btnSubmitTrx = document.getElementById('btnSubmitTrx'); const btnCancelEdit = document.getElementById('btnCancelEdit'); const btnSubmitAsset = document.getElementById('btnSubmitAsset'); const btnCancelAssetEdit = document.getElementById('btnCancelAssetEdit'); const savingsTypeSelect = document.getElementById('savingsType');
         const formatRupiah = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number); const formatRupiahStr = (number) => number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        function triggerConfetti() { if(typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#4F46E5', '#10B981', '#F59E0B'] }); }
+        function triggerConfetti() { celebrate({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#4F46E5', '#10B981', '#F59E0B'] }); }
 
         const editTransaction = (id) => { 
             const t = transactions.find(item => item.id === id); if(!t || !typeSelect || !amountInput || !btnSubmitTrx || !btnCancelEdit) return; 
@@ -4158,6 +4209,7 @@
         let expenseChartInstance = null; let incomeChartInstance = null; let assetChartInstance = null; let trendChartInstance = null; 
 
         window.renderTrendChart = function() {
+            if (typeof Chart === 'undefined') { renderAnalytics(); return; }
             const yFilterEl = document.getElementById('trendYearSelector'); const yearFilter = yFilterEl ? yFilterEl.value : 'ALL'; const monthlyData = {}; 
             const isDark = document.body.classList.contains('dark-mode'); const textColor = isDark ? '#F9FAFB' : '#111827';
             
@@ -4440,7 +4492,12 @@
             }
         }
 
-        const renderAnalytics = () => { 
+        async function renderAnalytics() {
+            try { await ensureCharts(); }
+            catch(error) { showToast('❌ ' + error.message); return; }
+            if (!document.getElementById('viewAnalisis')?.classList.contains('hidden')) renderAnalyticsReady();
+        }
+        const renderAnalyticsReady = () => {
             const isDark = document.body.classList.contains('dark-mode'); const textColor = isDark ? '#F9FAFB' : '#111827';
             const filteredTrx = getFiltered(transactions); 
             const allSavAna = getFiltered(savings);
@@ -4813,7 +4870,7 @@
                     data.timestamp = firebase.firestore.FieldValue.serverTimestamp();
                     await db.collection(DB_COLLECTION).doc(currentProfileId).collection('goals').add(data);
                     showToast('Target tersimpan 🎯');
-                    if(typeof confetti === 'function') confetti({ particleCount:70, spread:55, origin:{y:0.7} });
+                    celebrate({ particleCount:70, spread:55, origin:{y:0.7} });
                     resetGoalForm();
                 }
             } catch(e) {
@@ -4997,43 +5054,37 @@
 
             const wallet  = document.getElementById('goalDepositWallet')?.value || 'None';
             const dateVal = document.getElementById('goalDepositDate')?.value || getTodayYMD();
-            const newSaved = (g.saved || 0) + amount;
+            let newSaved;
 
             const btn = document.getElementById('btnConfirmDeposit');
             if(btn) { btn.disabled = true; btn.innerText = 'Menyimpan...'; }
 
             try {
-                // 1. Update progress goal
-                await db.collection(DB_COLLECTION).doc(currentProfileId)
-                    .collection('goals').doc(g.id)
-                    .update({ saved: newSaved });
-
-                // 2. Jika wallet dipilih → catat ke collection savings
-                //    amount = nominal setoran → memotong saldo wallet sebesar ini
-                //    (mekanisme identik dengan tab Aset / sourceWallet)
-                if(wallet !== 'None') {
-                    await db.collection(DB_COLLECTION).doc(currentProfileId)
-                        .collection('savings').add({
-                            type         : 'goal_deposit',   // tidak muncul di tab Aset
-                            name         : `Tabungan Goal: ${g.name}`,
-                            amount       : amount,
-                            sourceWallet : wallet,
-                            date         : formatCustomDate(dateVal),
-                            goalId       : g.id,
-                            goalName     : g.name,
-                            depositAmount: amount,
-                            timestamp    : firebase.firestore.FieldValue.serverTimestamp(),
-                        });
-                }
+                const profileRef = db.collection(DB_COLLECTION).doc(currentProfileId);
+                const goalRef = profileRef.collection('goals').doc(g.id);
+                const depositRef = profileRef.collection('savings').doc();
+                await db.runTransaction(async transaction => {
+                    const goalDoc = await transaction.get(goalRef);
+                    if (!goalDoc.exists) throw new Error('Target sudah tidak tersedia. Muat ulang halaman.');
+                    const goalData = goalDoc.data();
+                    newSaved = (Number(goalData.saved) || 0) + amount;
+                    transaction.update(goalRef, { saved: newSaved });
+                    transaction.set(depositRef, {
+                        type: 'goal_deposit', name: `Tabungan Goal: ${goalData.name}`,
+                        amount, sourceWallet: wallet, date: formatCustomDate(dateVal),
+                        goalId: g.id, goalName: goalData.name, depositAmount: amount,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    });
+                });
 
                 currentDepositGoalId = null;
                 closeGoalDepositModal();
                 showToast('✅ Setoran berhasil dicatat!');
 
                 // Celebrasi jika goal tercapai
-                if(newSaved >= g.target && typeof confetti === 'function') {
+                if(newSaved >= g.target) {
                     setTimeout(() => {
-                        confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
+                        celebrate({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
                         showToast('🎉 TARGET TERCAPAI! Selamat!');
                     }, 400);
                 }
@@ -5138,31 +5189,31 @@
             const oldDeposit = savings.find(s => s.id === editingDepositId);
             if(!oldDeposit) return showToast('❌ Data setoran tidak ditemukan.');
 
-            const oldAmount = oldDeposit.depositAmount || oldDeposit.amount || 0;
             const goal      = goals.find(g => g.id === editingDepositGoalId);
             if(!goal) return showToast('❌ Data goal tidak ditemukan.');
-
-            // Hitung ulang saved: kurangi old, tambah new
-            const newSaved = Math.max(0, (goal.saved || 0) - oldAmount + newAmount);
 
             const btn = document.getElementById('btnSaveDepositEdit');
             if(btn) { btn.disabled = true; btn.innerText = 'Menyimpan...'; }
 
             try {
-                // Update savings doc
-                await db.collection(DB_COLLECTION).doc(currentProfileId)
-                    .collection('savings').doc(editingDepositId)
-                    .update({
+                const profileRef = db.collection(DB_COLLECTION).doc(currentProfileId);
+                const depositRef = profileRef.collection('savings').doc(editingDepositId);
+                const goalRef = profileRef.collection('goals').doc(editingDepositGoalId);
+                await db.runTransaction(async transaction => {
+                    const [depositDoc, goalDoc] = await Promise.all([
+                        transaction.get(depositRef), transaction.get(goalRef)
+                    ]);
+                    if (!depositDoc.exists || !goalDoc.exists) throw new Error('Data setoran atau target sudah berubah. Muat ulang halaman.');
+                    const previousAmount = Number(depositDoc.data().depositAmount ?? depositDoc.data().amount) || 0;
+                    const newSaved = Math.max(0, (Number(goalDoc.data().saved) || 0) - previousAmount + newAmount);
+                    transaction.update(depositRef, {
                         amount       : newAmount,
                         depositAmount: newAmount,
                         sourceWallet : newWallet,
                         date         : formatCustomDate(newDateYMD),
                     });
-
-                // Update goal saved
-                await db.collection(DB_COLLECTION).doc(currentProfileId)
-                    .collection('goals').doc(editingDepositGoalId)
-                    .update({ saved: newSaved });
+                    transaction.update(goalRef, { saved: newSaved });
+                });
 
                 closeDepositEditModal();
                 showToast('✅ Setoran diperbarui!');
@@ -5184,16 +5235,19 @@
                 `Hapus setoran ${formatRupiah(amount)} (${deposit.date||''}) dari goal "${goal.name}"?\n\nDana terkumpul akan dikurangi sebesar ${formatRupiah(amount)}.`,
                 async () => {
                     try {
-                        // Kurangi saved di goal
-                        const newSaved = Math.max(0, (goal.saved || 0) - amount);
-                        await db.collection(DB_COLLECTION).doc(currentProfileId)
-                            .collection('goals').doc(goalId)
-                            .update({ saved: newSaved });
-
-                        // Hapus savings doc
-                        await db.collection(DB_COLLECTION).doc(currentProfileId)
-                            .collection('savings').doc(depositId)
-                            .delete();
+                        const profileRef = db.collection(DB_COLLECTION).doc(currentProfileId);
+                        const goalRef = profileRef.collection('goals').doc(goalId);
+                        const depositRef = profileRef.collection('savings').doc(depositId);
+                        await db.runTransaction(async transaction => {
+                            const [goalDoc, depositDoc] = await Promise.all([
+                                transaction.get(goalRef), transaction.get(depositRef)
+                            ]);
+                            if (!goalDoc.exists || !depositDoc.exists) throw new Error('Data setoran atau target sudah berubah. Muat ulang halaman.');
+                            const depositAmount = Number(depositDoc.data().depositAmount ?? depositDoc.data().amount) || 0;
+                            const newSaved = Math.max(0, (Number(goalDoc.data().saved) || 0) - depositAmount);
+                            transaction.update(goalRef, { saved: newSaved });
+                            transaction.delete(depositRef);
+                        });
 
                         showToast('🗑 Setoran dihapus.');
                     } catch(err) {
