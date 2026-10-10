@@ -57,6 +57,8 @@
             background-color: #D1D5DB;
             display: flex;
             justify-content: center;
+            align-items: stretch;
+            min-height: 100dvh;
             color: var(--text-main);
             -webkit-tap-highlight-color: transparent;
             user-select: none;
@@ -237,7 +239,7 @@
         /* ======================================================= */
 
         .app-container {
-            width: 100%; max-width: 480px; background-color: var(--bg-color); height: 100dvh;
+            width: 100%; max-width: 480px; min-height: 100dvh; height: 100dvh; flex: 0 0 min(100%, 480px); margin-inline: auto; background-color: var(--bg-color);
             position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.15); overflow: hidden;
             display: flex; flex-direction: column;
         }
