@@ -1,6 +1,9 @@
 // Endpoint scan-nota — delegasi ke _lib/scanNota.js (logika Vision dibagi dengan webhook Telegram).
 import { extractNota } from './lib/scanNota.js';
 
+// Vision calls may need longer than Vercel's legacy Hobby default of 10 seconds.
+export const config = { maxDuration: 60 };
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
