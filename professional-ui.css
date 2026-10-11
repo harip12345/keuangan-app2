@@ -1,0 +1,64 @@
+/* Shared visual language for the signed-in experience. */
+.ui-icon{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;vertical-align:middle}
+.banking-side-link .ui-icon{width:17px;height:17px}
+.banking-quick-grid .ui-icon{width:19px;height:19px}
+.banking-quick-grid i{display:grid;place-items:center}
+.app-container{--pro-ink:#17243f;--pro-muted:#78869d;--pro-line:#e5e9f2;--pro-violet:#5148cc;background:#f5f7fb}
+.app-container .main-view{background:#f5f7fb;scrollbar-width:thin;scrollbar-color:#cbd3e3 transparent}
+.app-container .main-view>.header{flex-shrink:0}
+.app-container .main-view:not(#viewTransaksi)>.header{background:linear-gradient(130deg,#182a54 0%,#293877 60%,#4b47bd 100%);padding:28px 25px 42px;border-radius:0 0 24px 24px}
+.app-container .main-view:not(#viewTransaksi)>.header .header-title{color:#d1daf4;letter-spacing:.01em}
+.app-container .main-view:not(#viewTransaksi)>.header .balance-amount{font-family:'Poppins',sans-serif;letter-spacing:-.055em;font-size:clamp(23px,5vw,35px)}
+.app-container .content-section,.app-container .analysis-panel,.app-container .budget-container,.app-container .report-paper,.app-container .goal-form-card,.app-container .goal-summary-tile{border-color:#e7ebf3;box-shadow:0 4px 18px rgba(23,38,76,.045)}
+.app-container .section-title{font-family:'Poppins',sans-serif;letter-spacing:-.035em;color:#1c2b48}
+.app-container .form-control,.app-container .local-filter{border:1px solid #dce2ed;border-radius:11px;min-height:44px}
+.app-container .form-control:focus,.app-container .local-filter:focus{outline:0;border-color:#746de0;box-shadow:0 0 0 3px rgba(81,72,204,.12)}
+.goal-emoji-btn .ui-icon,.goal-icon-wrap .ui-icon,.goal-empty-icon .ui-icon{width:22px;height:22px}
+.goal-empty-icon{display:grid;place-items:center;margin:0 auto .75rem;width:48px;height:48px;border-radius:15px;background:#efedff;color:#5148cc}
+.analysis-panel-icon .ui-icon,.ai-avatar .ui-icon{width:20px;height:20px;color:#fff}
+.summary-tile-label .ui-icon,.budget-edit .ui-icon{width:15px;height:15px}
+.deposit-btn .ui-icon{width:15px;height:15px}
+.goal-simulasi-label .ui-icon,.goal-tag .ui-icon{width:13px;height:13px}
+.app-container button,.app-container a{-webkit-tap-highlight-color:transparent}
+.app-container button:focus-visible,.app-container a:focus-visible{outline:3px solid #8adbc4;outline-offset:2px}
+#viewTransaksi .card-title{display:flex;align-items:center;gap:6px}
+#viewTransaksi .card-title .ui-icon{width:15px;height:15px}
+#viewTransaksi .card-title:has(+ .income-text) .ui-icon{color:#078c70}
+#viewTransaksi .card-title:has(+ .expense-text) .ui-icon{color:#dc6570}
+.asset-goals-entry{display:flex;align-items:center;gap:12px;margin:18px 25px 0;padding:16px;background:#fff;border:1px solid #e5e9f2;border-radius:16px;box-shadow:0 4px 15px #1a28580a}
+.asset-goals-icon{width:41px;height:41px;display:grid;place-items:center;border-radius:12px;background:#efedff;color:#5148cc;flex:none}
+.asset-goals-entry>div:nth-child(2){flex:1;min-width:0}
+.asset-goals-entry strong{font-size:13px;color:#1d2a47}
+.asset-goals-entry p{font-size:10px;color:#8592a8;margin:4px 0 0;line-height:1.45}
+.asset-goals-entry button{border:0;background:none;color:#5148cc;font-size:11px;font-weight:800;white-space:nowrap;padding:8px 0}
+.goals-back{display:inline-flex;align-items:center;gap:5px;border:0;background:#ffffff25;color:#fff;border-radius:9px;padding:7px 10px;font-size:11px;font-weight:700;margin-bottom:14px}
+.app-container>.bottom-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;justify-items:stretch;padding:7px 11px calc(7px + env(safe-area-inset-bottom));min-height:70px;background:#fff;border-color:#e5e9f2;box-shadow:0 -7px 22px #1323480b}
+.app-container>.bottom-nav .nav-item{min-width:0;border-radius:12px;padding:6px 2px;gap:4px;font-size:10px;color:#8894a9;transition:background .15s,color .15s}
+.app-container>.bottom-nav .nav-item.active{color:#5148cc;background:#f0efff}
+.app-container>.bottom-nav .nav-item .ui-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;animation:none}
+.app-container>.fab-btn{width:53px;height:53px;bottom:87px;border-radius:17px;background:#5148cc;box-shadow:0 12px 26px #5148cc59;font-size:0;animation:none}
+.app-container>.fab-btn .ui-icon{width:26px;height:26px}
+#fabAiBtn{background:#263775!important;box-shadow:0 9px 22px #26377536!important;width:48px!important;height:48px!important;right:83px!important;bottom:90px!important}
+.settings-card{padding:0!important;max-height:min(91vh,850px)!important;overflow:auto;overscroll-behavior:contain;background:#f7f8fc!important}
+.settings-header{position:sticky;top:0;z-index:2;padding:21px 22px 17px;margin:0!important;background:#fff;border-bottom:1px solid #e9edf4}
+.settings-header .modal-title{font-family:'Poppins',sans-serif;font-size:20px;letter-spacing:-.04em}
+.settings-eyebrow{font-size:9px;font-weight:800;letter-spacing:.17em;color:#6259cd;margin-bottom:5px}
+.settings-profile{display:flex;align-items:center;gap:12px;background:linear-gradient(120deg,#192b57,#363e98);color:#fff;padding:18px;margin:18px 20px 22px;border-radius:16px}
+.settings-avatar{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:12px;background:#ffffff21;color:#fff}
+.settings-profile strong{display:block;font-size:13px}.settings-profile small{display:block;font-size:10px;color:#cbd3ec;margin-top:4px;overflow-wrap:anywhere}
+.settings-section{margin:0 20px 22px}.settings-section h4{font:800 11px 'Poppins',sans-serif;letter-spacing:.015em;color:#647189;margin:0 0 9px}
+.settings-group{background:#fff;border:1px solid #e5e9f2;border-radius:15px;overflow:hidden;box-shadow:0 3px 13px #27345408}
+.settings-row{display:flex;align-items:center;gap:12px;width:100%;min-height:51px;border:0;border-bottom:1px solid #edf0f5;background:#fff;padding:10px 14px;text-align:left;color:#26344e;font-size:12px;font-weight:700;box-shadow:none!important}
+.settings-row:last-child{border-bottom:0}.settings-row:hover{background:#fafbff}.settings-row .ui-icon{width:18px;height:18px;color:#6259cd}
+.settings-row span{flex:1;min-width:0}.settings-row b{color:#9da8b8;font-weight:600;font-size:17px}.settings-row-danger{color:#a54350}.settings-row-danger .ui-icon{color:#ce606c}
+.settings-status{font-size:11px;color:#77859c;line-height:1.5;padding:12px 14px;margin:0;border-bottom:1px solid #edf0f5;overflow-wrap:anywhere}
+.settings-bot-link{padding:13px;text-align:center;background:#f6f5ff;border-bottom:1px solid #e8e8f6}.settings-bot-link small{display:block;font-size:10px;color:#71809a}.settings-bot-link strong{display:block;font:800 26px 'Poppins',sans-serif;letter-spacing:.25em;color:#5148cc;margin:8px 0}.settings-bot-link span{display:block;font-size:10px;color:#c65c66}.settings-bot-link a{display:inline-block;margin-top:11px;padding:9px 13px;border-radius:9px;background:#5148cc;color:#fff;text-decoration:none;font-size:11px;font-weight:700}
+.admin-users-panel{padding:14px}.admin-users-summary{display:flex;align-items:baseline;gap:9px;color:#77859b;font-size:11px}.admin-users-summary strong{font:800 27px 'Poppins',sans-serif;color:#263675}.admin-users-panel>.settings-status{padding:5px 0 10px;border:0}.admin-user-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid #eef1f5}.admin-user-avatar{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#ecebfc;color:#5249c5;font-weight:800;font-size:13px;flex:none}.admin-user-detail{min-width:0}.admin-user-detail strong{display:block;font-size:11px;color:#263550}.admin-user-detail small{display:block;font-size:10px;color:#8b98aa;margin-top:2px;overflow-wrap:anywhere}.admin-users-more{width:100%;padding:10px;border:1px solid #dcdcf4;background:#f6f5ff;color:#5148cc;border-radius:9px;font-weight:700;font-size:11px;margin:8px 0}.admin-users-panel>small{display:block;color:#9ba5b6;font-size:10px;line-height:1.5;margin-top:8px}
+[hidden]{display:none!important}
+body.dark-mode .app-container,body.dark-mode .app-container .main-view,body.dark-mode .settings-card{background:#101a2d!important}
+body.dark-mode .settings-header,body.dark-mode .settings-group,body.dark-mode .settings-row,body.dark-mode .asset-goals-entry,body.dark-mode .app-container>.bottom-nav{background:#1e293b;border-color:#344158}
+body.dark-mode .settings-row{color:#e4eaf4;border-color:#344158}body.dark-mode .settings-section h4,body.dark-mode .settings-status{color:#aab6c9}body.dark-mode .asset-goals-entry strong{color:#e4eaf4}body.dark-mode .app-container .section-title{color:#eef2f8}
+@media(min-width:900px){.app-container>.bottom-nav{display:none}.asset-goals-entry{margin:18px 36px 0}#settingsModal{align-items:center}.settings-card{width:min(520px,calc(100% - 32px))!important;border-radius:22px!important;max-height:80vh!important;border:1px solid #e7ebf3}}
+@media(max-width:899px){.app-container .main-view{padding-bottom:100px}.app-container>.bottom-nav{display:grid}.asset-goals-entry{margin:14px 25px 0}#fabAiBtn{display:none!important}}
+@media(max-width:420px){.asset-goals-entry{margin:13px 16px 0}.asset-goals-entry button{font-size:10px}.settings-card{max-height:95vh!important}.app-container .main-view:not(#viewTransaksi)>.header{padding:24px 18px 40px}.app-container .content-section{padding-left:17px;padding-right:17px}}
+@media(prefers-reduced-motion:reduce){.app-container .main-view:not(.hidden),.app-container>.fab-btn,.app-container>.bottom-nav .nav-item .ui-icon{animation:none!important}.app-container .main-view{scroll-behavior:auto}}

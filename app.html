@@ -930,6 +930,7 @@
         #aiChatMessages { scroll-behavior:smooth; }
     </style>
     <link rel="stylesheet" href="./banking-ui.css?v=20261011">
+    <link rel="stylesheet" href="./professional-ui.css?v=20261011">
 </head>
 <body>
     <!-- ================= SPLASH SCREEN ================= -->
@@ -1087,15 +1088,14 @@
         <aside class="banking-sidebar" aria-label="Navigasi utama">
             <div class="banking-sidebar-brand"><img src="/icon.svg?v=20261008" alt="" width="34" height="34">MyFinanceApp</div>
             <div class="banking-sidebar-label">MENU UTAMA</div>
-            <button type="button" class="banking-side-link active" data-view="transaksi" onclick="switchView('transaksi')">▦ <span>Ringkasan & Transaksi</span></button>
-            <button type="button" class="banking-side-link" data-view="tabungan" onclick="switchView('tabungan')">▣ <span>Aset & Tabungan</span></button>
-            <button type="button" class="banking-side-link" data-view="goals" onclick="switchView('goals')">◎ <span>Goals</span></button>
+            <button type="button" class="banking-side-link active" data-view="transaksi" onclick="switchView('transaksi')"><svg class="ui-icon"><use href="/app-icons.svg#home"/></svg><span>Beranda & Transaksi</span></button>
+            <button type="button" class="banking-side-link" data-view="tabungan" onclick="switchView('tabungan')"><svg class="ui-icon"><use href="/app-icons.svg#wallet"/></svg><span>Aset & Tabungan</span></button>
             <div class="banking-sidebar-divider"></div>
             <div class="banking-sidebar-label">INSIGHT</div>
-            <button type="button" class="banking-side-link" data-view="analisis" onclick="switchView('analisis')">▥ <span>Analisis</span></button>
-            <button type="button" class="banking-side-link" data-view="laporan" onclick="switchView('laporan')">▤ <span>Laporan</span></button>
+            <button type="button" class="banking-side-link" data-view="analisis" onclick="switchView('analisis')"><svg class="ui-icon"><use href="/app-icons.svg#chart"/></svg><span>Analisis</span></button>
+            <button type="button" class="banking-side-link" data-view="laporan" onclick="switchView('laporan')"><svg class="ui-icon"><use href="/app-icons.svg#file"/></svg><span>Laporan</span></button>
             <div class="banking-sidebar-spacer"></div>
-            <button type="button" class="banking-side-link" onclick="openSettingsModal()">⚙ <span>Pengaturan akun</span></button>
+            <button type="button" class="banking-side-link" onclick="openSettingsModal()"><svg class="ui-icon"><use href="/app-icons.svg#settings"/></svg><span>Pengaturan akun</span></button>
         </aside>
         
         <div id="cloudLoader">
@@ -1104,7 +1104,7 @@
             <button type="button" id="cloudLoaderRetry" onclick="refreshApp()" style="display:none; margin-top:1rem; padding:0.75rem 1.25rem; border:0; border-radius:12px; background:var(--primary); color:white; font-weight:700; cursor:pointer;">Coba lagi</button>
         </div>
 
-        <div id="toastMsg"><span id="toastText">Tersimpan ✅</span></div>
+        <div id="toastMsg"><span id="toastText">Tersimpan</span></div>
         
         <div id="viewTransaksi" class="main-view">
             <div class="header">
@@ -1141,11 +1141,11 @@
 
             <div class="summary-cards">
             <div class="card">
-                <div class="card-title"><span style="font-size: 1.1rem;">📉</span> Pemasukan</div>
+                <div class="card-title"><svg class="ui-icon"><use href="/app-icons.svg#arrow-down"/></svg> Pemasukan</div>
                 <div class="card-amount income-text" id="totalIncome">Rp 0</div>
             </div>
             <div class="card">
-                <div class="card-title"><span style="font-size: 1.1rem;">📈</span> Pengeluaran</div>
+                <div class="card-title"><svg class="ui-icon"><use href="/app-icons.svg#arrow-up"/></svg> Pengeluaran</div>
                 <div class="card-amount expense-text" id="totalExpense">Rp 0</div>
             </div>
         </div>
@@ -1159,12 +1159,12 @@
             <div class="banking-quick-panel">
                 <div class="banking-panel-title"><h2>Aksi cepat</h2></div>
                 <div class="banking-quick-grid">
-                    <button type="button" onclick="openDashboardQuickAdd()"><i>＋</i>Catat cepat</button>
-                    <button type="button" onclick="document.getElementById('inputScanNota').click()"><i>▣</i>Scan nota</button>
-                    <button type="button" onclick="switchView('tabungan')"><i>◈</i>Aset</button>
-                    <button type="button" onclick="switchView('goals')"><i>◎</i>Goals</button>
-                    <button type="button" onclick="switchView('laporan')"><i>▤</i>Laporan</button>
-                    <button type="button" onclick="toggleAiModal()"><i>✧</i>Tanya AI</button>
+                    <button type="button" onclick="openDashboardQuickAdd()"><i><svg class="ui-icon"><use href="/app-icons.svg#plus"/></svg></i>Catat cepat</button>
+                    <button type="button" onclick="document.getElementById('inputScanNota').click()"><i><svg class="ui-icon"><use href="/app-icons.svg#scan"/></svg></i>Scan nota</button>
+                    <button type="button" onclick="switchView('tabungan')"><i><svg class="ui-icon"><use href="/app-icons.svg#wallet"/></svg></i>Aset</button>
+                    <button type="button" onclick="switchView('goals')"><i><svg class="ui-icon"><use href="/app-icons.svg#target"/></svg></i>Goals</button>
+                    <button type="button" onclick="switchView('laporan')"><i><svg class="ui-icon"><use href="/app-icons.svg#file"/></svg></i>Laporan</button>
+                    <button type="button" onclick="toggleAiModal()"><i><svg class="ui-icon"><use href="/app-icons.svg#spark"/></svg></i>Tanya AI</button>
                 </div>
             </div>
         </section>
@@ -1174,7 +1174,7 @@
         </section>
 
         <div class="banking-period-filter" style="padding: 0 1.5rem; margin-top: 1.25rem; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; flex-wrap: wrap; gap: 8px;">
-            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">🗓 Filter Periode:</span>
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#calendar"/></svg> Filter periode:</span>
             <div style="display: flex; gap: 4px; align-items: center; flex-wrap: nowrap;">
                 <input type="date" class="local-filter" id="startDateTop" onchange="applyDateFilter('startDateTop', 'endDateTop')" style="padding:0.3rem; font-size:0.75rem; width:115px;">
                 <span style="font-size:0.8rem; color:var(--text-main)">-</span>
@@ -1212,8 +1212,8 @@
                 <!-- Panel Catat Cepat (input teks natural) -->
                 <div id="quickAddPanel" class="quick-add-panel" style="display:none;">
                     <div class="quick-add-head">
-                        <span>⚡ Catat Cepat</span>
-                        <button type="button" class="quick-add-close" onclick="toggleQuickAdd(false)" title="Tutup">✕</button>
+                        <span>Catat cepat</span>
+                        <button type="button" class="quick-add-close" onclick="toggleQuickAdd(false)" title="Tutup" aria-label="Tutup catat cepat"><svg class="ui-icon"><use href="/app-icons.svg#close"/></svg></button>
                     </div>
                     <textarea id="quickAddInput" class="quick-add-input" rows="2" placeholder="Ketik transaksi, mis: beli makan 15rb, gaji 5jt, ngopi 25.000 pakai gopay kemarin"></textarea>
                     <div id="quickAddPreview" class="quick-add-preview">Mulai ketik untuk melihat hasil deteksi…</div>
@@ -1278,21 +1278,26 @@
             </div>
             <div class="summary-cards">
                 <div class="card" style="min-width: 45%;">
-                    <div class="card-title"><span style="font-size: 1.1rem;">💰</span> Tabungan Pribadi</div>
+                    <div class="card-title"><span style="font-size: 1.1rem;"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#wallet"/></svg></span> Tabungan pribadi</div>
                     <div class="card-amount" style="color:var(--savings);" id="totalSavingsOnly">Rp 0</div>
                 </div>
                 <div class="card" style="min-width: 45%;">
-                    <div class="card-title"><span style="font-size: 1.1rem;">📈</span> Investasi</div>
+                    <div class="card-title"><span style="font-size: 1.1rem;"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#chart"/></svg></span> Investasi</div>
                     <div class="card-amount invest-text" id="totalInvestOnly">Rp 0</div>
                 </div>
                 <div class="card" style="min-width: 100%;">
-                    <div class="card-title"><span style="font-size: 1.1rem;">🏠</span> Aset Fisik</div>
+                    <div class="card-title"><span style="font-size: 1.1rem;"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#home-asset"/></svg></span> Aset fisik</div>
                     <div class="card-amount tangible-text" id="totalTangibleOnly">Rp 0</div>
                 </div>
             </div>
+            <section class="asset-goals-entry" aria-label="Target keuangan">
+                <div class="asset-goals-icon"><svg class="ui-icon"><use href="/app-icons.svg#target"/></svg></div>
+                <div><strong>Goals & perencanaan</strong><p>Pantau target dan setoran dalam satu tempat.</p></div>
+                <button type="button" onclick="switchView('goals')" aria-label="Buka Goals">Lihat target <span aria-hidden="true">→</span></button>
+            </section>
             
             <div style="padding: 0 1.5rem; margin-top: 1.25rem; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; flex-wrap: wrap; gap: 8px;">
-                <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">🗓 Filter Periode:</span>
+                <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#calendar"/></svg> Filter periode:</span>
                 <div style="display: flex; gap: 4px; align-items: center; flex-wrap: nowrap;">
                     <input type="date" class="local-filter" id="startDateSav" onchange="applyDateFilter('startDateSav', 'endDateSav')" style="padding:0.3rem; font-size:0.75rem; width:115px;">
                     <span style="font-size:0.8rem; color:var(--text-main)">-</span>
@@ -1353,7 +1358,7 @@
             <div class="content-section" style="margin-top: -1.5rem; position: relative; z-index: 2;">
                 
                 <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 0.75rem 1rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); flex-wrap: wrap; gap: 8px;">
-                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">🗓 Periode:</span>
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#calendar"/></svg> Periode:</span>
                     <div style="display: flex; gap: 4px; align-items: center; flex-wrap: nowrap;">
                         <input type="date" class="local-filter" id="startDateAna" onchange="applyDateFilter('startDateAna', 'endDateAna')" style="padding:0.3rem; font-size:0.75rem; width:115px;">
                         <span style="font-size:0.8rem; color:var(--text-main)">-</span>
@@ -1370,7 +1375,7 @@
                 <!-- Skor Keuangan -->
                 <div class="analysis-panel" id="scorePanel">
                     <div class="analysis-panel-header">
-                        <div class="analysis-panel-icon" style="background:linear-gradient(135deg,#4F46E5,#818CF8);">📊</div>
+                        <div class="analysis-panel-icon" style="background:linear-gradient(135deg,#4F46E5,#818CF8);"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#chart"/></svg></div>
                         <div>
                             <div class="analysis-panel-title">Skor Kesehatan Keuangan</div>
                             <div class="analysis-panel-subtitle">Berdasarkan data periode yang dipilih</div>
@@ -1382,7 +1387,7 @@
                 <!-- Ringkasan Arus Kas -->
                 <div class="analysis-panel" id="cashflowPanel">
                     <div class="analysis-panel-header">
-                        <div class="analysis-panel-icon" style="background:linear-gradient(135deg,#10B981,#34D399);">💰</div>
+                        <div class="analysis-panel-icon" style="background:linear-gradient(135deg,#10B981,#34D399);"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#wallet"/></svg></div>
                         <div>
                             <div class="analysis-panel-title">Ringkasan Arus Kas</div>
                             <div class="analysis-panel-subtitle">Pemasukan vs Pengeluaran periode ini</div>
@@ -1394,7 +1399,7 @@
                 <!-- Analisis Per Kategori Pengeluaran -->
                 <div class="analysis-panel" id="catAnalysisPanel">
                     <div class="analysis-panel-header">
-                        <div class="analysis-panel-icon" style="background:linear-gradient(135deg,#EF4444,#F87171);">🔍</div>
+                        <div class="analysis-panel-icon" style="background:linear-gradient(135deg,#EF4444,#F87171);"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#search"/></svg></div>
                         <div>
                             <div class="analysis-panel-title">Analisis Kategori Pengeluaran</div>
                             <div class="analysis-panel-subtitle">Rincian & evaluasi tiap kategori</div>
@@ -1406,7 +1411,7 @@
                 <!-- Saran & Rekomendasi Aksi -->
                 <div class="analysis-panel" id="saranPanel">
                     <div class="analysis-panel-header">
-                        <div class="analysis-panel-icon" style="background:linear-gradient(135deg,#F59E0B,#FCD34D);">🎯</div>
+                        <div class="analysis-panel-icon" style="background:linear-gradient(135deg,#F59E0B,#FCD34D);"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#target"/></svg></div>
                         <div>
                             <div class="analysis-panel-title">Saran & Rekomendasi Aksi</div>
                             <div class="analysis-panel-subtitle">Langkah konkret untuk memperbaiki keuangan</div>
@@ -1419,7 +1424,7 @@
                 <div class="budget-container">
                     <div class="budget-header" style="margin-bottom: 0;">
                         <span class="budget-title" style="font-size:1rem;">Daftar Realisasi</span>
-                        <span class="budget-edit" onclick="openBudgetModal()">Atur Target ✏️</span>
+                        <span class="budget-edit" onclick="openBudgetModal()">Atur target <svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#edit"/></svg></span>
                     </div>
                     <div class="budget-breakdown" id="budgetBreakdownContainer"></div>
                 </div>
@@ -1464,7 +1469,7 @@
             <div class="content-section" style="margin-top: -1.5rem; position: relative; z-index: 2;">
                 
                 <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 0.75rem 1rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); flex-wrap: wrap; gap: 8px;">
-                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">🗓 Filter Periode:</span>
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#calendar"/></svg> Filter periode:</span>
                     <div style="display: flex; gap: 4px; align-items: center; flex-wrap: nowrap;">
                         <input type="date" class="local-filter" id="startDateLap" onchange="applyDateFilter('startDateLap', 'endDateLap')" style="padding:0.3rem; font-size:0.75rem; width:115px;">
                         <span style="font-size:0.8rem; color:var(--text-main)">-</span>
@@ -1473,8 +1478,8 @@
                 </div>
 
                 <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
-                    <button class="btn-submit btn-pdf" style="flex: 1; margin:0;" onclick="downloadPDF()">📄 Unduh PDF</button>
-                    <button class="btn-submit btn-csv" style="flex: 1; margin:0;" onclick="exportToCSV()">📊 Ekspor (CSV)</button>
+                    <button class="btn-submit btn-pdf" style="flex: 1; margin:0;" onclick="downloadPDF()"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#download"/></svg> Unduh PDF</button>
+                    <button class="btn-submit btn-csv" style="flex: 1; margin:0;" onclick="exportToCSV()"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#download"/></svg> Ekspor CSV</button>
                 </div>
                 
                 <div id="printableReport" class="report-paper">
@@ -1530,7 +1535,7 @@
         </div>
 
         <!-- FAB Tambah Transaksi -->
-        <button class="fab-btn" id="fabAddBtn" onclick="openAddTransaction()" title="Tambah Transaksi">+</button>
+        <button class="fab-btn" id="fabAddBtn" onclick="openAddTransaction()" title="Tambah Transaksi" aria-label="Tambah transaksi"><svg class="ui-icon"><use href="/app-icons.svg#plus"/></svg></button>
 
         <!-- FAB Asisten AI -->
         <button id="fabAiBtn" title="Asisten AI Cerdas"
@@ -1541,23 +1546,19 @@
 
         <div class="bottom-nav">
             <button class="nav-item active" onclick="switchView('transaksi')" id="navTransaksi">
-                <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> 
-                Transaksi
+                <svg class="ui-icon"><use href="/app-icons.svg#home"/></svg>
+                Beranda
             </button>
             <button class="nav-item" onclick="switchView('tabungan')" id="navTabungan">
-                <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg> 
+                <svg class="ui-icon"><use href="/app-icons.svg#wallet"/></svg>
                 Aset
             </button>
-            <button class="nav-item" onclick="switchView('goals')" id="navGoals">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.88-11.71L10 14.17l-1.88-1.88a.996.996 0 1 0-1.41 1.41l2.59 2.59c.39.39 1.02.39 1.41 0L17.3 9.7a.996.996 0 0 0 0-1.41c-.39-.39-1.03-.39-1.42 0z"/></svg>
-                Goals
-            </button>
             <button class="nav-item" onclick="switchView('analisis')" id="navAnalisis">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg> 
+                <svg class="ui-icon"><use href="/app-icons.svg#chart"/></svg>
                 Analisis
             </button>
             <button class="nav-item" onclick="switchView('laporan')" id="navLaporan">
-                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                <svg class="ui-icon"><use href="/app-icons.svg#file"/></svg>
                 Laporan
             </button>
         </div>
@@ -1565,6 +1566,7 @@
         <!-- =================== HALAMAN GOALS =================== -->
         <div id="viewGoals" class="main-view hidden">
             <div class="header goals-header-bg">
+                <button type="button" class="goals-back" onclick="switchView('tabungan')">← Kembali ke Aset</button>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
                     <div class="header-title">Goals & Perencanaan</div>
                 </div>
@@ -1590,7 +1592,7 @@
                     </div>
                     <div class="goal-summary-tile">
                         <div class="goal-summary-tile-label">Sudah Tercapai</div>
-                        <div class="goal-summary-tile-val" id="gsTercapai" style="color:var(--income);">0 🏆</div>
+                        <div class="goal-summary-tile-val" id="gsTercapai" style="color:var(--income);">0</div>
                     </div>
                 </div>
 
@@ -1598,7 +1600,7 @@
                 <div class="goal-form-card" id="goalFormCard">
                     <div class="goal-dropdown-header" onclick="toggleGoalForm()" id="goalFormHeader">
                         <div class="goal-dropdown-header-left">
-                            <div class="goal-dropdown-header-icon" id="goalFormHeaderIcon">➕</div>
+                            <div class="goal-dropdown-header-icon" id="goalFormHeaderIcon"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#plus"/></svg></div>
                             <div>
                                 <div class="goal-dropdown-header-title" id="goalFormTitle">Tambah Target Baru</div>
                                 <div class="goal-dropdown-header-sub" id="goalFormSub">Klik untuk isi form target</div>
@@ -1615,7 +1617,7 @@
                             <div class="form-group" style="margin-top:1rem;">
                                 <label class="form-label">Pilih Ikon</label>
                                 <div class="goal-emoji-grid" id="goalEmojiGrid"></div>
-                                <input type="hidden" id="goalEmoji" value="🎯">
+                                <input type="hidden" id="goalEmoji" value="target">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Nama Target</label>
@@ -1636,9 +1638,9 @@
                             <div class="form-group">
                                 <label class="form-label">Prioritas</label>
                                 <select id="goalPriority" class="form-control">
-                                    <option value="tinggi">🔴 Tinggi — harus segera</option>
-                                    <option value="sedang" selected>🟡 Sedang — dalam rencana</option>
-                                    <option value="rendah">🟢 Rendah — jangka panjang</option>
+                                    <option value="tinggi">Tinggi — harus segera</option>
+                                    <option value="sedang" selected>Sedang — dalam rencana</option>
+                                    <option value="rendah">Rendah — jangka panjang</option>
                                 </select>
                             </div>
                             <button class="btn-submit" id="btnSaveGoal" onclick="saveGoal()"
@@ -1657,7 +1659,7 @@
                 <h3 class="section-title">Daftar Target</h3>
                 <div id="goalsList">
                     <div style="text-align:center;padding:2rem 1rem;color:var(--text-muted);">
-                        <div style="font-size:2.5rem;margin-bottom:0.75rem;">🎯</div>
+                        <div style="font-size:2.5rem;margin-bottom:0.75rem;"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#target"/></svg></div>
                         <div style="font-size:0.85rem;font-weight:600;">Belum ada target keuangan.</div>
                         <div style="font-size:0.78rem;margin-top:0.3rem;">Buat target pertama Anda di atas!</div>
                     </div>
@@ -1675,13 +1677,13 @@
                 </div>
                 <div class="goal-action-info" id="goalActionInfo"></div>
                 <button class="btn-submit" style="background:var(--income);margin-bottom:0.65rem;" onclick="openGoalDepositModal()">
-                    💰 Setor Dana ke Target
+                    <svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#wallet"/></svg> Setor dana ke target
                 </button>
                 <button class="btn-submit update-btn" style="margin-bottom:0.65rem;" onclick="triggerEditGoal()">
-                    ✏️ Edit Target
+                    <svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#edit"/></svg> Edit target
                 </button>
                 <button class="btn-submit" style="background:var(--expense);" onclick="triggerDeleteGoal()">
-                    🗑 Hapus Target
+                    <svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#trash"/></svg> Hapus target
                 </button>
             </div>
         </div>
@@ -1698,7 +1700,7 @@
                 <!-- Header tetap di atas -->
                 <div style="padding: 1.25rem 1.5rem 0.75rem; border-bottom: 1px solid var(--border); flex-shrink: 0;">
                     <div class="modal-header" style="margin-bottom:0;">
-                        <h3 class="modal-title">💰 Setor Dana ke Target</h3>
+                        <h3 class="modal-title"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#wallet"/></svg> Setor dana ke target</h3>
                         <button class="btn-close" onclick="closeGoalDepositModal()">&times;</button>
                     </div>
                 </div>
@@ -1759,7 +1761,7 @@
             <div class="modal-card" style="padding:0; max-height:92vh; display:flex; flex-direction:column; overflow:hidden;">
                 <div style="padding:1.25rem 1.5rem 0.75rem; border-bottom:1px solid var(--border); flex-shrink:0;">
                     <div class="modal-header" style="margin-bottom:0;">
-                        <h3 class="modal-title">✏️ Edit Setoran</h3>
+                        <h3 class="modal-title"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#edit"/></svg> Edit setoran</h3>
                         <button class="btn-close" onclick="closeDepositEditModal()">&times;</button>
                     </div>
                 </div>
@@ -1800,7 +1802,7 @@
             <div class="riwayat-modal" onclick="event.stopPropagation()">
                 <div class="riwayat-modal-handle"></div>
                 <div class="riwayat-modal-header">
-                    <div class="riwayat-modal-title">📋 Riwayat Transaksi</div>
+                    <div class="riwayat-modal-title"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#file"/></svg> Riwayat transaksi</div>
                     <div style="display:flex; align-items:center; gap:8px;">
                         <button id="riwayatTrxUndoBtn" class="btn-undo-perm" onclick="undoLastDelete()" disabled title="Tidak ada yang bisa dikembalikan">↩️ Undo<span class="undo-count"></span></button>
                         <button class="btn-close" onclick="closeRiwayatModal('trx')">&times;</button>
@@ -1817,20 +1819,20 @@
                         <select class="riwayat-filter-select" id="riwayatTrxKategori" onchange="renderRiwayatTrx()">
                             <option value="">Semua Kategori</option>
                         </select>
-                        <input class="riwayat-search" id="riwayatTrxSearch" placeholder="🔍 Cari…" oninput="renderRiwayatTrx()">
+                        <input class="riwayat-search" id="riwayatTrxSearch" placeholder="Cari transaksi…" oninput="renderRiwayatTrx()">
                     </div>
                     <div class="riwayat-count" id="riwayatTrxCount"></div>
                 </div>
                 <div class="riwayat-modal-body">
-                    <div class="click-hint" style="padding:0.5rem 1rem 0;">💡 Klik data untuk Edit/Hapus</div>
+                    <div class="click-hint" style="padding:0.5rem 1rem 0;">Pilih data untuk mengedit atau menghapus</div>
                     <ul class="transaction-list" id="riwayatTrxList" style="padding:0 1rem;"></ul>
                 </div>
                 <div class="riwayat-action-dimmer" id="riwayatTrxDimmer" onclick="closeRiwayatActionSheet('trx')"></div>
                 <div class="riwayat-action-sheet" id="riwayatTrxActionSheet">
                     <div class="riwayat-action-handle"></div>
                     <div class="riwayat-action-title" id="riwayatTrxActionTitle">Opsi Data</div>
-                    <button class="btn-submit update-btn" style="margin-bottom:0.65rem;" onclick="doEditFromRiwayat('trx')">✏️ Edit Data</button>
-                    <button class="btn-submit" style="background:var(--expense);" onclick="doDeleteFromRiwayat('trx')">🗑 Hapus Permanen</button>
+                    <button class="btn-submit update-btn" style="margin-bottom:0.65rem;" onclick="doEditFromRiwayat('trx')"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#edit"/></svg> Edit data</button>
+                    <button class="btn-submit" style="background:var(--expense);" onclick="doDeleteFromRiwayat('trx')"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#trash"/></svg> Hapus permanen</button>
                 </div>
             </div>
         </div>
@@ -1840,7 +1842,7 @@
             <div class="riwayat-modal" onclick="event.stopPropagation()">
                 <div class="riwayat-modal-handle"></div>
                 <div class="riwayat-modal-header">
-                    <div class="riwayat-modal-title">📋 Riwayat Aset / Tabungan</div>
+                    <div class="riwayat-modal-title"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#file"/></svg> Riwayat aset / tabungan</div>
                     <div style="display:flex; align-items:center; gap:8px;">
                         <button id="riwayatAsetUndoBtn" class="btn-undo-perm" onclick="undoLastDelete()" disabled title="Tidak ada yang bisa dikembalikan">↩️ Undo<span class="undo-count"></span></button>
                         <button class="btn-close" onclick="closeRiwayatModal('aset')">&times;</button>
@@ -1854,65 +1856,91 @@
                             <option value="investment">Investasi</option>
                             <option value="tangible">Aset Fisik</option>
                         </select>
-                        <input class="riwayat-search" id="riwayatAsetSearch" placeholder="🔍 Cari nama aset…" oninput="renderRiwayatAset()">
+                        <input class="riwayat-search" id="riwayatAsetSearch" placeholder="Cari nama aset…" oninput="renderRiwayatAset()">
                     </div>
                     <div class="riwayat-count" id="riwayatAsetCount"></div>
                 </div>
                 <div class="riwayat-modal-body">
-                    <div class="click-hint" style="padding:0.5rem 1rem 0;">💡 Klik data untuk Edit/Hapus</div>
+                    <div class="click-hint" style="padding:0.5rem 1rem 0;">Pilih data untuk mengedit atau menghapus</div>
                     <ul class="transaction-list" id="riwayatAsetList" style="padding:0 1rem;"></ul>
                 </div>
                 <div class="riwayat-action-dimmer" id="riwayatAsetDimmer" onclick="closeRiwayatActionSheet('aset')"></div>
                 <div class="riwayat-action-sheet" id="riwayatAsetActionSheet">
                     <div class="riwayat-action-handle"></div>
                     <div class="riwayat-action-title" id="riwayatAsetActionTitle">Opsi Aset</div>
-                    <button class="btn-submit update-btn" style="margin-bottom:0.65rem;" onclick="doEditFromRiwayat('aset')">✏️ Edit Data</button>
-                    <button class="btn-submit" style="background:var(--expense);" onclick="doDeleteFromRiwayat('aset')">🗑 Hapus Permanen</button>
+                    <button class="btn-submit update-btn" style="margin-bottom:0.65rem;" onclick="doEditFromRiwayat('aset')"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#edit"/></svg> Edit data</button>
+                    <button class="btn-submit" style="background:var(--expense);" onclick="doDeleteFromRiwayat('aset')"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#trash"/></svg> Hapus permanen</button>
                 </div>
             </div>
         </div>
 
         <!-- ================== MODALS ================== -->
         <div id="settingsModal" class="modal-overlay">
-            <div class="modal-card" style="max-height: 85vh;">
-                <div class="modal-header" style="margin-bottom: 1rem;">
-                    <h3 class="modal-title">⚙️ Pengaturan</h3>
-                    <button class="btn-close" onclick="closeSettingsModal()">&times;</button>
+            <div class="modal-card settings-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+                <div class="modal-header settings-header">
+                    <div><div class="settings-eyebrow">AKUN & APLIKASI</div><h3 class="modal-title" id="settingsTitle">Pengaturan</h3></div>
+                    <button class="btn-close" type="button" onclick="closeSettingsModal()" aria-label="Tutup pengaturan">&times;</button>
                 </div>
-                
-                <div style="font-size:0.85rem; font-weight:700; color:var(--primary); margin-bottom:0.5rem; text-transform:uppercase;">Akun & Keamanan</div>
-                <div style="background:var(--surface-color); border:1px solid var(--border); border-radius:12px; padding:1rem; margin-bottom:1.5rem;">
-                    <button class="btn-submit" style="background:var(--card-bg); color:var(--text-main); border:1px solid var(--border); box-shadow:none; text-align:left; padding:0.75rem 1rem; margin-bottom:0.5rem;" onclick="updateName()">👤 Ubah Nama Profil</button>
-                    <button class="btn-submit" style="background:var(--card-bg); color:var(--text-main); border:1px solid var(--border); box-shadow:none; text-align:left; padding:0.75rem 1rem; margin-bottom:0.5rem;" onclick="updatePassword()">🔑 Ubah Password</button>
-                    <button id="btnLinkGoogle" class="btn-submit" style="background:var(--card-bg); color:var(--text-main); border:1px solid var(--border); box-shadow:none; text-align:left; padding:0.75rem 1rem; margin-bottom:0.5rem;" onclick="linkGoogleAccount()">📧 Hubungkan Akun Google</button>
+                <div class="settings-profile">
+                    <div class="settings-avatar"><svg class="ui-icon"><use href="/app-icons.svg#user"/></svg></div>
+                    <div><strong id="settingsProfileName">Akun MyFinanceApp</strong><small id="settingsProfileEmail">Kelola profil dan preferensi Anda</small></div>
                 </div>
 
-                <div style="font-size:0.85rem; font-weight:700; color:var(--primary); margin-bottom:0.5rem; text-transform:uppercase;">Bot & Otomasi</div>
-                <div style="background:var(--surface-color); border:1px solid var(--border); border-radius:12px; padding:1rem; margin-bottom:1.5rem;">
-                    <div id="botStatusLine" style="font-size:0.8rem; font-weight:600; margin-bottom:0.75rem;">Status: memeriksa...</div>
-                    <button id="btnGenBotLink" class="btn-submit" style="background:var(--card-bg); color:var(--text-main); border:1px solid var(--border); box-shadow:none; text-align:left; padding:0.75rem 1rem; margin-bottom:0.5rem; width:100%;" onclick="genBotLink()">🤖 Hubungkan Bot Telegram</button>
-                    <div id="botLinkBox" style="display:none; text-align:center; background:var(--primary-light); border:1px dashed var(--primary); border-radius:12px; padding:0.9rem; margin-bottom:0.5rem;">
-                        <div style="font-size:0.72rem; color:var(--text-muted);">Kirim kode ini ke bot (atau tap tombol kirim di bawah — otomatis ke bot):</div>
-                        <div id="botLinkCode" style="font-size:1.9rem; font-weight:800; color:var(--primary); letter-spacing:0.45rem; margin:0.45rem 0; font-family:'Poppins',sans-serif;"></div>
-                        <div id="botLinkCountdown" style="font-size:0.7rem; color:var(--expense); font-weight:600;"></div>
-                        <a id="botLinkDeep" href="#" target="_blank" rel="noopener" style="display:inline-block; margin-top:0.65rem; background:var(--primary); color:#fff; padding:0.6rem 1.2rem; border-radius:12px; font-size:0.82rem; font-weight:700; text-decoration:none;">Buka Telegram & Kirim Kode</a>
+                <section class="settings-section" aria-labelledby="settingsAccountTitle">
+                    <h4 id="settingsAccountTitle">Akun & keamanan</h4>
+                    <div class="settings-group">
+                        <button class="settings-row" type="button" onclick="updateName()"><svg class="ui-icon"><use href="/app-icons.svg#user"/></svg><span>Ubah nama profil</span><b aria-hidden="true">›</b></button>
+                        <button class="settings-row" type="button" onclick="updatePassword()"><svg class="ui-icon"><use href="/app-icons.svg#lock"/></svg><span>Ubah kata sandi</span><b aria-hidden="true">›</b></button>
+                        <button id="btnLinkGoogle" class="settings-row" type="button" onclick="linkGoogleAccount()"><svg class="ui-icon"><use href="/app-icons.svg#mail"/></svg><span>Hubungkan akun Google</span><b aria-hidden="true">›</b></button>
                     </div>
-                    <button id="btnBotUnlink" class="btn-submit" style="display:none; background:var(--card-bg); color:var(--warning-text); border:1px solid #FECACA; box-shadow:none; text-align:left; padding:0.75rem 1rem; width:100%;" onclick="unlinkBot()">🔌 Putuskan Koneksi Bot</button>
-                </div>
+                </section>
 
-                <div style="font-size:0.85rem; font-weight:700; color:var(--primary); margin-bottom:0.5rem; text-transform:uppercase;">Umum & Aplikasi</div>
-                <div style="background:var(--surface-color); border:1px solid var(--border); border-radius:12px; padding:1rem; margin-bottom:1.5rem;">
-                    <button class="btn-submit" style="background:var(--card-bg); color:var(--text-main); border:1px solid var(--border); box-shadow:none; text-align:left; padding:0.75rem 1rem; margin-bottom:0.5rem;" onclick="toggleNotif()">🔔 Notifikasi & Pengingat</button>
-                    <button class="btn-submit" style="background:var(--card-bg); color:var(--text-main); border:1px solid var(--border); box-shadow:none; text-align:left; padding:0.75rem 1rem; margin-bottom:0.5rem;" onclick="changeLanguage()">🌐 Bahasa (Language)</button>
-                    <button class="btn-submit" style="background:var(--card-bg); color:var(--text-main); border:1px solid var(--border); box-shadow:none; text-align:left; padding:0.75rem 1rem;" onclick="showHelp()">❓ Bantuan & FAQ</button>
-                </div>
+                <section class="settings-section" aria-labelledby="settingsBotTitle">
+                    <h4 id="settingsBotTitle">Bot & otomasi</h4>
+                    <div class="settings-group">
+                        <p id="botStatusLine" class="settings-status" role="status">Status: memeriksa...</p>
+                        <button id="btnGenBotLink" class="settings-row" type="button" onclick="genBotLink()"><svg class="ui-icon"><use href="/app-icons.svg#bot"/></svg><span>Hubungkan bot Telegram</span><b aria-hidden="true">›</b></button>
+                        <div id="botLinkBox" class="settings-bot-link" style="display:none">
+                            <small>Kirim kode ini ke bot Telegram. Berlaku 10 menit.</small>
+                            <strong id="botLinkCode"></strong>
+                            <span id="botLinkCountdown"></span>
+                            <a id="botLinkDeep" href="#" target="_blank" rel="noopener">Buka Telegram & kirim kode</a>
+                        </div>
+                        <button id="btnBotUnlink" class="settings-row settings-row-danger" type="button" style="display:none" onclick="unlinkBot()"><svg class="ui-icon"><use href="/app-icons.svg#unlink"/></svg><span>Putuskan koneksi bot</span><b aria-hidden="true">›</b></button>
+                    </div>
+                </section>
 
-                <div style="font-size:0.85rem; font-weight:700; color:var(--primary); margin-bottom:0.5rem; text-transform:uppercase;">Preferensi & Data</div>
-                <div style="background:var(--surface-color); border:1px solid var(--border); border-radius:12px; padding:1rem; margin-bottom:1.5rem;">
-                    <button class="btn-submit" style="background:var(--card-bg); color:var(--text-main); border:1px solid var(--border); box-shadow:none; text-align:left; padding:0.75rem 1rem; margin-bottom:0.5rem;" onclick="exportAllData()">💾 Export Seluruh Data JSON</button>
-                    <button class="btn-submit" style="background:var(--card-bg); color:var(--expense); border:1px solid var(--border); box-shadow:none; text-align:left; padding:0.75rem 1rem; margin-bottom:0.5rem;" onclick="handleLogout()">🚪 Keluar / Logout Akun</button>
-                    <button class="btn-submit" style="background:var(--warning-bg); color:var(--warning-text); border:1px solid #FECACA; box-shadow:none; text-align:left; padding:0.75rem 1rem;" onclick="deleteAccountPermanently()">☠️ Hapus Akun Permanen</button>
-                </div>
+                <section class="settings-section" aria-labelledby="settingsPreferenceTitle">
+                    <h4 id="settingsPreferenceTitle">Preferensi & bantuan</h4>
+                    <div class="settings-group">
+                        <button class="settings-row" type="button" onclick="toggleDarkMode()"><svg class="ui-icon"><use href="/app-icons.svg#settings"/></svg><span>Ganti tema tampilan</span><b aria-hidden="true">›</b></button>
+                        <button class="settings-row" type="button" onclick="toggleNotif()"><svg class="ui-icon"><use href="/app-icons.svg#bell"/></svg><span>Notifikasi & pengingat</span><b aria-hidden="true">›</b></button>
+                        <button class="settings-row" type="button" onclick="changeLanguage()"><svg class="ui-icon"><use href="/app-icons.svg#globe"/></svg><span>Bahasa</span><b aria-hidden="true">›</b></button>
+                        <button class="settings-row" type="button" onclick="showHelp()"><svg class="ui-icon"><use href="/app-icons.svg#help"/></svg><span>Bantuan & FAQ</span><b aria-hidden="true">›</b></button>
+                    </div>
+                </section>
+
+                <section class="settings-section" aria-labelledby="settingsDataTitle">
+                    <h4 id="settingsDataTitle">Data & sesi</h4>
+                    <div class="settings-group">
+                        <button class="settings-row" type="button" onclick="exportAllData()"><svg class="ui-icon"><use href="/app-icons.svg#download"/></svg><span>Ekspor seluruh data (JSON)</span><b aria-hidden="true">›</b></button>
+                        <button class="settings-row settings-row-danger" type="button" onclick="handleLogout()"><svg class="ui-icon"><use href="/app-icons.svg#logout"/></svg><span>Keluar dari akun</span><b aria-hidden="true">›</b></button>
+                    </div>
+                </section>
+
+                <section id="adminSettingsSection" class="settings-section" aria-labelledby="settingsAdminTitle" hidden>
+                    <h4 id="settingsAdminTitle">Administrasi</h4>
+                    <div class="settings-group">
+                        <button class="settings-row" type="button" onclick="toggleAdminUsers()" aria-controls="adminUsersPanel"><svg class="ui-icon"><use href="/app-icons.svg#users"/></svg><span>Pengguna aplikasi</span><b aria-hidden="true">›</b></button>
+                        <div id="adminUsersPanel" class="admin-users-panel" hidden>
+                            <div class="admin-users-summary"><strong id="adminUsersCount">—</strong><span>akun Firebase terdaftar</span></div>
+                            <p id="adminUsersStatus" class="settings-status" role="status">Buka untuk memuat daftar pengguna.</p>
+                            <div id="adminUsersList" class="admin-users-list"></div>
+                            <button id="adminUsersMore" class="admin-users-more" type="button" onclick="loadAdminUsers(false)" hidden>Muat pengguna berikutnya</button>
+                            <small>Daftar ini hanya mencakup akun Firebase Auth. Data keuangan pribadi tidak ditampilkan.</small>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
 
@@ -1958,7 +1986,7 @@
                     <div style="display:flex; gap:0.5rem; margin-bottom: 0.5rem;">
                         <input type="text" id="salaryInputModal" placeholder="Masukkan Gaji Anda (Rp)" class="form-control" style="border-color: var(--primary); background:var(--card-bg);" oninput="formatInputRupiah(event); updateBudgetStatus();">
                         <button class="btn-submit" style="width: auto; padding: 0 1rem;" onclick="generateRecommendations()">Otomatis</button>
-                        <button id="btnBudgetAI" onclick="generateBudgetAI()" style="width:auto;padding:0 1rem;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;border:none;border-radius:12px;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;">🤖 Saran AI</button>
+                        <button id="btnBudgetAI" onclick="generateBudgetAI()" style="width:auto;padding:0 1rem;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;border:none;border-radius:12px;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#spark"/></svg> Saran AI</button>
                     </div>
                     <div id="budgetAIStatus" style="display:none;margin:.4rem 0;padding:.6rem .9rem;border-radius:10px;font-size:.79rem;text-align:center;font-weight:500;"></div>
                     <div id="budgetStatusText" style="font-size: 0.75rem; font-weight: 600; color: var(--expense);"></div>
@@ -1974,8 +2002,8 @@
                     <h3 class="modal-title">Opsi Data</h3>
                     <button class="btn-close" onclick="closeItemActionModal()">&times;</button>
                 </div>
-                <button class="btn-submit update-btn" onclick="triggerEditItem()">✏️ Edit Data</button>
-                <button class="btn-submit" style="background: var(--expense); margin-top:1rem" onclick="triggerDeleteItem()">🗑 Hapus Permanen</button>
+                <button class="btn-submit update-btn" onclick="triggerEditItem()"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#edit"/></svg> Edit data</button>
+                <button class="btn-submit" style="background: var(--expense); margin-top:1rem" onclick="triggerDeleteItem()"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#trash"/></svg> Hapus permanen</button>
             </div>
         </div>
 
@@ -2082,22 +2110,22 @@
                         </div>
                     </div>
                     <div style="display:flex;gap:6px;align-items:center;">
-                        <button onclick="toggleAiModal()" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--bg-color);color:var(--text-muted);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+                        <button onclick="toggleAiModal()" aria-label="Tutup asisten AI" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--bg-color);color:var(--text-muted);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#close"/></svg></button>
                     </div>
                 </div>
                 <!-- Quick prompts -->
                 <div id="quickPrompts" style="padding:0 1rem .55rem;display:flex;gap:6px;overflow-x:auto;flex-shrink:0;scrollbar-width:none;">
-                    <button class="ai-quick-btn" onclick="sendQuickPrompt('Bulan ini saya boros di kategori apa?')">📊 Analisis bulan ini</button>
-                    <button class="ai-quick-btn" onclick="sendQuickPrompt('Berikan saran cara hemat berdasarkan pengeluaran saya')">💡 Saran hemat</button>
-                    <button class="ai-quick-btn" onclick="sendQuickPrompt('Berapa total pengeluaran vs pemasukan bulan ini?')">💰 Ringkasan bulan ini</button>
-                    <button class="ai-quick-btn" onclick="sendQuickPrompt('Prediksi pengeluaran saya bulan depan')">🔮 Prediksi bulan depan</button>
+                    <button class="ai-quick-btn" onclick="sendQuickPrompt('Bulan ini saya boros di kategori apa?')"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#chart"/></svg> Analisis bulan ini</button>
+                    <button class="ai-quick-btn" onclick="sendQuickPrompt('Berikan saran cara hemat berdasarkan pengeluaran saya')"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#spark"/></svg> Saran hemat</button>
+                    <button class="ai-quick-btn" onclick="sendQuickPrompt('Berapa total pengeluaran vs pemasukan bulan ini?')"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#wallet"/></svg> Ringkasan bulan ini</button>
+                    <button class="ai-quick-btn" onclick="sendQuickPrompt('Prediksi pengeluaran saya bulan depan')"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#chart"/></svg> Prediksi bulan depan</button>
                 </div>
                 <!-- Area chat: HANYA ini yang scroll, tidak ada scroll ganda -->
                 <div id="aiChatMessages"
                     style="flex:1;overflow-y:auto;overflow-x:hidden;padding:0 1rem .5rem;display:flex;flex-direction:column;gap:10px;min-height:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;">
                     <div class="ai-bubble ai-bubble-bot">
-                        <div class="ai-avatar">🤖</div>
-                        <div class="ai-bubble-content">Halo! Saya <strong>Asisten AI Cerdas</strong> Anda 🤖<br>Tanya apapun tentang keuangan — analisis, saran hemat, atau prediksi pengeluaran!<br><br><span style="font-size:.76rem;opacity:.7;">💡 Riwayat hanya tersimpan bila kamu pilih "Simpan" saat menutup chat</span></div>
+                        <div class="ai-avatar"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#bot"/></svg></div>
+                        <div class="ai-bubble-content">Halo! Saya <strong>Asisten AI Cerdas</strong> Anda<br>Tanya apapun tentang keuangan — analisis, saran hemat, atau prediksi pengeluaran!<br><br><span style="font-size:.76rem;opacity:.7;"> Riwayat hanya tersimpan bila kamu pilih "Simpan" saat menutup chat</span></div>
                     </div>
                 </div>
                 <!-- Input area: flex-shrink:0 agar tidak tertekan keyboard -->
@@ -2121,11 +2149,11 @@
         <div id="aiClosePrompt" class="modal-overlay">
             <div class="modal-card" style="text-align:center;">
                 <div class="modal-header" style="justify-content:center;margin-bottom:.5rem;">
-                    <h3 class="modal-title">🤖 Riwayat Chat AI</h3>
+                    <h3 class="modal-title"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#bot"/></svg> Riwayat chat AI</h3>
                 </div>
                 <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1.5rem;">Chat tidak disimpan otomatis. Simpan riwayat ke cloud, atau hapus?</p>
-                <button class="btn-submit" style="width:100%;margin-bottom:.75rem;background:var(--warning-bg);color:var(--warning-text);border:1px solid #FECACA;box-shadow:none;" onclick="finishAiClose('delete')">🗑 Hapus Riwayat</button>
-                <button class="btn-submit" style="width:100%;margin-bottom:.75rem;background:var(--surface-color);color:var(--text-main);border:1px solid var(--border);box-shadow:none;" onclick="finishAiClose('save')">💾 Simpan Riwayat</button>
+                <button class="btn-submit" style="width:100%;margin-bottom:.75rem;background:var(--warning-bg);color:var(--warning-text);border:1px solid #FECACA;box-shadow:none;" onclick="finishAiClose('delete')"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#trash"/></svg> Hapus riwayat</button>
+                <button class="btn-submit" style="width:100%;margin-bottom:.75rem;background:var(--surface-color);color:var(--text-main);border:1px solid var(--border);box-shadow:none;" onclick="finishAiClose('save')"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#check"/></svg> Simpan riwayat</button>
                 <button class="btn-submit" style="width:100%;background:var(--primary);" onclick="cancelAiClose()">← Lanjut Chat</button>
             </div>
         </div>
@@ -2197,7 +2225,6 @@
         };
 
         const DB_COLLECTION = "keuangan_v2"; 
-        const isAdmin = true; 
         
         function safeGetLocal(key) {
             try { return localStorage.getItem(key); } catch(e) { return null; }
@@ -2339,7 +2366,7 @@
                 navItems['tabungan']  = document.getElementById('navTabungan');
                 navItems['analisis']  = document.getElementById('navAnalisis');
                 navItems['laporan']   = document.getElementById('navLaporan');
-                navItems['goals']     = document.getElementById('navGoals');
+                navItems['goals']     = document.getElementById('navTabungan');
                 switchView(initialAppView);
             } catch(e) { console.warn('switchToMainApp view init:', e); }
 
@@ -2387,7 +2414,7 @@
                     return userCredential.user.updateProfile({ displayName: name });
                 })
                 .then(() => {
-                    showToast('✅ Pendaftaran berhasil!');
+                    showToast('Pendaftaran berhasil!');
                 })
                 .catch((error) => {
                     errBox.innerText = 'Gagal mendaftar: ' + error.message;
@@ -2403,41 +2430,107 @@
             });
         }
 
-        // ================== PENGATURAN BERFUNGSI (UI UPDATE) ==================
+        // ================== PENGATURAN & ADMIN ==================
+        const ADMIN_EMAIL = 'haripamungkas519@gmail.com';
+        function uiIcon(name) {
+            return `<svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#${name}"></use></svg>`;
+        }
         function updateSettingsUI() {
-            const btnGoogle = document.getElementById('btnLinkGoogle');
-            
-            if(!btnGoogle) return;
-
             const user = auth.currentUser;
-            if (user) {
-                const isGoogleLinked = user.providerData.some(provider => provider.providerId === 'google.com');
-                
-                if (isGoogleLinked) {
-                    btnGoogle.innerHTML = '✅ Terhubung dengan Google';
-                    btnGoogle.style.color = '#10B981'; 
-                    btnGoogle.style.borderColor = '#A7F3D0';
-                    btnGoogle.onclick = () => showToast("Akun sudah terhubung ke Google ✅");
-                } else {
-                    btnGoogle.innerHTML = '📧 Hubungkan Akun Google';
-                    btnGoogle.style.color = 'var(--text-main)';
-                    btnGoogle.style.borderColor = 'var(--border)';
-                    btnGoogle.onclick = linkGoogleAccount;
-                }
+            const btnGoogle = document.getElementById('btnLinkGoogle');
+            const name = document.getElementById('displayProfileName')?.textContent?.trim();
+            document.getElementById('settingsProfileName').textContent = name || user?.displayName || 'Akun MyFinanceApp';
+            document.getElementById('settingsProfileEmail').textContent = user?.email || 'Akun lokal';
+            const isGoogleLinked = !!user?.providerData?.some(provider => provider.providerId === 'google.com');
+            if (isGoogleLinked) {
+                btnGoogle.innerHTML = `${uiIcon('mail')}<span>Terhubung dengan Google</span>${uiIcon('check')}`;
+                btnGoogle.onclick = () => showToast('Akun sudah terhubung ke Google');
             } else {
-                btnGoogle.innerHTML = '📧 Hubungkan Akun Google';
-                btnGoogle.style.color = 'var(--text-main)';
-                btnGoogle.style.borderColor = 'var(--border)';
+                btnGoogle.innerHTML = `${uiIcon('mail')}<span>Hubungkan akun Google</span><b aria-hidden="true">›</b>`;
                 btnGoogle.onclick = linkGoogleAccount;
             }
-
+            const adminSection = document.getElementById('adminSettingsSection');
+            adminSection.hidden = !(user && user.email?.toLowerCase() === ADMIN_EMAIL && user.emailVerified);
+            if (adminSection.hidden) {
+                document.getElementById('adminUsersPanel').hidden = true;
+                document.getElementById('adminUsersList').replaceChildren();
+                document.getElementById('adminUsersCount').textContent = '—';
+                adminUsersLoaded = false;
+                adminUsersPageToken = null;
+            }
         }
 
         function openSettingsModal() {
-            updateSettingsUI(); 
+            updateSettingsUI();
             updateBotStatusUI();
-            const m = document.getElementById('settingsModal');
-            if(m) m.classList.add('show');
+            document.getElementById('settingsModal')?.classList.add('show');
+        }
+
+        let adminUsersPageToken = null;
+        let adminUsersLoaded = false;
+        let adminUsersLoading = false;
+        function toggleAdminUsers() {
+            const panel = document.getElementById('adminUsersPanel');
+            if (!panel || document.getElementById('adminSettingsSection').hidden) return;
+            panel.hidden = !panel.hidden;
+            if (!panel.hidden && !adminUsersLoaded) loadAdminUsers(true);
+        }
+        async function loadAdminUsers(reset = false) {
+            if (adminUsersLoading) return;
+            const user = auth.currentUser;
+            const status = document.getElementById('adminUsersStatus');
+            const list = document.getElementById('adminUsersList');
+            const more = document.getElementById('adminUsersMore');
+            if (!user || user.email?.toLowerCase() !== ADMIN_EMAIL || !user.emailVerified) {
+                status.textContent = 'Masuk dengan akun Google admin yang terverifikasi.';
+                return;
+            }
+            adminUsersLoading = true;
+            more.disabled = true;
+            if (reset) { list.replaceChildren(); adminUsersPageToken = null; }
+            status.textContent = 'Memuat pengguna...';
+            try {
+                const token = await user.getIdToken();
+                const response = await fetch('/api/admin-users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ pageToken: adminUsersPageToken })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Gagal memuat pengguna');
+                if (auth.currentUser?.uid !== user.uid) return;
+                document.getElementById('adminUsersCount').textContent = Number(data.total).toLocaleString('id-ID');
+                for (const account of data.users || []) {
+                    const row = document.createElement('div');
+                    row.className = 'admin-user-row';
+                    const avatar = document.createElement('span');
+                    avatar.className = 'admin-user-avatar';
+                    avatar.textContent = (account.name || account.email || 'U').slice(0, 1).toUpperCase();
+                    const detail = document.createElement('span');
+                    detail.className = 'admin-user-detail';
+                    const displayName = document.createElement('strong');
+                    displayName.textContent = account.name || 'Tanpa nama';
+                    const email = document.createElement('small');
+                    email.textContent = account.email || 'Tanpa email';
+                    const meta = document.createElement('small');
+                    const created = account.createdAt ? new Date(account.createdAt).toLocaleDateString('id-ID') : '—';
+                    const lastSignIn = account.lastSignInAt ? new Date(account.lastSignInAt).toLocaleDateString('id-ID') : 'Belum pernah masuk';
+                    meta.textContent = `Daftar ${created} · Terakhir masuk ${lastSignIn}${account.disabled ? ' · Dinonaktifkan' : ''}`;
+                    detail.append(displayName, email, meta);
+                    row.append(avatar, detail);
+                    list.append(row);
+                }
+                adminUsersPageToken = data.nextPageToken || null;
+                adminUsersLoaded = true;
+                more.hidden = !adminUsersPageToken;
+                status.textContent = `${list.children.length} dari ${Number(data.total).toLocaleString('id-ID')} pengguna ditampilkan.`;
+            } catch (error) {
+                status.textContent = error.message || 'Daftar pengguna belum dapat dimuat.';
+                more.hidden = true;
+            } finally {
+                adminUsersLoading = false;
+                more.disabled = false;
+            }
         }
 
         // ================== HUBUNGAN BOT TELEGRAM ==================
@@ -2504,7 +2597,7 @@
                 const data = await resp.json();
                 if (!resp.ok) throw new Error(data.error || resp.status);
                 if (data.alreadyBound) {
-                    showToast("Profil ini sudah terhubung ke bot ✅");
+                    showToast("Profil ini sudah terhubung ke bot");
                     updateBotStatusUI();
                     return;
                 }
@@ -2536,9 +2629,9 @@
                 }
                 tick();
                 botLinkTimer = setInterval(tick, 1000);
-                showToast("Kode dibuat! Kirim ke bot Telegram kamu ✅");
+                showToast("Kode dibuat! Kirim ke bot Telegram kamu");
             } catch (e) {
-                showToast("Gagal: " + (e.message || 'coba lagi'));
+                showToast("Gagal:" + (e.message || 'coba lagi'));
             } finally {
                 btn.innerHTML = oldLabel;
                 btn.disabled = false;
@@ -2557,10 +2650,10 @@
                     });
                     const data = await resp.json();
                     if (!resp.ok) throw new Error(data.error || resp.status);
-                    showToast("Koneksi bot diputuskan 🔌");
+                    showToast("Koneksi bot diputuskan");
                     updateBotStatusUI();
                 } catch (e) {
-                    showToast("Gagal: " + (e.message || 'coba lagi'));
+                    showToast("Gagal:" + (e.message || 'coba lagi'));
                 }
             });
         }
@@ -2578,7 +2671,7 @@
             if(user) {
                 user.updateProfile({displayName: newName}).then(() => {
                     document.getElementById('displayProfileName').innerText = newName;
-                    showToast("Nama diperbarui ✅");
+                    showToast("Nama diperbarui");
                     updateProfileDB(newName);
                 }).catch(e => alert(e.message));
             } else {
@@ -2587,7 +2680,7 @@
                     APP_USERS[legacyId].name = newName;
                     safeSetLocal('registeredUsers', JSON.stringify(APP_USERS));
                     document.getElementById('displayProfileName').innerText = newName;
-                    showToast("Nama diperbarui ✅");
+                    showToast("Nama diperbarui");
                     updateProfileDB(newName);
                 }
             }
@@ -2609,7 +2702,7 @@
                 if(newPass.length < 6) return alert("Password minimal 6 karakter!");
                 
                 user.updatePassword(newPass).then(() => {
-                    showToast("Password diperbarui ✅");
+                    showToast("Password diperbarui");
                 }).catch(e => {
                     if(e.code === 'auth/requires-recent-login') {
                         alert("Harap logout dan login ulang sebelum mengubah password demi keamanan.");
@@ -2624,7 +2717,7 @@
                     if(!newPass) return;
                     APP_USERS[legacyId].pass = newPass;
                     safeSetLocal('registeredUsers', JSON.stringify(APP_USERS));
-                    showToast("Password diperbarui ✅");
+                    showToast("Password diperbarui");
                 }
             }
         }
@@ -2634,7 +2727,7 @@
             
             if(user && !user.isAnonymous) {
                 user.linkWithPopup(googleProvider).then((result) => {
-                    showToast("Akun berhasil terhubung ke Google ✅");
+                    showToast("Akun berhasil terhubung ke Google");
                     updateSettingsUI(); 
                 }).catch((error) => {
                     if(error.code === 'auth/credential-already-in-use') {
@@ -2699,11 +2792,11 @@
             const isEnabled = safeGetLocal('notif_enabled') === 'true';
             if(isEnabled) {
                 safeSetLocal('notif_enabled', 'false');
-                showToast("Notifikasi Dimatikan 🔕");
+                showToast("Notifikasi Dimatikan");
             } else {
                 requireConfirm("Aktifkan Notifikasi untuk pengingat catat keuangan harian?", () => {
                     safeSetLocal('notif_enabled', 'true');
-                    showToast("Notifikasi Diaktifkan 🔔");
+                    showToast("Notifikasi Diaktifkan");
                 });
             }
         }
@@ -2733,7 +2826,7 @@
             document.body.appendChild(downloadAnchorElem);
             downloadAnchorElem.click();
             downloadAnchorElem.remove();
-            showToast("Semua Data Berhasil Diekspor ✅");
+            showToast("Semua Data Berhasil Diekspor");
         }
 
         function handleLogout() {
@@ -2765,34 +2858,6 @@
             safeSetLocal('globalStartDate', '');
             safeSetLocal('globalEndDate', '');
             applyDateFilter();
-        }
-
-        function deleteAccountPermanently() {
-            requireConfirm("PERINGATAN! Tindakan ini akan menghapus semua data transaksi, aset, dan akun Anda secara permanen. Anda yakin ingin melanjutkan?", () => {
-                const user = auth.currentUser;
-                
-                if (currentProfileId) {
-                    db.collection(DB_COLLECTION).doc(currentProfileId).delete().catch(e => console.error(e));
-                }
-                
-                localStorage.clear();
-                
-                if(user) {
-                    user.delete().then(() => {
-                        alert("Akun dan data Anda telah berhasil dihapus.");
-                        window.location.reload();
-                    }).catch(err => {
-                        if(err.code === 'auth/requires-recent-login') {
-                            alert("Sistem membutuhkan login ulang demi keamanan sebelum menghapus akun secara permanen. Silakan logout lalu login kembali dan coba lagi.");
-                        } else {
-                            alert("Gagal menghapus akun: " + err.message);
-                        }
-                    });
-                } else {
-                    alert("Akun lokal dan data perangkat Anda telah berhasil dihapus.");
-                    window.location.reload();
-                }
-            });
         }
 
         // ================== SISTEM TANGGAL & TEMA (DIPERBARUI PERIODE GAJI) ==================
@@ -3009,7 +3074,7 @@
             toast.classList.add('show');
             undoTimeout = setTimeout(() => {
                 toast.classList.remove('show');
-                setTimeout(() => toast.innerHTML = '<span id="toastText">Tersimpan ✅</span>', 300); 
+                setTimeout(() => toast.innerHTML = '<span id="toastText">Tersimpan</span>', 300);
                 lastDeletedBackup = null; lastDeletedId = null; lastDeletedCollection = null;
             }, 6000); 
         };
@@ -3038,7 +3103,7 @@
             updateUndoButtons();
             db.collection(DB_COLLECTION).doc(currentProfileId).collection(entry.collection).doc(entry.id).set(entry.data)
             .then(() => {
-                showToast('Data dikembalikan ✅' + (undoStack.length ? ' (' + undoStack.length + ' lagi)' : ''));
+                showToast('Data dikembalikan' + (undoStack.length ? ' (' + undoStack.length + ' lagi)' : ''));
             }).catch(() => {
                 undoStack.push(entry);
                 updateUndoButtons();
@@ -3115,7 +3180,7 @@
             db.collection(DB_COLLECTION).doc(currentProfileId).collection(colName).doc(itemId).delete()
                 .then(() => {
                     if(lastDeletedId && lastDeletedBackup) pushUndo({ id: lastDeletedId, collection: lastDeletedCollection, data: { ...lastDeletedBackup } });
-                    showToastUndo('Data terhapus 🗑️');
+                    showToastUndo('Data terhapus');
                 })
                 .catch(() => showToast('Gagal menghapus'));
         }
@@ -3155,7 +3220,7 @@
             .then(() => { 
                 closeItemActionModal(); 
                 if(lastDeletedId && lastDeletedBackup) pushUndo({ id: lastDeletedId, collection: lastDeletedCollection, data: { ...lastDeletedBackup } });
-                showToastUndo("Data terhapus 🗑️");
+                showToastUndo("Data terhapus");
                 // Kembali ke modal riwayat setelah hapus
                 setTimeout(() => openRiwayatModal(src === 'trx' ? 'transaksi' : 'aset'), 350);
             })
@@ -3184,7 +3249,7 @@
                         const imageEl = document.getElementById('cropImage'); 
                         if(!imageEl) return;
                         try { await ensureCropper(); }
-                        catch(error) { showToast('❌ ' + error.message); return; }
+                        catch(error) { showToast(error.message); return; }
                         imageEl.src = event.target.result; 
                         const cropM = document.getElementById('cropModal');
                         if(cropM) cropM.classList.add('show'); 
@@ -3213,7 +3278,7 @@
                 if(imgEl) imgEl.src = base64Img; 
             } 
             closeCropModal(); 
-            showToast("Foto Diperbarui ✅"); 
+            showToast("Foto Diperbarui");
         }
 
         function deleteProfilePhoto() { 
@@ -3405,7 +3470,7 @@
             for (const [wName, wBal] of Object.entries(walletBalances)) {
                 totalAll += wBal; if(!wallets.includes(wName) && wBal === 0) continue;
                 let delBtn = wName !== 'Tunai' ? `<button onclick="deleteWallet('${wName}')" style="background:none; border:none; color:var(--expense); font-size:1.1rem; cursor:pointer; padding-left:0.5rem;" title="Hapus Rekening">&times;</button>` : '';
-                container.innerHTML += `<div class="wallet-list-item"><div class="wallet-name-sec"><span style="font-size: 1.2rem;">🏦</span>${wName}</div><div style="display:flex; align-items:center;"><div class="wallet-bal-sec ${wBal < 0 ? 'expense-text' : ''}">${formatRupiah(wBal)}</div>${delBtn}</div></div>`;
+                container.innerHTML += `<div class="wallet-list-item"><div class="wallet-name-sec">${uiIcon('bank')}${wName}</div><div style="display:flex; align-items:center;"><div class="wallet-bal-sec ${wBal < 0 ? 'expense-text' : ''}">${formatRupiah(wBal)}</div>${delBtn}</div></div>`;
             }
             container.innerHTML += `<div class="wallet-list-item" style="border-bottom:none; border-top: 2px solid var(--border); margin-top:0.5rem; padding-top:1rem;"><div class="wallet-name-sec" style="font-weight:800; font-size:1rem; text-transform:uppercase;">TOTAL KESELURUHAN</div><div class="wallet-bal-sec" style="font-weight:800; font-size:1.1rem; color: var(--primary);">${formatRupiah(totalAll)}</div></div>`;
             const modal = document.getElementById('walletModal'); if(modal) modal.classList.add('show');
@@ -3416,7 +3481,7 @@
             const inp = document.getElementById('newWalletInput'); const val = inp ? inp.value.trim() : '';
             if(!val) return; if(wallets.includes(val)) return showToast("Rekening sudah ada!");
             wallets.push(val); safeSetLocal(`wallets_${currentProfileId}`, JSON.stringify(wallets));
-            renderWalletOptions(); inp.value = ''; openWalletModal(); showToast("Rekening Ditambahkan ✅");
+            renderWalletOptions(); inp.value = ''; openWalletModal(); showToast("Rekening Ditambahkan");
         }
 
         function deleteWallet(walletName) {
@@ -3530,10 +3595,10 @@
             if(badgeCont) {
                 let badgeHtml = '';
                 if (income > 0) {
-                    if (expense === 0) badgeHtml = `<span class="badge-level" style="background:#10B981;" onclick="triggerConfetti()">🌟 Sempurna</span>`;
-                    else if (expense < income * 0.5) badgeHtml = `<span class="badge-level" style="background:#10B981; border-color:#059669;" onclick="triggerConfetti()">🏅 Level: Si Hemat</span>`;
-                    else if (expense < income * 0.8) badgeHtml = `<span class="badge-level" style="background:#F59E0B; border-color:#D97706;">⚠️ Waspada</span>`;
-                    else badgeHtml = `<span class="badge-level" style="background:#EF4444; border-color:#B91C1C;">🚨 Defisit</span>`;
+                    if (expense === 0) badgeHtml = `<span class="badge-level" style="background:#10B981;" onclick="triggerConfetti()">Sempurna</span>`;
+                    else if (expense < income * 0.5) badgeHtml = `<span class="badge-level" style="background:#10B981; border-color:#059669;" onclick="triggerConfetti()">Level: Si Hemat</span>`;
+                    else if (expense < income * 0.8) badgeHtml = `<span class="badge-level" style="background:#F59E0B; border-color:#D97706;">Waspada</span>`;
+                    else badgeHtml = `<span class="badge-level" style="background:#EF4444; border-color:#B91C1C;">Defisit</span>`;
                 }
                 badgeCont.innerHTML = badgeHtml;
             }
@@ -3554,7 +3619,7 @@
             filteredTrx.forEach((t) => { 
                 const isTransfer = t.type === 'transfer'; const sign = t.type === 'income' ? '+' : t.type === 'expense' ? '-' : '⇄'; 
                 const colorClass = t.type === 'income' ? 'income-text' : t.type === 'expense' ? 'expense-text' : 'transfer-text'; 
-                const walletName = isTransfer ? `${t.wallet || 'Tunai'} ➔ ${t.walletTo || '?'}` : (t.wallet || 'Tunai');
+                const walletName = isTransfer ? `${t.wallet || 'Tunai'} → ${t.walletTo || '?'}` : (t.wallet || 'Tunai');
                 listEl.innerHTML += `<li class="transaction-item" onclick="openItemActionModal('${t.id}', 'trx')"><div class="transaction-info"><h4>${t.category}</h4><p>${displayDateDDMMYYYY(t.date)} <span class="wallet-badge">${walletName}</span> ${t.note ? `<br/><i>${t.note}</i>` : ''}</p></div><div class="transaction-amount ${colorClass}">${sign} ${formatRupiah(t.amount)}</div></li>`; 
             }); 
         };
@@ -3653,7 +3718,7 @@
         };
 
         const views = { 'transaksi': document.getElementById('viewTransaksi'), 'tabungan': document.getElementById('viewTabungan'), 'analisis': document.getElementById('viewAnalisis'), 'laporan': document.getElementById('viewLaporan'), 'goals': document.getElementById('viewGoals') };
-        const navItems = { 'transaksi': document.getElementById('navTransaksi'), 'tabungan': document.getElementById('navTabungan'), 'analisis': document.getElementById('navAnalisis'), 'laporan': document.getElementById('navLaporan'), 'goals': document.getElementById('navGoals') };
+        const navItems = { 'transaksi': document.getElementById('navTransaksi'), 'tabungan': document.getElementById('navTabungan'), 'analisis': document.getElementById('navAnalisis'), 'laporan': document.getElementById('navLaporan'), 'goals': document.getElementById('navTabungan') };
 
         const switchView = (viewName) => { 
             if(!navItems[viewName] || !views[viewName]) return;
@@ -3661,7 +3726,8 @@
             Object.values(views).forEach(v => { try{ if(v) v.classList.add('hidden'); }catch(e){} });
             try{ views[viewName].classList.remove('hidden'); }catch(e){}
             try{ navItems[viewName].classList.add('active'); }catch(e){}
-            document.querySelectorAll('.banking-side-link[data-view]').forEach(btn => btn.classList.toggle('active', btn.dataset.view === viewName));
+            const activeNavView = viewName === 'goals' ? 'tabungan' : viewName;
+            document.querySelectorAll('.banking-side-link[data-view]').forEach(btn => btn.classList.toggle('active', btn.dataset.view === activeNavView));
             if(viewName === 'analisis') renderAnalytics();
             if(viewName === 'laporan') renderLaporan();
             if(viewName === 'goals') renderGoals();
@@ -3688,7 +3754,7 @@
                 const dataToSave = { type: type, category: category, amount: amount, wallet: wallet, note: noteEl ? noteEl.value : '', date: formatCustomDate(dateEl.value) }; 
                 if(type === 'transfer') {
                     const wToSel = document.getElementById('walletToSelect'); const walletTo = wToSel ? wToSel.value : 'Tunai';
-                    if(wallet === walletTo) return showToast("⚠️ Rekening asal & tujuan tidak boleh sama!");
+                    if(wallet === walletTo) return showToast(" Rekening asal & tujuan tidak boleh sama!");
                     dataToSave.walletTo = walletTo;
                 }
                 
@@ -3857,7 +3923,7 @@
                 await db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions').add(data);
                 inp.value=''; quickAddPreviewUpdate();
                 var lbl=p.type==='income'?'Pemasukan':(p.type==='transfer'?'Transfer':'Pengeluaran');
-                showToast('Tersimpan \u2705 '+lbl+' Rp '+formatRupiahStr(p.amount));
+                showToast('Tersimpan \u2705'+lbl+' Rp '+formatRupiahStr(p.amount));
                 if(typeof triggerConfetti==='function') triggerConfetti();
                 if(inp) inp.focus();
             } catch(err){ console.error('quickAdd', err); showToast('Gagal menyimpan \u274c'); }
@@ -3917,7 +3983,7 @@
             statusEl.style.display = 'block';
             statusEl.style.background = 'var(--primary-light)';
             statusEl.style.color = 'var(--primary)';
-            statusEl.textContent = '🤖 AI sedang menganalisis pola keuangan Anda...';
+            statusEl.textContent = 'AI sedang menganalisis pola keuangan Anda...';
             btn.disabled = true;
 
             try {
@@ -4012,7 +4078,7 @@
             categoryBudgets["Lainnya"] = Math.round(wantsTotal * 0.05);
 
             categoryBudgets["Tabungan"] = Math.round(savingsTotal * 0.80); categoryBudgets["Infak"] = Math.round(savingsTotal * 0.20);
-            populateBudgetInputs(); updateBudgetStatus(); showToast("Rekomendasi Berhasil Dihitung ✅");
+            populateBudgetInputs(); updateBudgetStatus(); showToast("Rekomendasi Berhasil Dihitung");
         }
 
         window.updateBudgetStatus = function() {
@@ -4036,8 +4102,8 @@
             const statusEl = document.getElementById('budgetStatusText'); if(!statusEl) return;
             const sisa = salary - totalAllocated;
             if (salary === 0) { statusEl.innerText = ""; } 
-            else if (sisa < 0) { statusEl.innerText = `⚠️ Total anggaran melebihi gaji! (Kelebihan Rp ${formatRupiahStr(Math.abs(sisa))})`; statusEl.style.color = "var(--expense)"; } 
-            else { statusEl.innerText = `✅ Sisa Dana Belum Dialokasikan: Rp ${formatRupiahStr(sisa)}`; statusEl.style.color = "var(--income)"; }
+            else if (sisa < 0) { statusEl.innerText = `Total anggaran melebihi gaji! (Kelebihan Rp ${formatRupiahStr(Math.abs(sisa))})`; statusEl.style.color = "var(--expense)"; }
+            else { statusEl.innerText = `Sisa Dana Belum Dialokasikan: Rp ${formatRupiahStr(sisa)}`; statusEl.style.color = "var(--income)"; }
         };
 
         function populateBudgetInputs() {
@@ -4062,7 +4128,7 @@
             const inputs = document.querySelectorAll('.budget-input');
             inputs.forEach(input => { const cat = input.getAttribute('data-category'); const rawVal = input.value.replace(/\./g, ''); categoryBudgets[cat] = parseInt(rawVal) || 0; });
             safeSetLocal(`catBudgets_${currentProfileId}`, JSON.stringify(categoryBudgets)); 
-            closeBudgetModal(); renderAnalytics(); showToast("Perubahan Target Disimpan ✅");
+            closeBudgetModal(); renderAnalytics(); showToast("Perubahan Target Disimpan");
         }
 
         // ================== LAPORAN & CSV Logic ==================
@@ -4188,7 +4254,7 @@
             });
             const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent));
             link.setAttribute("download", `Transaksi_${(profiles.find(p => p.id === currentProfileId)?.name || "Data").replace(/\s+/g, '_')}.csv`); 
-            document.body.appendChild(link); link.click(); document.body.removeChild(link); showToast("Berhasil Diekspor ✅");
+            document.body.appendChild(link); link.click(); document.body.removeChild(link); showToast("Berhasil Diekspor");
         };
 
         // ================== CHARTS & TREND Logic ==================
@@ -4279,10 +4345,10 @@
 
             score = Math.min(100, Math.max(0, score));
             let grade, gradeColor, gradeSummary;
-            if (score >= 85) { grade = '🏆 Excellent'; gradeColor = '#10B981'; gradeSummary = 'Kondisi keuangan Anda sangat sehat! Pertahankan kebiasaan baik ini dan pertimbangkan diversifikasi aset lebih lanjut.'; }
-            else if (score >= 70) { grade = '👍 Baik'; gradeColor = '#3B82F6'; gradeSummary = 'Keuangan Anda dalam kondisi baik. Masih ada ruang untuk peningkatan, terutama di sisi tabungan dan investasi.'; }
-            else if (score >= 50) { grade = '⚠️ Perlu Perhatian'; gradeColor = '#F59E0B'; gradeSummary = 'Ada beberapa aspek keuangan yang perlu diperbaiki. Fokus pada pengendalian pengeluaran dan mulai menyisihkan untuk tabungan.'; }
-            else { grade = '🚨 Kritis'; gradeColor = '#EF4444'; gradeSummary = 'Kondisi keuangan membutuhkan perhatian serius. Segera evaluasi pengeluaran dan cari cara meningkatkan pemasukan.'; }
+            if (score >= 85) { grade = 'Excellent'; gradeColor = '#10B981'; gradeSummary = 'Kondisi keuangan Anda sangat sehat! Pertahankan kebiasaan baik ini dan pertimbangkan diversifikasi aset lebih lanjut.'; }
+            else if (score >= 70) { grade = 'Baik'; gradeColor = '#3B82F6'; gradeSummary = 'Keuangan Anda dalam kondisi baik. Masih ada ruang untuk peningkatan, terutama di sisi tabungan dan investasi.'; }
+            else if (score >= 50) { grade = 'Perlu Perhatian'; gradeColor = '#F59E0B'; gradeSummary = 'Ada beberapa aspek keuangan yang perlu diperbaiki. Fokus pada pengendalian pengeluaran dan mulai menyisihkan untuk tabungan.'; }
+            else { grade = 'Kritis'; gradeColor = '#EF4444'; gradeSummary = 'Kondisi keuangan membutuhkan perhatian serius. Segera evaluasi pengeluaran dan cari cara meningkatkan pemasukan.'; }
 
             // ── RENDER SKOR ──
             const scoreEl = document.getElementById('scoreContent');
@@ -4346,15 +4412,15 @@
                             <div class="summary-tile-val" style="color:${realSavingRate>=20?'var(--income)':realSavingRate>=10?'#F59E0B':'var(--expense)'}">${realSavingRate.toFixed(1)}%</div>
                         </div>
                         <div class="summary-tile">
-                            <div class="summary-tile-label">💰 Tabungan Pribadi</div>
+                            <div class="summary-tile-label">Tabungan Pribadi</div>
                             <div class="summary-tile-val" style="color:var(--savings);">${formatRupiah(totalSav)}</div>
                         </div>
                         <div class="summary-tile">
-                            <div class="summary-tile-label">📈 Investasi</div>
+                            <div class="summary-tile-label">Investasi</div>
                             <div class="summary-tile-val" style="color:var(--investment);">${formatRupiah(totalInv)}</div>
                         </div>
                         <div class="summary-tile">
-                            <div class="summary-tile-label">🎯 Tabungan Goals</div>
+                            <div class="summary-tile-label">Tabungan Goals</div>
                             <div class="summary-tile-val" style="color:#7C3AED;">${formatRupiah(totalGoalDep)}</div>
                         </div>
                     </div>
@@ -4387,36 +4453,36 @@
                         const catLower = cat.toLowerCase();
                         let insight = '';
                         if (catLower.includes('makan') || catLower.includes('food') || catLower.includes('kuliner')) {
-                            if (pctInc > 30) insight = '🍽️ Pengeluaran makan cukup besar (>' + pctInc.toFixed(0) + '% pemasukan). Coba meal prep atau masak sendiri untuk hemat.';
-                            else insight = '🍱 Pengeluaran makan masih wajar. Pertahankan!';
+                            if (pctInc > 30) insight = ' Pengeluaran makan cukup besar (>' + pctInc.toFixed(0) + '% pemasukan). Coba meal prep atau masak sendiri untuk hemat.';
+                            else insight = ' Pengeluaran makan masih wajar. Pertahankan!';
                         } else if (catLower.includes('transport') || catLower.includes('bensin') || catLower.includes('ojek') || catLower.includes('mobil') || catLower.includes('motor')) {
-                            if (pctInc > 15) insight = '🚗 Biaya transportasi cukup tinggi. Pertimbangkan kendaraan umum atau carpooling untuk efisiensi.';
-                            else insight = '🛵 Biaya transportasi masih terkendali.';
+                            if (pctInc > 15) insight = ' Biaya transportasi cukup tinggi. Pertimbangkan kendaraan umum atau carpooling untuk efisiensi.';
+                            else insight = ' Biaya transportasi masih terkendali.';
                         } else if (catLower.includes('hiburan') || catLower.includes('entertainment') || catLower.includes('nonton') || catLower.includes('game')) {
-                            if (pctInc > 10) insight = '🎮 Pengeluaran hiburan perlu dikontrol. Idealnya maksimal 10% dari pemasukan.';
-                            else insight = '🎉 Alokasi hiburan masih dalam batas wajar.';
+                            if (pctInc > 10) insight = ' Pengeluaran hiburan perlu dikontrol. Idealnya maksimal 10% dari pemasukan.';
+                            else insight = ' Alokasi hiburan masih dalam batas wajar.';
                         } else if (catLower.includes('belanja') || catLower.includes('fashion') || catLower.includes('pakaian') || catLower.includes('shopping')) {
-                            if (pctInc > 15) insight = '👗 Belanja konsumtif cukup besar. Bedakan antara kebutuhan dan keinginan sebelum membeli.';
-                            else insight = '🛍️ Pengeluaran belanja masih wajar.';
+                            if (pctInc > 15) insight = ' Belanja konsumtif cukup besar. Bedakan antara kebutuhan dan keinginan sebelum membeli.';
+                            else insight = ' Pengeluaran belanja masih wajar.';
                         } else if (catLower.includes('kesehatan') || catLower.includes('obat') || catLower.includes('dokter') || catLower.includes('medis')) {
-                            insight = '🏥 Biaya kesehatan adalah prioritas. Pertimbangkan BPJS atau asuransi kesehatan jika belum ada.';
+                            insight = ' Biaya kesehatan adalah prioritas. Pertimbangkan BPJS atau asuransi kesehatan jika belum ada.';
                         } else if (catLower.includes('pendidikan') || catLower.includes('kursus') || catLower.includes('buku') || catLower.includes('sekolah')) {
-                            insight = '📚 Investasi pendidikan adalah investasi terbaik. Pengeluaran ini sangat positif jangka panjang!';
+                            insight = ' Investasi pendidikan adalah investasi terbaik. Pengeluaran ini sangat positif jangka panjang!';
                         } else if (catLower.includes('tagihan') || catLower.includes('listrik') || catLower.includes('air') || catLower.includes('internet') || catLower.includes('pulsa')) {
-                            if (pctInc > 20) insight = '💡 Tagihan utilitas cukup besar. Cek penggunaan listrik & internet, ada yang bisa dikurangi?';
-                            else insight = '📱 Tagihan utilitas masih dalam batas normal.';
+                            if (pctInc > 20) insight = ' Tagihan utilitas cukup besar. Cek penggunaan listrik & internet, ada yang bisa dikurangi?';
+                            else insight = ' Tagihan utilitas masih dalam batas normal.';
                         } else if (catLower.includes('hutang') || catLower.includes('cicilan') || catLower.includes('kredit') || catLower.includes('pinjam')) {
-                            if (pctInc > 30) insight = '⚠️ Cicilan/hutang sangat besar (>' + pctInc.toFixed(0) + '% pemasukan). Prioritaskan pelunasan dan hindari hutang baru!';
-                            else if (pctInc > 15) insight = '📋 Cicilan cukup besar. Usahakan total cicilan tidak melebihi 30% pemasukan.';
-                            else insight = '✅ Porsi cicilan masih aman (di bawah 15% pemasukan).';
+                            if (pctInc > 30) insight = ' Cicilan/hutang sangat besar (>' + pctInc.toFixed(0) + '% pemasukan). Prioritaskan pelunasan dan hindari hutang baru!';
+                            else if (pctInc > 15) insight = ' Cicilan cukup besar. Usahakan total cicilan tidak melebihi 30% pemasukan.';
+                            else insight = ' Porsi cicilan masih aman (di bawah 15% pemasukan).';
                         } else if (catLower.includes('donasi') || catLower.includes('sedekah') || catLower.includes('amal') || catLower.includes('infak')) {
-                            insight = '❤️ Luar biasa! Berbagi adalah kebiasaan finansial yang mulia dan memberikan dampak positif.';
+                            insight = ' Luar biasa! Berbagi adalah kebiasaan finansial yang mulia dan memberikan dampak positif.';
                         } else if (catLower.includes('investasi') || catLower.includes('saham') || catLower.includes('reksa') || catLower.includes('emas')) {
-                            insight = '📈 Pengeluaran investasi adalah langkah cerdas untuk masa depan finansial Anda!';
+                            insight = ' Pengeluaran investasi adalah langkah cerdas untuk masa depan finansial Anda!';
                         } else {
-                            if (pct >= 30) insight = `💡 Kategori ini menyumbang ${pct.toFixed(1)}% dari total pengeluaran. Evaluasi apakah bisa dikurangi.`;
-                            else if (pct <= 10) insight = `✅ Porsi kategori ini sangat kecil dan terkendali.`;
-                            else insight = `📌 Porsi kategori ini wajar (${pct.toFixed(1)}% dari total pengeluaran).`;
+                            if (pct >= 30) insight = ` Kategori ini menyumbang ${pct.toFixed(1)}% dari total pengeluaran. Evaluasi apakah bisa dikurangi.`;
+                            else if (pct <= 10) insight = ` Porsi kategori ini sangat kecil dan terkendali.`;
+                            else insight = ` Porsi kategori ini wajar (${pct.toFixed(1)}% dari total pengeluaran).`;
                         }
 
                         const pctBadgeBg = statusClass === 'danger' ? '#FEE2E2' : statusClass === 'warning' ? '#FEF3C7' : statusClass === 'success' ? '#DCFCE7' : '#EEF2FF';
@@ -4454,19 +4520,19 @@
                 }
                 // Saran berdasarkan kondisi
                 if (expense > income && income > 0) {
-                    saranItems.push({ type: 'danger', icon: '🚨', text: '<strong>Defisit Keuangan!</strong> Pengeluaran Anda melebihi pemasukan sebesar ' + formatRupiah(expense - income) + '. Segera identifikasi pos pengeluaran terbesar dan pangkas pengeluaran tidak mendesak.' });
+                    saranItems.push({ type: 'danger', icon: uiIcon('help'), text: '<strong>Defisit Keuangan!</strong> Pengeluaran Anda melebihi pemasukan sebesar ' + formatRupiah(expense - income) + '. Segera identifikasi pos pengeluaran terbesar dan pangkas pengeluaran tidak mendesak.' });
                 } else if (income > 0 && realBalSaran > 0) {
-                    saranItems.push({ type: 'success', icon: '✅', text: '<strong>Surplus ' + formatRupiah(realBalSaran) + '!</strong> Anda berhasil menghasilkan lebih dari yang dikeluarkan. Alokasikan surplus ini untuk tabungan atau investasi.' });
+                    saranItems.push({ type: 'success', icon: uiIcon('target'), text: '<strong>Surplus ' + formatRupiah(realBalSaran) + '!</strong> Anda berhasil menghasilkan lebih dari yang dikeluarkan. Alokasikan surplus ini untuk tabungan atau investasi.' });
                 }
                 if (realSRSaran < 10 && income > 0) {
-                    saranItems.push({ type: 'warning', icon: '⚠️', text: '<strong>Saving rate terlalu rendah (' + realSRSaran.toFixed(1) + '%).</strong> Idealnya sisihkan minimal 10-20% dari pemasukan. Coba terapkan metode "bayar diri sendiri dulu" — transfer ke tabungan segera setelah gaji masuk.' });
+                    saranItems.push({ type: 'warning', icon: uiIcon('help'), text: '<strong>Saving rate terlalu rendah (' + realSRSaran.toFixed(1) + '%).</strong> Idealnya sisihkan minimal 10-20% dari pemasukan. Coba terapkan metode "bayar diri sendiri dulu" — transfer ke tabungan segera setelah gaji masuk.' });
                 } else if (realSRSaran >= 20) {
-                    saranItems.push({ type: 'success', icon: '🎯', text: '<strong>Saving rate Anda ' + realSRSaran.toFixed(1) + '% — sangat baik!</strong> Pertahankan kebiasaan menabung ini dan pertimbangkan untuk meningkatkan alokasi ke investasi.' });
+                    saranItems.push({ type: 'success', icon: uiIcon('target'), text: '<strong>Saving rate Anda ' + realSRSaran.toFixed(1) + '% — sangat baik!</strong> Pertahankan kebiasaan menabung ini dan pertimbangkan untuk meningkatkan alokasi ke investasi.' });
                 }
                 if (totalInv === 0 && income > 0) {
-                    saranItems.push({ type: 'info', icon: '📈', text: '<strong>Belum ada investasi.</strong> Pertimbangkan mulai berinvestasi di reksa dana, emas, atau saham untuk melindungi nilai uang dari inflasi. Mulai dari Rp 10.000–100.000/bulan sudah cukup.' });
+                    saranItems.push({ type: 'info', icon: uiIcon('chart'), text: '<strong>Belum ada investasi.</strong> Pertimbangkan mulai berinvestasi di reksa dana, emas, atau saham untuk melindungi nilai uang dari inflasi. Mulai dari Rp 10.000–100.000/bulan sudah cukup.' });
                 } else if (totalInv > 0) {
-                    saranItems.push({ type: 'success', icon: '💼', text: '<strong>Portofolio investasi Rp' + formatRupiah(totalInv) + '.</strong> Bagus! Pastikan investasi Anda terdiversifikasi dan sesuai dengan profil risiko serta tujuan keuangan Anda.' });
+                    saranItems.push({ type: 'success', icon: uiIcon('briefcase'), text: '<strong>Portofolio investasi Rp' + formatRupiah(totalInv) + '.</strong> Bagus! Pastikan investasi Anda terdiversifikasi dan sesuai dengan profil risiko serta tujuan keuangan Anda.' });
                 }
                 // Saran per kategori pengeluaran
                 const catEntries2 = Object.entries(expenseGroups).sort((a, b) => b[1] - a[1]);
@@ -4474,30 +4540,30 @@
                     const top = catEntries2[0];
                     const topPct = expense > 0 ? (top[1]/expense*100) : 0;
                     if (topPct > 35) {
-                        saranItems.push({ type: 'warning', icon: '🔎', text: `<strong>Kategori "${top[0]}" mendominasi ${topPct.toFixed(0)}% pengeluaran.</strong> Evaluasi apakah ini pengeluaran yang bisa dioptimalkan. Pertimbangkan cara alternatif yang lebih hemat.` });
+                        saranItems.push({ type: 'warning', icon: uiIcon('search'), text: `<strong>Kategori "${top[0]}" mendominasi ${topPct.toFixed(0)}% pengeluaran.</strong> Evaluasi apakah ini pengeluaran yang bisa dioptimalkan. Pertimbangkan cara alternatif yang lebih hemat.` });
                     }
                     // Cek kategori hiburan
                     const hiburanEntry = catEntries2.find(([c]) => /hiburan|entertainment|nonton|game|streaming/i.test(c));
                     if (hiburanEntry && income > 0 && (hiburanEntry[1]/income*100) > 10) {
-                        saranItems.push({ type: 'warning', icon: '🎮', text: `<strong>Pengeluaran hiburan (${formatRupiah(hiburanEntry[1])}) cukup tinggi.</strong> Tetapkan anggaran hiburan bulanan dan patuhi batasnya. Manfaatkan layanan gratis atau berbagi langganan streaming.` });
+                        saranItems.push({ type: 'warning', icon: uiIcon('help'), text: `<strong>Pengeluaran hiburan (${formatRupiah(hiburanEntry[1])}) cukup tinggi.</strong> Tetapkan anggaran hiburan bulanan dan patuhi batasnya. Manfaatkan layanan gratis atau berbagi langganan streaming.` });
                     }
                     // Cek cicilan
                     const cicilanEntry = catEntries2.find(([c]) => /cicilan|hutang|kredit|pinjam/i.test(c));
                     if (cicilanEntry && income > 0 && (cicilanEntry[1]/income*100) > 30) {
-                        saranItems.push({ type: 'danger', icon: '💳', text: `<strong>Beban cicilan/hutang sangat besar (${(cicilanEntry[1]/income*100).toFixed(0)}% pemasukan).</strong> Prioritaskan pelunasan hutang berbunga tinggi terlebih dahulu. Hindari mengambil hutang baru sampai kondisi membaik.` });
+                        saranItems.push({ type: 'danger', icon: uiIcon('wallet'), text: `<strong>Beban cicilan/hutang sangat besar (${(cicilanEntry[1]/income*100).toFixed(0)}% pemasukan).</strong> Prioritaskan pelunasan hutang berbunga tinggi terlebih dahulu. Hindari mengambil hutang baru sampai kondisi membaik.` });
                     }
                 }
                 if (totalSav === 0 && income > 0) {
-                    saranItems.push({ type: 'info', icon: '🏦', text: '<strong>Bangun dana darurat terlebih dahulu.</strong> Idealnya simpan 3–6 kali pengeluaran bulanan di rekening tabungan yang mudah diakses sebelum mulai investasi.' });
+                    saranItems.push({ type: 'info', icon: uiIcon('bank'), text: '<strong>Bangun dana darurat terlebih dahulu.</strong> Idealnya simpan 3–6 kali pengeluaran bulanan di rekening tabungan yang mudah diakses sebelum mulai investasi.' });
                 }
                 if (Object.keys(incomeGroups).length === 1 && income > 0) {
-                    saranItems.push({ type: 'info', icon: '💡', text: '<strong>Hanya 1 sumber pemasukan terdeteksi.</strong> Pertimbangkan passive income atau side hustle untuk memperkuat ketahanan finansial Anda.' });
+                    saranItems.push({ type: 'info', icon: uiIcon('spark'), text: '<strong>Hanya 1 sumber pemasukan terdeteksi.</strong> Pertimbangkan passive income atau side hustle untuk memperkuat ketahanan finansial Anda.' });
                 }
                 if (score >= 85) {
-                    saranItems.push({ type: 'success', icon: '🏆', text: '<strong>Keuangan Anda sangat sehat!</strong> Langkah selanjutnya: pertimbangkan perencanaan pensiun, asuransi jiwa, atau investasi properti untuk jangka panjang.' });
+                    saranItems.push({ type: 'success', icon: uiIcon('target'), text: '<strong>Keuangan Anda sangat sehat!</strong> Langkah selanjutnya: pertimbangkan perencanaan pensiun, asuransi jiwa, atau investasi properti untuk jangka panjang.' });
                 }
                 if (saranItems.length === 0) {
-                    saranItems.push({ type: 'info', icon: '👍', text: 'Keuangan Anda tampak stabil. Terus pantau dan catat setiap transaksi untuk analisis yang lebih akurat.' });
+                    saranItems.push({ type: 'info', icon: uiIcon('target'), text: 'Keuangan Anda tampak stabil. Terus pantau dan catat setiap transaksi untuk analisis yang lebih akurat.' });
                 }
                 saranEl.innerHTML = saranItems.map(s => `<div class="saran-item ${s.type}"><div class="saran-icon">${s.icon}</div><div class="saran-text">${s.text}</div></div>`).join('');
             }
@@ -4505,7 +4571,7 @@
 
         async function renderAnalytics() {
             try { await ensureCharts(); }
-            catch(error) { showToast('❌ ' + error.message); return; }
+            catch(error) { showToast(error.message); return; }
             if (!document.getElementById('viewAnalisis')?.classList.contains('hidden')) renderAnalyticsReady();
         }
         const renderAnalyticsReady = () => {
@@ -4528,15 +4594,15 @@
             if(recBox) {
                 let saranHtml = '<ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:0.5rem; font-size:0.85rem; color:var(--text-main);">'; 
                 calculateWalletBalances(); const lowWallets = Object.entries(walletBalances).filter(([n, b]) => b > 0 && b < 50000);
-                if(lowWallets.length > 0) saranHtml += `<li style="background:#FFFBEB; border:1px solid #FCD34D; padding:0.75rem; border-radius:8px; color:#B45309;">💳 <strong>Alert:</strong> Saldo ${lowWallets[0][0]} sisa sedikit (${formatRupiah(lowWallets[0][1])}), waktunya top-up!</li>`;
+                if(lowWallets.length > 0) saranHtml += `<li style="background:#FFFBEB; border:1px solid #FCD34D; padding:0.75rem; border-radius:8px; color:#B45309;"> <strong>Alert:</strong> Saldo ${lowWallets[0][0]} sisa sedikit (${formatRupiah(lowWallets[0][1])}), waktunya top-up!</li>`;
                 if(filteredTrx.length === 0 && filteredSav.length === 0 && saranHtml.length < 150) { saranHtml += '<li style="background:var(--surface-color); padding:0.75rem; border-radius:8px;"><i>Belum ada data untuk dievaluasi pada periode ini.</i></li>'; } 
                 else { 
-                    if (expense > income && income > 0) saranHtml += '<li style="background:var(--warning-bg); color:var(--warning-text); padding:0.75rem; border-radius:8px; border:1px solid #FECACA;">⚠️ <strong>Peringatan Defisit:</strong> Pengeluaran Anda melebihi pemasukan!</li>'; 
-                    else if (expense > 0 && expense <= income * 0.5) saranHtml += '<li style="background:#ECFDF5; color:#065F46; padding:0.75rem; border-radius:8px; border:1px solid #A7F3D0;">✅ <strong>Sangat Baik:</strong> Pengeluaran terkendali di bawah 50% pemasukan.</li>'; 
-                    if (Object.keys(expenseGroups).length > 0) { let maxExpenseCat = Object.keys(expenseGroups).reduce((a, b) => expenseGroups[a] > expenseGroups[b] ? a : b); saranHtml += `<li style="background:var(--primary-light); color:var(--primary); padding:0.75rem; border-radius:8px; border:1px solid #C7D2FE;">💡 <strong>Info:</strong> Pengeluaran terbesar Anda ada di <strong>${maxExpenseCat}</strong>.</li>`; } 
+                    if (expense > income && income > 0) saranHtml += '<li style="background:var(--warning-bg); color:var(--warning-text); padding:0.75rem; border-radius:8px; border:1px solid #FECACA;"> <strong>Peringatan Defisit:</strong> Pengeluaran Anda melebihi pemasukan!</li>';
+                    else if (expense > 0 && expense <= income * 0.5) saranHtml += '<li style="background:#ECFDF5; color:#065F46; padding:0.75rem; border-radius:8px; border:1px solid #A7F3D0;"> <strong>Sangat Baik:</strong> Pengeluaran terkendali di bawah 50% pemasukan.</li>';
+                    if (Object.keys(expenseGroups).length > 0) { let maxExpenseCat = Object.keys(expenseGroups).reduce((a, b) => expenseGroups[a] > expenseGroups[b] ? a : b); saranHtml += `<li style="background:var(--primary-light); color:var(--primary); padding:0.75rem; border-radius:8px; border:1px solid #C7D2FE;"> <strong>Info:</strong> Pengeluaran terbesar Anda ada di <strong>${maxExpenseCat}</strong>.</li>`; }
                     const totalAsetLikuid = totalSav + totalInv; 
-                    if (totalAsetLikuid === 0 && income > 0) saranHtml += '<li style="background:var(--surface-color); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">🎯 <strong>Saran:</strong> Yuk mulai sisihkan sebagian uang untuk tabungan/investasi.</li>'; 
-                    else if (totalInv > 0) saranHtml += '<li style="background:#F0FDF4; color:#166534; padding:0.75rem; border-radius:8px; border:1px solid #BBF7D0;">📈 <strong>Hebat:</strong> Portofolio kekayaan Anda mulai terdiversifikasi (Investasi)!</li>'; 
+                    if (totalAsetLikuid === 0 && income > 0) saranHtml += '<li style="background:var(--surface-color); padding:0.75rem; border-radius:8px; border:1px solid var(--border);"> <strong>Saran:</strong> Yuk mulai sisihkan sebagian uang untuk tabungan/investasi.</li>';
+                    else if (totalInv > 0) saranHtml += '<li style="background:#F0FDF4; color:#166534; padding:0.75rem; border-radius:8px; border:1px solid #BBF7D0;"> <strong>Hebat:</strong> Portofolio kekayaan Anda mulai terdiversifikasi (Investasi)!</li>';
                 } 
                 saranHtml += '</ul>'; recBox.innerHTML = saranHtml; 
             }
@@ -4607,7 +4673,7 @@
 
             auth.sendPasswordResetEmail(emailToReset)
                 .then(() => {
-                    alert("✅ Tautan reset password telah dikirim!\n\nSilakan cek kotak masuk (inbox) atau folder spam pada email: " + emailToReset);
+                    alert("Tautan reset password telah dikirim!\n\nSilakan cek kotak masuk (inbox) atau folder spam pada email: " + emailToReset);
                 })
                 .catch((error) => {
                     let errMsg = "Gagal mengirim email reset.";
@@ -4618,7 +4684,7 @@
                     } else {
                         errMsg += "\n" + error.message;
                     }
-                    alert("❌ " + errMsg);
+                    alert(errMsg);
                 });
         }
 
@@ -4630,11 +4696,17 @@
         let selectedGoalId = null;
         let currentDepositGoalId = null;  // dedicated var untuk deposit, tidak terpengaruh closeGoalActionModal
 
-        const GOAL_EMOJIS = ['🎯','🏠','💍','✈️','🎓','🚗','📱','💻','🏖️','👶','🌏','🏋️','💰','🏦','💎','🎁','🎸','📸','🐶','🌱'];
+        const GOAL_ICONS = ['target','home-asset','briefcase','globe','chart','wallet','file','spark','bank','user','calendar','plus'];
+        const GOAL_ICON_LABELS = { target:'Target', 'home-asset':'Rumah', briefcase:'Karier', globe:'Perjalanan', chart:'Investasi', wallet:'Tabungan', file:'Pendidikan', spark:'Impian', bank:'Dana darurat', user:'Keluarga', calendar:'Perencanaan', plus:'Lainnya' };
+        const LEGACY_GOAL_ICONS = { '🎯':'target', '🏠':'home-asset', '💍':'target', '✈️':'globe', '🎓':'file', '🚗':'globe', '📱':'spark', '💻':'briefcase', '🏖️':'globe', '👶':'user', '🌏':'globe', '🏋️':'target', '💰':'wallet', '🏦':'bank', '💎':'spark', '🎁':'spark', '🎸':'spark', '📸':'spark', '🐶':'user', '🌱':'target' };
+        function goalIcon(value) {
+            const name = GOAL_ICONS.includes(value) ? value : (LEGACY_GOAL_ICONS[value] || 'target');
+            return uiIcon(name);
+        }
         const PRIORITY_CONFIG = {
-            'tinggi': { label:'🔴 Tinggi', color:'#EF4444', bg:'#FEE2E2', darkBg:'rgba(239,68,68,0.15)' },
-            'sedang': { label:'🟡 Sedang', color:'#F59E0B', bg:'#FEF3C7', darkBg:'rgba(245,158,11,0.15)' },
-            'rendah': { label:'🟢 Rendah', color:'#10B981', bg:'#ECFDF5', darkBg:'rgba(16,185,129,0.15)' }
+            'tinggi': { label:'Tinggi', color:'#EF4444', bg:'#FEE2E2', darkBg:'rgba(239,68,68,0.15)' },
+            'sedang': { label:'Sedang', color:'#F59E0B', bg:'#FEF3C7', darkBg:'rgba(245,158,11,0.15)' },
+            'rendah': { label:'Rendah', color:'#10B981', bg:'#ECFDF5', darkBg:'rgba(16,185,129,0.15)' }
         };
 
         // Toggle form tambah target
@@ -4660,20 +4732,22 @@
             if(chev) chev.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
         }
 
-        // Render emoji picker
+        // Pilihan ikon SVG. Nilai emoji lama tetap dibaca saat menampilkan data lama.
         function initGoalEmojiPicker() {
             const grid = document.getElementById('goalEmojiGrid');
             if(!grid) return;
-            grid.innerHTML = GOAL_EMOJIS.map(e => 
-                `<button type="button" class="goal-emoji-btn${e === (document.getElementById('goalEmoji')?.value||'🎯') ? ' selected' : ''}" 
-                 onclick="selectGoalEmoji('${e}')">${e}</button>`
+            const selected = document.getElementById('goalEmoji')?.value || 'target';
+            grid.innerHTML = GOAL_ICONS.map(name =>
+                `<button type="button" class="goal-emoji-btn${name === selected ? ' selected' : ''}"
+                 data-icon="${name}" aria-label="${GOAL_ICON_LABELS[name]}" title="${GOAL_ICON_LABELS[name]}"
+                 onclick="selectGoalEmoji('${name}')">${uiIcon(name)}</button>`
             ).join('');
         }
 
-        function selectGoalEmoji(emoji) {
-            document.getElementById('goalEmoji').value = emoji;
+        function selectGoalEmoji(name) {
+            document.getElementById('goalEmoji').value = name;
             document.querySelectorAll('.goal-emoji-btn').forEach(btn => {
-                btn.classList.toggle('selected', btn.textContent === emoji);
+                btn.classList.toggle('selected', btn.dataset.icon === name);
             });
         }
 
@@ -4701,12 +4775,12 @@
                 el('gsTotal', formatRupiah(totalTarget));
                 el('gsTerkumpul', formatRupiah(totalSaved));
                 el('gsAktif', activeCount);
-                el('gsTercapai', doneCount + ' 🏆');
+                el('gsTercapai', doneCount);
             }
 
             if(goals.length === 0) {
                 listEl.innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:var(--text-muted);">
-                    <div style="font-size:2.5rem;margin-bottom:0.75rem;">🎯</div>
+                    <div style="font-size:2.5rem;margin-bottom:0.75rem;"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#target"/></svg></div>
                     <div style="font-size:0.85rem;font-weight:600;">Belum ada target keuangan.</div>
                     <div style="font-size:0.78rem;margin-top:0.3rem;">Buat target pertama Anda di atas!</div>
                 </div>`;
@@ -4745,17 +4819,17 @@
                         const perMinggu = Math.ceil(remaining / Math.max(1, diffDays / 7));
                         const isLate    = diffDays < 0;
 
-                        simRows.push({ label: isLate ? '⚠️ Deadline sudah lewat' : `⏰ Sisa waktu`, val: isLate ? `${Math.abs(diffDays)} hari lalu` : `${diffDays} hari (${diffMonths} bln)` });
-                        simRows.push({ label: '💵 Perlu tabung/bulan',  val: formatRupiah(perBulan) });
-                        simRows.push({ label: '📅 Perlu tabung/minggu', val: formatRupiah(perMinggu) });
+                        simRows.push({ label: isLate ? 'Deadline sudah lewat' : `Sisa waktu`, val: isLate ? `${Math.abs(diffDays)} hari lalu` : `${diffDays} hari (${diffMonths} bln)` });
+                        simRows.push({ label: 'Perlu tabung/bulan',  val: formatRupiah(perBulan) });
+                        simRows.push({ label: 'Perlu tabung/minggu', val: formatRupiah(perMinggu) });
 
                         if(!isLate) {
                             const projDate = new Date(ddl);
-                            simRows.push({ label: '🏁 Proyeksi tercapai', val: projDate.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) });
+                            simRows.push({ label: 'Proyeksi tercapai', val: projDate.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) });
                         }
                     } else {
-                        simRows.push({ label: '💸 Sisa yang diperlukan', val: formatRupiah(remaining) });
-                        simRows.push({ label: '💡 Tip', val: 'Tambahkan deadline untuk simulasi bulanan' });
+                        simRows.push({ label: 'Sisa yang diperlukan', val: formatRupiah(remaining) });
+                        simRows.push({ label: 'Tip', val: 'Tambahkan deadline untuk simulasi bulanan' });
                     }
 
                     const simRowsHTML = simRows.map(r =>
@@ -4775,12 +4849,12 @@
                     const dStr  = ddl.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
                     const dColor = diff < 0 ? '#EF4444' : diff <= 30 ? '#F59E0B' : '#6B7280';
                     deadlineBadge = `<span class="goal-tag" style="background:${diff<0?'#FEE2E2':diff<=30?'#FEF3C7':'var(--surface-color)'};color:${dColor};border:1px solid ${diff<0?'#FECACA':diff<=30?'#FDE68A':'var(--border)'};">
-                        📅 ${dStr}${diff < 0 ? ' ⚠️' : diff <= 30 ? ' ⏰' : ''}
+                         ${dStr}${diff < 0 ? ' ' : diff <= 30 ? ' ⏰' : ''}
                     </span>`;
                 }
 
                 const doneBanner = isDone
-                    ? `<div class="goal-done-banner">🎉 Target Tercapai! Selamat, kerja keras Anda berhasil!</div>`
+                    ? `<div class="goal-done-banner"> Target Tercapai! Selamat, kerja keras Anda berhasil!</div>`
                     : '';
 
                 return `<div class="goal-card" onclick="openGoalActionModal('${g.id}')">
@@ -4788,7 +4862,7 @@
                     <div style="padding-left:0.25rem;">
                         <div class="goal-card-top">
                             <div class="goal-card-left">
-                                <div class="goal-icon-wrap" style="background:${cfg.bg};">${g.emoji||'🎯'}</div>
+                                <div class="goal-icon-wrap" style="background:${cfg.bg};">${goalIcon(g.emoji)}</div>
                                 <div>
                                     <div class="goal-name">${g.name}</div>
                                     <div class="goal-meta">
@@ -4827,8 +4901,8 @@
                                     </div>
                                     <span class="deposit-row-amount">+${formatRupiah(d.depositAmount||d.amount)}</span>
                                     <div class="deposit-row-actions">
-                                        <button class="deposit-btn" onclick="event.stopPropagation(); openDepositEdit('${d.id}','${g.id}')">✏️</button>
-                                        <button class="deposit-btn del" onclick="event.stopPropagation(); deleteDeposit('${d.id}','${g.id}')">🗑</button>
+                                        <button class="deposit-btn" aria-label="Edit setoran" onclick="event.stopPropagation(); openDepositEdit('${d.id}','${g.id}')">${uiIcon('edit')}</button>
+                                        <button class="deposit-btn del" aria-label="Hapus setoran" onclick="event.stopPropagation(); deleteDeposit('${d.id}','${g.id}')">${uiIcon('trash')}</button>
                                     </div>
                                 </div>`
                             ).join('');
@@ -4836,7 +4910,7 @@
                             return `<div style="margin-top:0.65rem;background:var(--surface-color);border-radius:12px;border:1px solid var(--border);overflow:hidden;">
                                 <div onclick="event.stopPropagation(); toggleDepositHistory('${uid}')" style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.75rem;cursor:pointer;">
                                     <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);display:flex;align-items:center;gap:0.4rem;">
-                                        <span>📋</span> Riwayat Setoran <span style="background:var(--primary-light);color:var(--primary);border-radius:5px;padding:0.05rem 0.4rem;font-size:0.65rem;">${deposits.length}</span>
+                                        ${uiIcon('file')} Riwayat setoran <span style="background:var(--primary-light);color:var(--primary);border-radius:5px;padding:0.05rem 0.4rem;font-size:0.65rem;">${deposits.length}</span>
                                         <span style="color:var(--income);font-weight:800;margin-left:0.2rem;">${formatRupiah(total)}</span>
                                     </div>
                                     <svg id="chev_${uid}" style="width:16px;height:16px;color:var(--text-muted);transition:transform 0.25s;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -4856,17 +4930,17 @@
         // Simpan goal ke Firestore
         async function saveGoal() {
             const name     = document.getElementById('goalName')?.value.trim();
-            const emoji    = document.getElementById('goalEmoji')?.value || '🎯';
+            const emoji    = document.getElementById('goalEmoji')?.value || 'target';
             const targetRaw= document.getElementById('goalTarget')?.value.replace(/\./g,'') || '0';
             const savedRaw = document.getElementById('goalSaved')?.value.replace(/\./g,'') || '0';
             const deadline = document.getElementById('goalDeadline')?.value || '';
             const priority = document.getElementById('goalPriority')?.value || 'sedang';
 
-            if(!name) return showToast('⚠️ Nama target wajib diisi!');
+            if(!name) return showToast('Nama target wajib diisi!');
             const target = parseInt(targetRaw)||0;
             const saved  = parseInt(savedRaw)||0;
-            if(target <= 0) return showToast('⚠️ Nominal target harus lebih dari 0!');
-            if(saved > target) return showToast('⚠️ Dana terkumpul tidak boleh melebihi target!');
+            if(target <= 0) return showToast('Nominal target harus lebih dari 0!');
+            if(saved > target) return showToast('Dana terkumpul tidak boleh melebihi target!');
 
             const data = { name, emoji, target, saved, deadline, priority };
             const btn = document.getElementById('btnSaveGoal');
@@ -4875,17 +4949,17 @@
             try {
                 if(editingGoalId) {
                     await db.collection(DB_COLLECTION).doc(currentProfileId).collection('goals').doc(editingGoalId).update(data);
-                    showToast('Target diperbarui ✅');
+                    showToast('Target diperbarui');
                     cancelGoalEdit();
                 } else {
                     data.timestamp = firebase.firestore.FieldValue.serverTimestamp();
                     await db.collection(DB_COLLECTION).doc(currentProfileId).collection('goals').add(data);
-                    showToast('Target tersimpan 🎯');
+                    showToast('Target tersimpan');
                     celebrate({ particleCount:70, spread:55, origin:{y:0.7} });
                     resetGoalForm();
                 }
             } catch(e) {
-                showToast('❌ Gagal menyimpan: ' + e.message);
+                showToast('Gagal menyimpan:' + e.message);
             }
             if(btn) btn.disabled = false;
         }
@@ -4896,14 +4970,14 @@
             document.getElementById('goalSaved').value   = '';
             document.getElementById('goalDeadline').value= '';
             document.getElementById('goalPriority').value= 'sedang';
-            document.getElementById('goalEmoji').value   = '🎯';
+            document.getElementById('goalEmoji').value   = 'target';
             initGoalEmojiPicker();
         }
 
         function cancelGoalEdit() {
             editingGoalId = null;
             document.getElementById('goalFormTitle').innerText = 'Tambah Target Baru';
-            document.getElementById('goalFormHeaderIcon').innerText = '➕';
+            document.getElementById('goalFormHeaderIcon').innerHTML = uiIcon('plus');
             document.getElementById('btnSaveGoal').innerText   = 'Simpan Target';
             document.getElementById('btnCancelGoalEdit').classList.add('hidden');
             resetGoalForm();
@@ -4920,7 +4994,7 @@
             const isDone  = saved >= target;
             const cfg     = PRIORITY_CONFIG[g.priority] || PRIORITY_CONFIG['sedang'];
 
-            document.getElementById('goalActionTitle').innerText = `${g.emoji||'🎯'} ${g.name}`;
+            document.getElementById('goalActionTitle').textContent = g.name;
             document.getElementById('goalActionInfo').innerHTML = `
                 <div class="goal-action-info-name">${g.name}</div>
                 <div class="goal-action-info-row">
@@ -4931,7 +5005,7 @@
                 </div>
                 <div class="goal-action-info-row">
                     <span>Progress</span>
-                    <strong style="color:${isDone?'#10B981':'var(--primary)'};">${pct.toFixed(1)}% ${isDone?'✅ Tercapai':''}</strong>
+                    <strong style="color:${isDone?'#10B981':'var(--primary)'};">${pct.toFixed(1)}% ${isDone?' Tercapai':''}</strong>
                 </div>
                 <div class="goal-action-info-row">
                     <span>Prioritas</span><strong style="color:${cfg.color};">${cfg.label}</strong>
@@ -4968,7 +5042,7 @@
             const remaining = Math.max(0, target - saved);
             document.getElementById('goalDepositInfo').innerHTML = `
                 <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem;">
-                    <span style="font-size:1.5rem;">${g.emoji||'🎯'}</span>
+                    <span style="font-size:1.5rem;">${goalIcon(g.emoji)}</span>
                     <div>
                         <div style="font-size:0.88rem;font-weight:800;color:var(--text-main);">${g.name}</div>
                         <div style="font-size:0.72rem;color:var(--text-muted);">Progress: ${pct.toFixed(1)}%</div>
@@ -5028,7 +5102,7 @@
             const newPct   = Math.min(100, (newSaved / (g.target || 1)) * 100);
 
             let html = `
-                <div style="font-weight:700;margin-bottom:0.5rem;">📋 Preview Setoran</div>
+                <div style="font-weight:700;margin-bottom:0.5rem;">Preview Setoran</div>
                 <div style="display:flex;justify-content:space-between;padding:0.2rem 0;border-bottom:1px solid rgba(79,70,229,0.15);">
                     <span>Nominal disetor</span>
                     <strong>${formatRupiah(amount)}</strong>
@@ -5039,12 +5113,12 @@
                 </div>
                 <div style="display:flex;justify-content:space-between;padding:0.2rem 0;">
                     <span>Progress baru</span>
-                    <strong>${newPct.toFixed(1)}%${newPct >= 100 ? ' 🎉' : ''}</strong>
+                    <strong>${newPct.toFixed(1)}%${newPct >= 100 ? ' · Tercapai' : ''}</strong>
                 </div>`;
 
             if(wallet !== 'None') {
                 html += `<div style="margin-top:0.5rem;padding:0.4rem 0.6rem;background:rgba(79,70,229,0.08);border-radius:8px;font-size:0.72rem;">
-                    💳 Saldo <strong>${wallet}</strong> akan dipotong sebesar <strong>${formatRupiah(amount)}</strong>
+                     Saldo <strong>${wallet}</strong> akan dipotong sebesar <strong>${formatRupiah(amount)}</strong>
                 </div>`;
             } else {
                 html += `<div style="margin-top:0.5rem;font-size:0.72rem;opacity:0.75;">ℹ️ Saldo transaksi tidak dipotong</div>`;
@@ -5057,11 +5131,11 @@
         // Konfirmasi dan simpan setoran
         async function confirmGoalDeposit() {
             const g = goals.find(x => x.id === currentDepositGoalId);
-            if(!g) { showToast('❌ Data goal tidak ditemukan.'); return; }
+            if(!g) { showToast('Data goal tidak ditemukan.'); return; }
 
             const raw    = (document.getElementById('goalDepositAmount')?.value || '').replace(/\./g,'');
             const amount = parseInt(raw) || 0;
-            if(amount <= 0) return showToast('⚠️ Masukkan nominal setoran!');
+            if(amount <= 0) return showToast('Masukkan nominal setoran!');
 
             const wallet  = document.getElementById('goalDepositWallet')?.value || 'None';
             const dateVal = document.getElementById('goalDepositDate')?.value || getTodayYMD();
@@ -5090,17 +5164,17 @@
 
                 currentDepositGoalId = null;
                 closeGoalDepositModal();
-                showToast('✅ Setoran berhasil dicatat!');
+                showToast('Setoran berhasil dicatat!');
 
                 // Celebrasi jika goal tercapai
                 if(newSaved >= g.target) {
                     setTimeout(() => {
                         celebrate({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
-                        showToast('🎉 TARGET TERCAPAI! Selamat!');
+                        showToast('TARGET TERCAPAI! Selamat!');
                     }, 400);
                 }
             } catch(err) {
-                showToast('❌ Gagal menyimpan: ' + err.message);
+                showToast('Gagal menyimpan:' + err.message);
             }
 
             if(btn) { btn.disabled = false; btn.innerText = 'Konfirmasi Setoran'; }
@@ -5114,14 +5188,14 @@
             _resetSelectedGoalId();
 
             document.getElementById('goalName').value     = g.name || '';
-            document.getElementById('goalEmoji').value    = g.emoji || '🎯';
+            document.getElementById('goalEmoji').value    = GOAL_ICONS.includes(g.emoji) ? g.emoji : (LEGACY_GOAL_ICONS[g.emoji] || 'target');
             document.getElementById('goalTarget').value   = formatRupiahStr(g.target || 0);
             document.getElementById('goalSaved').value    = formatRupiahStr(g.saved || 0);
             document.getElementById('goalDeadline').value = g.deadline || '';
             document.getElementById('goalPriority').value = g.priority || 'sedang';
 
             document.getElementById('goalFormTitle').innerText   = 'Edit Target: ' + g.name;
-            document.getElementById('goalFormHeaderIcon').innerText = g.emoji || '✏️';
+            document.getElementById('goalFormHeaderIcon').innerHTML = goalIcon(g.emoji);
             document.getElementById('btnSaveGoal').innerText      = 'Update Target';
             document.getElementById('btnCancelGoalEdit').classList.remove('hidden');
             initGoalEmojiPicker();
@@ -5138,7 +5212,7 @@
                 await db.collection(DB_COLLECTION).doc(currentProfileId).collection('goals').doc(id).delete();
                 closeGoalActionModal();
                 _resetSelectedGoalId();
-                showToast('Target dihapus 🗑️');
+                showToast('Target dihapus');
             });
         }
 
@@ -5152,14 +5226,14 @@
         function openDepositEdit(depositId, goalId) {
             const deposit = savings.find(s => s.id === depositId);
             const goal    = goals.find(g => g.id === goalId);
-            if(!deposit || !goal) return showToast('❌ Data tidak ditemukan.');
+            if(!deposit || !goal) return showToast('Data tidak ditemukan.');
 
             editingDepositId     = depositId;
             editingDepositGoalId = goalId;
 
             // Info header
             document.getElementById('depositEditInfo').innerHTML =
-                `<span style="font-size:1.1rem;">${goal.emoji||'🎯'}</span>
+                `<span style="font-size:1.1rem;">${goalIcon(goal.emoji)}</span>
                  <strong style="color:var(--text-main);"> ${goal.name}</strong>
                  <span style="margin-left:0.4rem;font-size:0.72rem;">· Setoran ${deposit.date||''}</span>`;
 
@@ -5192,16 +5266,16 @@
 
             const newAmtRaw = (document.getElementById('depositEditAmount')?.value || '').replace(/\./g,'');
             const newAmount = parseInt(newAmtRaw) || 0;
-            if(newAmount <= 0) return showToast('⚠️ Nominal harus lebih dari 0!');
+            if(newAmount <= 0) return showToast('Nominal harus lebih dari 0!');
 
             const newWallet = document.getElementById('depositEditWallet')?.value || 'None';
             const newDateYMD = document.getElementById('depositEditDate')?.value || getTodayYMD();
 
             const oldDeposit = savings.find(s => s.id === editingDepositId);
-            if(!oldDeposit) return showToast('❌ Data setoran tidak ditemukan.');
+            if(!oldDeposit) return showToast('Data setoran tidak ditemukan.');
 
             const goal      = goals.find(g => g.id === editingDepositGoalId);
-            if(!goal) return showToast('❌ Data goal tidak ditemukan.');
+            if(!goal) return showToast('Data goal tidak ditemukan.');
 
             const btn = document.getElementById('btnSaveDepositEdit');
             if(btn) { btn.disabled = true; btn.innerText = 'Menyimpan...'; }
@@ -5227,9 +5301,9 @@
                 });
 
                 closeDepositEditModal();
-                showToast('✅ Setoran diperbarui!');
+                showToast('Setoran diperbarui!');
             } catch(err) {
-                showToast('❌ Gagal: ' + err.message);
+                showToast('Gagal:' + err.message);
             }
 
             if(btn) { btn.disabled = false; btn.innerText = 'Simpan Perubahan'; }
@@ -5238,7 +5312,7 @@
         function deleteDeposit(depositId, goalId) {
             const deposit = savings.find(s => s.id === depositId);
             const goal    = goals.find(g => g.id === goalId);
-            if(!deposit || !goal) return showToast('❌ Data tidak ditemukan.');
+            if(!deposit || !goal) return showToast('Data tidak ditemukan.');
 
             const amount = deposit.depositAmount || deposit.amount || 0;
 
@@ -5260,9 +5334,9 @@
                             transaction.delete(depositRef);
                         });
 
-                        showToast('🗑 Setoran dihapus.');
+                        showToast('Setoran dihapus.');
                     } catch(err) {
-                        showToast('❌ Gagal: ' + err.message);
+                        showToast('Gagal:' + err.message);
                     }
                 }
             );
@@ -5360,7 +5434,7 @@
                 const isTransfer = t.type === 'transfer';
                 const sign  = t.type === 'income' ? '+' : t.type === 'expense' ? '-' : '⇄';
                 const color = t.type === 'income' ? 'income-text' : t.type === 'expense' ? 'expense-text' : 'transfer-text';
-                const wallet = isTransfer ? `${t.wallet||'Tunai'} ➔ ${t.walletTo||'?'}` : (t.wallet||'Tunai');
+                const wallet = isTransfer ? `${t.wallet||'Tunai'} → ${t.walletTo||'?'}` : (t.wallet||'Tunai');
                 return `<li class="transaction-item" onclick="openRiwayatActionSheet('trx','${t.id}','${(t.category||'-').replace(/'/g,"\\'")}')">
                     <div class="transaction-info">
                         <h4>${t.category||'-'}</h4>
@@ -5402,7 +5476,7 @@
 
             listEl.innerHTML = filtered.map(s => {
                 const lbl = typeLabel[s.type] || 'Tabungan';
-                const icon = s.type === 'investment' ? '📈' : s.type === 'tangible' ? '🏠' : '💰';
+                const icon = s.type === 'investment' ? uiIcon('chart') : s.type === 'tangible' ? uiIcon('home-asset') : uiIcon('wallet');
                 const walletInfo = s.sourceWallet && s.sourceWallet !== 'None'
                     ? `<span class="wallet-badge">${s.sourceWallet}</span>` : '';
                 return `<li class="transaction-item" onclick="openRiwayatActionSheet('aset','${s.id}','${(s.name||'-').replace(/'/g,"\\'")}')">
@@ -5529,16 +5603,16 @@
                     var _trxForm = document.getElementById('transactionForm');
                     var _canAutoSave = _trxForm && hasil.nominal && hasil.type && (typeof editingTrxId === 'undefined' || !editingTrxId);
                     if (_canAutoSave) {
-                        statusEl.innerHTML = '✅ Nota terbaca & <strong>langsung disimpan</strong> (' + filled.join(', ') + ').' + modelInfo;
+                        statusEl.innerHTML = 'Nota terbaca & <strong>langsung disimpan</strong> (' + filled.join(', ') + ').' + modelInfo;
                         if (typeof _trxForm.requestSubmit === 'function') _trxForm.requestSubmit();
                         else _trxForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
                     } else {
-                        statusEl.innerHTML = '✅ Berhasil! <strong>' + filled.join(', ') + '</strong> terisi otomatis.' + modelInfo;
+                        statusEl.innerHTML = 'Berhasil! <strong>' + filled.join(', ') + '</strong> terisi otomatis.' + modelInfo;
                     }
                 } catch(err) {
                     console.error('Scan nota:', err);
                     statusEl.style.background = 'var(--warning-bg)'; statusEl.style.color = 'var(--warning-text)';
-                    statusEl.innerHTML = '❌ <strong>Error:</strong> ' + (err.message || 'Gagal membaca nota.');
+                    statusEl.innerHTML = '<strong>Error:</strong> ' + (err.message || 'Gagal membaca nota.');
                 } finally {
                     btnScan.disabled = false;
                     inputEl.value = '';
@@ -5636,7 +5710,7 @@
                   .collection('ai_chat').add(Object.assign({}, m, { ts: firebase.firestore.FieldValue.serverTimestamp() }));
             })).then(function() {
                 aiMsgData = msgs.map(function(m) { return { id: null, role: m.role, text: m.text }; });
-                showToast("Riwayat AI disimpan 📥");
+                showToast("Riwayat AI disimpan");
             }).catch(function(e) { console.warn('saveAiHistory:', e); showToast("Gagal menyimpan riwayat"); });
         }
 
@@ -5653,10 +5727,10 @@
                     var batch = db.batch();
                     snap.forEach(function(doc) { batch.delete(doc.ref); });
                     return batch.commit();
-                  }).then(function() { showToast("Riwayat AI dihapus 🗑"); })
+                  }).then(function() { showToast("Riwayat AI dihapus"); })
                   .catch(function(e) { console.warn('clearAiHistory:', e); showToast("Gagal hapus riwayat"); });
             } else {
-                showToast("Riwayat AI dihapus 🗑");
+                showToast("Riwayat AI dihapus");
             }
         }
 
@@ -5777,13 +5851,13 @@
 
             if (role === 'bot') {
                 if (isTyping) {
-                    div.innerHTML = '<div class="ai-avatar">🤖</div><div class="ai-bubble-content"><div class="ai-typing"><span></span><span></span><span></span></div></div>';
+                    div.innerHTML = '<div class="ai-avatar"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#bot"/></svg></div><div class="ai-bubble-content"><div class="ai-typing"><span></span><span></span><span></span></div></div>';
                 } else {
                     var html = text
                         .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
                         .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
                         .replace(/\n/g,'<br>');
-                    div.innerHTML = '<div class="ai-avatar">🤖</div>' +
+                    div.innerHTML = '<div class="ai-avatar"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#bot"/></svg></div>' +
                         '<div class="ai-bubble-content" data-text="' + text.replace(/"/g,'&quot;') + '">' + html + '</div>' +
                         (docId ? '<div class="ai-select-tick" style="display:none"></div>' : '');
                     if (docId) {
@@ -5881,7 +5955,7 @@
                 if (got !== tc.expect) fail.push(tc.input + ' → got '+got+' expected '+tc.expect);
             });
             if (fail.length) console.warn('parseTrxDate test FAIL:', fail);
-            else console.log('parseTrxDate: semua format tanggal OK ✅');
+            else console.log('parseTrxDate: semua format tanggal OK ');
         })();
 
         // ── Kumpulkan data lengkap untuk konteks AI ─────────────────────────────
@@ -5932,7 +6006,7 @@
                 .filter(function(e){ return e[1]!==0; })
                 .sort(function(a,b){ return b[1]-a[1]; })
                 .map(function(e){
-                    return e[0]+': '+rp(e[1])+(e[1]<0?' ⚠️MINUS':'');
+                    return e[0]+': '+rp(e[1])+(e[1]<0?' MINUS':'');
                 });
             var rekMinus = Object.entries(walletBalances)
                 .filter(function(e){ return e[1]<0; })
@@ -6019,11 +6093,11 @@
                 'Pemasukan : '+rp(incBi),
                 'Pengeluaran: '+rp(expBi),
                 'Surplus   : '+(surplus>=0?'+':'')+rp(surplus),
-                'Saving rate: '+savingRate+'% '+(savingRate>=20?'✓ Sehat':savingRate>=10?'⚠ Cukup':'✗ Rendah'),
+                'Saving rate: '+savingRate+'% '+(savingRate>=20?' Sehat':savingRate>=10?' Cukup':' Rendah'),
                 '',
                 '--- SALDO PER REKENING ---',
                 rekLines.length?rekLines.join('\n  '):'(tidak ada)',
-                rekMinus.length?'⚠️ REKENING MINUS: '+rekMinus.join(', '):'✓ Tidak ada rekening minus',
+                rekMinus.length?' REKENING MINUS: '+rekMinus.join(', '):' Tidak ada rekening minus',
                 '',
                 '--- KEKAYAAN / NET WORTH ---',
                 'Total Kas       : '+rp(totalKas),
@@ -6085,7 +6159,7 @@
 
             } catch(err) {
                 if (typingBubble && typingBubble.parentNode) {
-                    typingBubble.innerHTML = '<div class="ai-avatar">🤖</div><div class="ai-bubble-content" style="color:var(--expense)">❌ ' + (err.message||'Coba lagi') + '</div>';
+                    typingBubble.innerHTML = '<div class="ai-avatar"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#bot"/></svg></div><div class="ai-bubble-content" style="color:var(--expense)"> ' + (err.message||'Coba lagi') + '</div>';
                 }
             } finally {
                 sendBtn.disabled = false;
@@ -6111,7 +6185,7 @@
             navigator.clipboard.writeText(txt).then(function() {
                 var flash = document.createElement('div');
                 flash.className = 'ai-copied-flash';
-                flash.textContent = '✓ Teks disalin';
+                flash.textContent = 'Teks disalin';
                 var drawer = document.getElementById('aiModalDrawer');
                 if (drawer) drawer.appendChild(flash);
                 setTimeout(function(){ if(flash.parentNode) flash.remove(); }, 1000);
