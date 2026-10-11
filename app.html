@@ -905,7 +905,7 @@
         #aiChatMessages { scroll-behavior:smooth; }
     </style>
     <link rel="stylesheet" href="./banking-ui.css?v=20261011">
-    <link rel="stylesheet" href="./professional-ui.css?v=20261011c">
+    <link rel="stylesheet" href="./professional-ui.css?v=20261012a">
 </head>
 <body>
     <!-- ================= SPLASH SCREEN ================= -->
@@ -1107,7 +1107,7 @@
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="opacity:0.8; margin-left:4px; cursor:pointer;" onclick="openWalletModal()"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
                 </div><div id="gamificationBadge" class="banking-balance-status" role="status"></div></div>
                 <div class="balance-amount" id="totalBalance" onclick="openWalletModal()" title="Klik untuk rincian per rekening">Rp 0</div>
-                <div class="banking-balance-caption">Ringkasan sesuai periode yang Anda pilih</div></div>
+                <div class="banking-balance-caption">Termasuk arus Utang Piutang pada periode ini</div></div>
             </div>
 
             <div class="banking-period-filter" aria-label="Filter periode beranda">
@@ -1143,7 +1143,7 @@
                     <button type="button" onclick="openDashboardScanNota()"><i><svg class="ui-icon"><use href="/app-icons.svg#scan"/></svg></i>Scan nota</button>
                     <button type="button" onclick="openTelegramQuickAction()"><i><svg class="ui-icon"><use href="/app-icons.svg#telegram"/></svg></i>Catat melalui Telegram</button>
                     <button type="button" onclick="switchView('goals')"><i><svg class="ui-icon"><use href="/app-icons.svg#target"/></svg></i>Goals</button>
-                    <button type="button" onclick="switchView('laporan')"><i><svg class="ui-icon"><use href="/app-icons.svg#file"/></svg></i>Laporan</button>
+                    <button type="button" onclick="switchView('utangPiutang')"><i><svg class="ui-icon"><use href="/app-icons.svg#wallet"/></svg></i>Utang Piutang</button>
                     <button type="button" onclick="toggleAiModal()"><i><svg class="ui-icon"><use href="/app-icons.svg#bot"/></svg></i>Asisten AI</button>
                 </div>
             </div>
@@ -1244,6 +1244,53 @@
             </div>
         </div>
 
+        <div id="viewUtangPiutang" class="main-view hidden">
+            <div class="header loan-header">
+                <button type="button" class="goals-back" onclick="switchView('transaksi')"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#arrow-left"/></svg> Kembali ke Beranda</button>
+                <div class="header-title">Utang & Piutang</div>
+                <p>Catat uang yang dipinjamkan, uang yang dipinjam, dan setiap pembayarannya.</p>
+            </div>
+            <div class="loan-page-content">
+                <div class="loan-summary-grid">
+                    <div class="loan-summary-card"><span>Belum diterima</span><strong id="loanReceivableTotal">Rp 0</strong><small>Piutang aktif</small></div>
+                    <div class="loan-summary-card"><span>Belum dibayar</span><strong id="loanPayableTotal">Rp 0</strong><small>Utang aktif</small></div>
+                    <div class="loan-summary-card"><span>Jatuh tempo</span><strong id="loanOverdueCount">0</strong><small>Pos lewat tanggal</small></div>
+                </div>
+                <section class="loan-card loan-form-card" aria-labelledby="loanFormHeading">
+                    <div class="loan-section-heading"><div><span class="loan-eyebrow">PENCATATAN BARU</span><h2 id="loanFormHeading">Catat Utang atau Piutang</h2></div></div>
+                    <form id="loanForm">
+                        <div class="loan-form-grid">
+                            <div class="form-group"><label class="form-label" for="loanKind">Jenis pencatatan</label><select id="loanKind" class="form-control" required><option value="receivable">Dipinjamkan (piutang)</option><option value="payable">Saya meminjam (utang)</option></select></div>
+                            <div class="form-group"><label class="form-label" for="loanParty">Nama orang</label><input id="loanParty" class="form-control" type="text" maxlength="100" placeholder="Contoh: Budi Santoso" required></div>
+                            <div class="form-group"><label class="form-label" for="loanAmount">Nominal</label><input id="loanAmount" class="form-control" type="text" inputmode="numeric" placeholder="Contoh: 500.000" required></div>
+                            <div class="form-group"><label class="form-label" for="loanWallet">Rekening / dompet</label><select id="loanWallet" class="form-control" required></select></div>
+                            <div class="form-group"><label class="form-label" for="loanDate">Tanggal</label><input id="loanDate" class="form-control" type="date" required></div>
+                            <div class="form-group"><label class="form-label" for="loanDueDate">Jatuh tempo <span class="loan-optional">opsional</span></label><input id="loanDueDate" class="form-control" type="date"></div>
+                        </div>
+                        <div class="form-group"><label class="form-label" for="loanNote">Catatan <span class="loan-optional">opsional</span></label><textarea id="loanNote" class="form-control" rows="2" maxlength="500" placeholder="Kesepakatan atau keterangan tambahan"></textarea></div>
+                        <p class="loan-balance-help" id="loanBalanceHelp">Uang yang dipinjamkan akan mengurangi saldo rekening yang dipilih.</p>
+                        <div class="loan-form-actions"><button id="loanSubmit" class="btn-submit" type="submit">Simpan Piutang</button><button id="loanCancelEdit" class="loan-secondary-btn" type="button" onclick="resetLoanForm()" hidden>Batal edit</button></div>
+                    </form>
+                </section>
+                <section class="loan-card loan-payment-card" id="loanPaymentCard" aria-labelledby="loanPaymentHeading" hidden>
+                    <div class="loan-section-heading"><div><span class="loan-eyebrow">PEMBAYARAN</span><h2 id="loanPaymentHeading">Catat pembayaran</h2><p id="loanPaymentContext"></p></div><button type="button" class="loan-text-btn" onclick="closeLoanPayment()">Tutup</button></div>
+                    <form id="loanPaymentForm">
+                        <div class="loan-form-grid">
+                            <div class="form-group"><label class="form-label" for="loanPaymentAmount">Nominal dibayar</label><input id="loanPaymentAmount" class="form-control" type="text" inputmode="numeric" required></div>
+                            <div class="form-group"><label class="form-label" for="loanPaymentWallet">Rekening / dompet</label><select id="loanPaymentWallet" class="form-control" required></select></div>
+                            <div class="form-group"><label class="form-label" for="loanPaymentDate">Tanggal pembayaran</label><input id="loanPaymentDate" class="form-control" type="date" required></div>
+                            <div class="form-group"><label class="form-label" for="loanPaymentNote">Catatan <span class="loan-optional">opsional</span></label><input id="loanPaymentNote" class="form-control" type="text" maxlength="200" placeholder="Cicilan pertama, lunas, dll."></div>
+                        </div>
+                        <button class="btn-submit" type="submit" id="loanPaymentSubmit">Simpan Pembayaran</button>
+                    </form>
+                </section>
+                <section class="loan-card loan-list-card" aria-labelledby="loanListHeading">
+                    <div class="loan-section-heading"><div><span class="loan-eyebrow">DAFTAR POS</span><h2 id="loanListHeading">Catatan Utang Piutang</h2></div><select id="loanListFilter" class="local-filter" aria-label="Filter utang piutang" onchange="renderLoans()"><option value="active">Aktif</option><option value="all">Semua</option><option value="receivable">Piutang</option><option value="payable">Utang</option><option value="paid">Lunas</option></select></div>
+                    <div id="loanList" class="loan-list" aria-live="polite"></div>
+                </section>
+            </div>
+        </div>
+
         <div id="viewTabungan" class="main-view hidden">
             <div class="header savings-bg">
                 <div class="header-title">Total Kekayaan Bersih</div>
@@ -1267,10 +1314,6 @@
                 <div class="asset-goals-icon"><svg class="ui-icon"><use href="/app-icons.svg#target"/></svg></div>
                 <div><strong>Goals & perencanaan</strong><p>Pantau target dan setoran dalam satu tempat.</p></div>
                 <button type="button" onclick="switchView('goals')" aria-label="Buka Goals">Lihat target <span aria-hidden="true">→</span></button>
-            </section>
-            <section class="banking-recent-panel asset-recent-panel" aria-label="Aset terbaru">
-                <div class="banking-panel-title"><h2>Aset terbaru</h2><button type="button" onclick="openRiwayatModal('aset')">Lihat semua →</button></div>
-                <div id="assetRecentList" class="banking-recent-list"></div>
             </section>
             
             <div style="padding: 0 1.5rem; margin-top: 1.25rem; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; flex-wrap: wrap; gap: 8px;">
@@ -1318,6 +1361,10 @@
                     <button type="button" class="btn-submit hidden" id="btnCancelAssetEdit" onclick="cancelAssetEdit()" style="background: var(--surface-color); color: var(--text-main); margin-top: 0.5rem; box-shadow:none; border: 1px solid var(--border);">Batal Edit</button>
                 </form>
             </div>
+            <section class="banking-recent-panel asset-recent-panel" aria-label="Aset terbaru">
+                <div class="banking-panel-title"><h2>Aset terbaru</h2><button type="button" onclick="openRiwayatModal('aset')">Lihat semua →</button></div>
+                <div id="assetRecentList" class="banking-recent-list"></div>
+            </section>
         </div>
 
         <div id="viewAnalisis" class="main-view hidden">
@@ -1424,8 +1471,9 @@
                     <select id="trendYearSelector" class="local-filter" style="font-size: 0.75rem; color: var(--primary); border-color: var(--primary);" onchange="renderTrendChart()">
                         </select>
                 </h3>
-                <div id="chartTrenSeparate" class="chart-wrapper">
-                    <div class="chart-container"><canvas id="trendChart"></canvas></div>
+                <div id="chartTrenSeparate" class="chart-wrapper trend-chart-card">
+                    <div class="trend-chart-toolbar"><span>Geser untuk melihat bulan lainnya</span><div><button type="button" onclick="scrollTrendChart(-1)" aria-label="Bulan sebelumnya">‹</button><button type="button" onclick="scrollTrendChart(1)" aria-label="Bulan berikutnya">›</button></div></div>
+                    <div class="trend-chart-scroll" id="trendChartScroll" tabindex="0" aria-label="Grafik tren bulanan, dapat digeser mendatar"><div class="chart-container trend-chart-inner" id="trendChartInner"><canvas id="trendChart"></canvas></div></div>
                 </div>
 
             </div>
@@ -1453,7 +1501,8 @@
                     <button class="btn-submit btn-csv" style="flex: 1; margin:0;" onclick="exportToCSV()"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#download"/></svg> Ekspor CSV</button>
                 </div>
                 
-                <div id="printableReport" class="report-paper">
+                <div id="printableReport" class="report-stack">
+                  <section class="report-paper" aria-label="Laporan laba rugi">
                     <div class="report-title">
                         <h2>LAPORAN LABA RUGI</h2>
                         <p id="teksPeriodeLaporan" style="font-size: 0.85rem; color: #6B7280; margin-top: 0.4rem; font-weight: 500;">Periode: -</p>
@@ -1480,8 +1529,9 @@
                         <span>LABA / RUGI BERSIH</span>
                         <span id="reportNetProfit">Rp 0</span>
                     </div>
-                    
-                    <div class="report-title" style="margin-top:3.5rem;">
+                  </section>
+                  <section class="report-paper" aria-label="Neraca">
+                    <div class="report-title">
                         <h2>NERACA (POSISI KEUANGAN)</h2>
                         <p id="reportDateNeraca" style="font-size: 0.85rem; color: #6B7280; margin-top: 0.4rem; font-weight: 500;">Periode: -</p>
                     </div>
@@ -1501,12 +1551,13 @@
                         <tr><td style="padding-left:1.5rem">• Kekayaan Bersih</td><td class="text-right" id="repEkuitas">Rp 0</td></tr>
                         <tr class="report-row-main"><td>TOTAL PASIVA</td><td class="text-right" id="repTotalPasiva">Rp 0</td></tr>
                     </table>
+                  </section>
                 </div>
             </div>
         </div>
 
         <!-- FAB Tambah Transaksi -->
-        <button class="fab-btn" id="fabAddBtn" onclick="openAddTransaction()" title="Catat transaksi" aria-label="Catat transaksi"><span class="fab-label">Catat transaksi</span><svg class="ui-icon"><use href="/app-icons.svg#plus"/></svg></button>
+        <button class="fab-btn" id="fabAddBtn" onclick="openAddTransaction()" title="Catat transaksi" aria-label="Catat transaksi"><svg class="ui-icon"><use href="/app-icons.svg#plus"/></svg></button>
 
         <div class="bottom-nav">
             <button class="nav-item active" onclick="switchView('transaksi')" id="navTransaksi">
@@ -3408,9 +3459,12 @@
         function renderWalletOptions() {
             const select = document.getElementById('walletSelect'); const selectTo = document.getElementById('walletToSelect'); const assetSource = document.getElementById('assetSourceWallet');
             if(select) select.innerHTML = ''; if(selectTo) selectTo.innerHTML = ''; if(assetSource) assetSource.innerHTML = '<option value="None">-- Tidak Memotong Saldo Transaksi --</option>'; 
+            const loanWallet = document.getElementById('loanWallet'); const paymentWallet = document.getElementById('loanPaymentWallet');
+            if(loanWallet) loanWallet.replaceChildren(); if(paymentWallet) paymentWallet.replaceChildren();
             wallets.forEach(w => {
                 const opt = document.createElement('option'); opt.value = w; opt.innerText = w;
                 if(select) select.appendChild(opt.cloneNode(true)); if(selectTo) selectTo.appendChild(opt.cloneNode(true)); if(assetSource) assetSource.appendChild(opt.cloneNode(true)); 
+                if(loanWallet) loanWallet.appendChild(opt.cloneNode(true)); if(paymentWallet) paymentWallet.appendChild(opt.cloneNode(true));
             });
         }
 
@@ -3421,6 +3475,7 @@
                 if (walletBalances[walletUsed] === undefined) walletBalances[walletUsed] = 0; 
                 if(t.type === 'income') walletBalances[walletUsed] += t.amount;
                 else if(t.type === 'expense') walletBalances[walletUsed] -= t.amount;
+                else if(t.type === 'loan') walletBalances[walletUsed] += Number(t.walletDelta) || 0;
                 else if(t.type === 'transfer') {
                     walletBalances[walletUsed] -= t.amount;
                     if(t.walletTo) { if(walletBalances[t.walletTo] === undefined) walletBalances[t.walletTo] = 0; walletBalances[t.walletTo] += t.amount; }
@@ -3556,11 +3611,13 @@
         const updateUI = () => { 
             const filteredTrx = getFiltered(transactions); const filteredSav = getFiltered(savings); 
             const income = filteredTrx.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0); const expense = filteredTrx.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0); const assetDeduction = filteredSav.filter(s => s.sourceWallet && s.sourceWallet !== 'None').reduce((acc, s) => acc + s.amount, 0);
+            const loanCashflow = filteredTrx.filter(t => t.type === 'loan').reduce((sum, t) => sum + (Number(t.walletDelta) || 0), 0);
             
-            const balEl = document.getElementById('totalBalance'); if(balEl) balEl.innerText = formatRupiah(income - expense - assetDeduction); 
+            const balEl = document.getElementById('totalBalance'); if(balEl) balEl.innerText = formatRupiah(income - expense - assetDeduction + loanCashflow);
             const incEl = document.getElementById('totalIncome'); if(incEl) incEl.innerText = formatRupiah(income); 
             const expEl = document.getElementById('totalExpense'); if(expEl) expEl.innerText = formatRupiah(expense); 
-            renderBankingDashboard(filteredTrx);
+            renderBankingDashboard(filteredTrx.filter(t => t.type !== 'loan'));
+            if(!document.getElementById('viewUtangPiutang')?.classList.contains('hidden')) renderLoans();
             
             const badgeCont = document.getElementById('gamificationBadge');
             if(badgeCont) {
@@ -3571,7 +3628,7 @@
                     else if (expense < income * 0.8) badgeHtml = '<span class="badge-level is-warning">Waspada</span>';
                     else badgeHtml = '<span class="badge-level is-danger">Defisit</span>';
                 }
-                else badgeHtml = '<span class="badge-level is-neutral">Belum ada data</span>';
+                else badgeHtml = loanCashflow !== 0 ? '<span class="badge-level is-neutral">Arus pinjaman</span>' : '<span class="badge-level is-neutral">Belum ada data</span>';
                 badgeCont.innerHTML = badgeHtml;
             }
 
@@ -3588,7 +3645,7 @@
                 }
             }
             
-            filteredTrx.forEach((t) => { 
+            filteredTrx.filter(t => t.type !== 'loan').forEach((t) => {
                 const isTransfer = t.type === 'transfer'; const sign = t.type === 'income' ? '+' : t.type === 'expense' ? '-' : '⇄'; 
                 const colorClass = t.type === 'income' ? 'income-text' : t.type === 'expense' ? 'expense-text' : 'transfer-text'; 
                 const walletName = isTransfer ? `${t.wallet || 'Tunai'} → ${t.walletTo || '?'}` : (t.wallet || 'Tunai');
@@ -3762,8 +3819,253 @@
             });
         }
 
-        const views = { 'transaksi': document.getElementById('viewTransaksi'), 'catat': document.getElementById('viewCatat'), 'tabungan': document.getElementById('viewTabungan'), 'analisis': document.getElementById('viewAnalisis'), 'laporan': document.getElementById('viewLaporan'), 'goals': document.getElementById('viewGoals') };
-        const navItems = { 'transaksi': document.getElementById('navTransaksi'), 'catat': document.getElementById('navTransaksi'), 'tabungan': document.getElementById('navTabungan'), 'analisis': document.getElementById('navAnalisis'), 'laporan': document.getElementById('navLaporan'), 'goals': document.getElementById('navTabungan') };
+        let editingLoanId = null;
+        let payingLoanId = null;
+        let savingLoan = false;
+
+        function loanCashDelta(kind, phase, amount) {
+            const direction = kind === 'receivable' ? -1 : 1;
+            return direction * (phase === 'payment' ? -amount : amount);
+        }
+
+        function loanOutstanding(loan) {
+            return Math.max(0, (Number(loan.amount) || 0) - (Number(loan.paid) || 0));
+        }
+
+        function loanNode(tag, className, value) {
+            const node = document.createElement(tag);
+            if(className) node.className = className;
+            if(value !== undefined) node.textContent = String(value);
+            return node;
+        }
+
+        function updateLoanFormCopy() {
+            const kind = document.getElementById('loanKind')?.value;
+            const isReceivable = kind === 'receivable';
+            document.getElementById('loanBalanceHelp').textContent = isReceivable
+                ? 'Uang yang dipinjamkan akan mengurangi saldo rekening yang dipilih. Pembayaran yang diterima menambah saldo.'
+                : 'Uang yang Anda pinjam akan menambah saldo rekening yang dipilih. Pelunasan mengurangi saldo.';
+            document.getElementById('loanSubmit').textContent = editingLoanId ? 'Simpan Perubahan' : isReceivable ? 'Simpan Piutang' : 'Simpan Utang';
+        }
+
+        function resetLoanForm() {
+            editingLoanId = null;
+            const form = document.getElementById('loanForm');
+            form?.reset();
+            for(const id of ['loanKind','loanAmount','loanWallet','loanDate']) {
+                const field = document.getElementById(id); if(field) field.disabled = false;
+            }
+            document.getElementById('loanDate').value = getTodayYMD();
+            document.getElementById('loanCancelEdit').hidden = true;
+            document.getElementById('loanFormHeading').textContent = 'Catat Utang atau Piutang';
+            updateLoanFormCopy();
+        }
+
+        function editLoan(id) {
+            const loan = transactions.find(t => t.id === id && t.type === 'loan' && t.loanPhase === 'principal');
+            if(!loan) return showToast('Catatan tidak ditemukan.');
+            closeLoanPayment();
+            editingLoanId = id;
+            document.getElementById('loanKind').value = loan.loanKind;
+            document.getElementById('loanParty').value = loan.party || '';
+            document.getElementById('loanAmount').value = formatRupiahStr(loan.amount);
+            document.getElementById('loanWallet').value = loan.wallet || 'Tunai';
+            document.getElementById('loanDate').value = parseCustomDateToYMD(loan.date);
+            document.getElementById('loanDueDate').value = loan.dueDate || '';
+            document.getElementById('loanNote').value = loan.note || '';
+            if(Number(loan.paid) > 0) {
+                for(const fieldId of ['loanKind','loanAmount','loanWallet','loanDate']) document.getElementById(fieldId).disabled = true;
+            }
+            document.getElementById('loanCancelEdit').hidden = false;
+            document.getElementById('loanFormHeading').textContent = `Ubah catatan ${loan.party || ''}`;
+            updateLoanFormCopy();
+            document.querySelector('.loan-form-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function closeLoanPayment() {
+            payingLoanId = null;
+            document.getElementById('loanPaymentCard').hidden = true;
+            document.getElementById('loanPaymentForm')?.reset();
+        }
+
+        function openLoanPayment(id) {
+            const loan = transactions.find(t => t.id === id && t.type === 'loan' && t.loanPhase === 'principal');
+            if(!loan || loanOutstanding(loan) <= 0) return showToast('Pos ini sudah lunas.');
+            payingLoanId = id;
+            document.getElementById('loanPaymentHeading').textContent = loan.loanKind === 'receivable' ? 'Terima pembayaran' : 'Bayar utang';
+            document.getElementById('loanPaymentContext').textContent = `${loan.party || 'Tanpa nama'} · Sisa ${formatRupiah(loanOutstanding(loan))}`;
+            document.getElementById('loanPaymentAmount').value = formatRupiahStr(loanOutstanding(loan));
+            document.getElementById('loanPaymentWallet').value = loan.wallet || 'Tunai';
+            document.getElementById('loanPaymentDate').value = getTodayYMD();
+            document.getElementById('loanPaymentCard').hidden = false;
+            document.getElementById('loanPaymentCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function deleteLoan(id) {
+            const loan = transactions.find(t => t.id === id && t.type === 'loan' && t.loanPhase === 'principal');
+            if(!loan || Number(loan.paid) > 0) return showToast('Catatan dengan pembayaran tidak dapat dihapus.');
+            requireConfirm(`Hapus catatan ${loan.party || 'ini'}? Perubahan saldo akan dibatalkan.`, async () => {
+                try {
+                    const ref = db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions').doc(id);
+                    await db.runTransaction(async tx => {
+                        const snapshot = await tx.get(ref);
+                        if(!snapshot.exists || Number(snapshot.data().paid) > 0) throw new Error('Catatan sudah memiliki pembayaran.');
+                        tx.delete(ref);
+                    });
+                    const backup = {...loan}; delete backup.id;
+                    pushUndo({id,collection:'transactions',data:backup});
+                    if(editingLoanId === id) resetLoanForm();
+                    showToastUndo('Catatan dihapus');
+                } catch(error) { showToast(error.message || 'Gagal menghapus catatan.'); }
+            });
+        }
+
+        function renderLoans() {
+            const host = document.getElementById('loanList');
+            if(!host) return;
+            const loans = transactions.filter(t => t.type === 'loan' && t.loanPhase === 'principal');
+            const payments = transactions.filter(t => t.type === 'loan' && t.loanPhase === 'payment');
+            const open = loans.filter(t => loanOutstanding(t) > 0);
+            const receivable = open.filter(t => t.loanKind === 'receivable').reduce((sum, t) => sum + loanOutstanding(t), 0);
+            const payable = open.filter(t => t.loanKind === 'payable').reduce((sum, t) => sum + loanOutstanding(t), 0);
+            const today = getTodayYMD();
+            const overdue = open.filter(t => t.dueDate && t.dueDate < today).length;
+            document.getElementById('loanReceivableTotal').textContent = formatRupiah(receivable);
+            document.getElementById('loanPayableTotal').textContent = formatRupiah(payable);
+            document.getElementById('loanOverdueCount').textContent = String(overdue);
+            const filter = document.getElementById('loanListFilter')?.value || 'active';
+            const visible = loans.filter(t => filter === 'all' ||
+                (filter === 'active' && loanOutstanding(t) > 0) ||
+                (filter === 'paid' && loanOutstanding(t) === 0) ||
+                (filter === 'receivable' && t.loanKind === 'receivable') ||
+                (filter === 'payable' && t.loanKind === 'payable'))
+                .sort((a, b) => parseCustomDateToYMD(b.date).localeCompare(parseCustomDateToYMD(a.date)));
+            host.replaceChildren();
+            if(!visible.length) {
+                host.appendChild(loanNode('p','loan-empty',filter === 'active' ? 'Belum ada utang atau piutang aktif.' : 'Tidak ada catatan pada filter ini.'));
+                return;
+            }
+            visible.forEach(loan => {
+                const remaining = loanOutstanding(loan);
+                const paid = Math.max(0, Number(loan.paid) || 0);
+                const card = loanNode('article',`loan-item ${loan.loanKind === 'payable' ? 'payable' : 'receivable'}`);
+                const top = loanNode('div','loan-item-top');
+                const title = loanNode('div','loan-item-title');
+                title.append(loanNode('strong','',loan.party || 'Tanpa nama'),loanNode('span',`loan-kind ${loan.loanKind === 'payable' ? 'payable' : ''}`,loan.loanKind === 'receivable' ? 'Piutang' : 'Utang'));
+                top.append(title,loanNode('strong','loan-item-amount',formatRupiah(remaining)));
+                card.append(top);
+                const due = loan.dueDate ? new Date(`${loan.dueDate}T12:00:00`).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) : 'Tanpa jatuh tempo';
+                const status = remaining === 0 ? 'Lunas' : loan.dueDate && loan.dueDate < today ? 'Lewat jatuh tempo' : 'Aktif';
+                card.append(loanNode('p','loan-item-meta',`${loan.loanKind === 'receivable' ? 'Dipinjamkan' : 'Dipinjam'} ${displayDateDDMMYYYY(loan.date)} · ${loan.wallet || 'Tunai'} · ${due} · ${status}`));
+                if(loan.note) card.append(loanNode('p','loan-item-meta',loan.note));
+                const progress = loanNode('div','loan-progress');
+                const bar = document.createElement('span');
+                bar.style.width = `${Math.min(100,Math.max(0,paid / (Number(loan.amount) || 1) * 100))}%`;
+                progress.appendChild(bar);
+                card.append(progress);
+                const foot = loanNode('div','loan-item-foot');
+                foot.append(loanNode('span','',`Terbayar ${formatRupiah(paid)}`),loanNode('span','',`Dari ${formatRupiah(loan.amount)}`));
+                card.append(foot);
+                const actions = loanNode('div','loan-item-actions');
+                if(remaining > 0) {
+                    const pay = loanNode('button','',loan.loanKind === 'receivable' ? 'Terima pembayaran' : 'Bayar utang');
+                    pay.type = 'button'; pay.addEventListener('click',() => openLoanPayment(loan.id)); actions.append(pay);
+                }
+                const edit = loanNode('button','', 'Ubah catatan');
+                edit.type = 'button'; edit.addEventListener('click',() => editLoan(loan.id)); actions.append(edit);
+                if(paid === 0) {
+                    const remove = loanNode('button','danger','Hapus');
+                    remove.type = 'button'; remove.addEventListener('click',() => deleteLoan(loan.id)); actions.append(remove);
+                }
+                card.append(actions);
+                const history = payments.filter(p => p.loanId === loan.id).sort((a,b) => parseCustomDateToYMD(b.date).localeCompare(parseCustomDateToYMD(a.date)));
+                if(history.length) {
+                    const details = loanNode('details','loan-payments');
+                    details.append(loanNode('summary','',`Riwayat pembayaran (${history.length})`));
+                    history.forEach(payment => {
+                        const row = loanNode('div','loan-payment-row');
+                        row.append(loanNode('span','',`${displayDateDDMMYYYY(payment.date)} · ${payment.wallet || 'Tunai'}${payment.note ? ' · ' + payment.note : ''}`),loanNode('strong','',formatRupiah(payment.amount)));
+                        details.append(row);
+                    });
+                    card.append(details);
+                }
+                host.append(card);
+            });
+        }
+
+        document.getElementById('loanKind')?.addEventListener('change', updateLoanFormCopy);
+        for(const id of ['loanAmount','loanPaymentAmount']) document.getElementById(id)?.addEventListener('input',formatInputRupiah);
+        document.getElementById('loanForm')?.addEventListener('submit', async event => {
+            event.preventDefault();
+            if(savingLoan) return;
+            const kind = document.getElementById('loanKind').value;
+            const party = document.getElementById('loanParty').value.trim();
+            const amount = Number(document.getElementById('loanAmount').value.replace(/\D/g,''));
+            const wallet = document.getElementById('loanWallet').value;
+            const date = document.getElementById('loanDate').value;
+            const dueDate = document.getElementById('loanDueDate').value;
+            const note = document.getElementById('loanNote').value.trim();
+            if(!party || !Number.isSafeInteger(amount) || amount <= 0 || !wallets.includes(wallet) || !date) return showToast('Lengkapi nama, nominal, tanggal, dan rekening.');
+            if(dueDate && dueDate < date) return showToast('Jatuh tempo harus setelah tanggal pencatatan.');
+            savingLoan = true;
+            const button = document.getElementById('loanSubmit'); button.disabled = true;
+            try {
+                const collection = db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions');
+                if(editingLoanId) {
+                    const ref = collection.doc(editingLoanId);
+                    await db.runTransaction(async tx => {
+                        const snapshot = await tx.get(ref);
+                        if(!snapshot.exists || snapshot.data().type !== 'loan' || snapshot.data().loanPhase !== 'principal') throw new Error('Catatan tidak ditemukan.');
+                        const saved = snapshot.data();
+                        if(Number(saved.paid) > 0 && (amount !== saved.amount || wallet !== saved.wallet || kind !== saved.loanKind || formatCustomDate(date) !== saved.date)) throw new Error('Nominal, jenis, tanggal, dan rekening tidak bisa diubah setelah ada pembayaran.');
+                        if(amount < Number(saved.paid || 0)) throw new Error('Nominal tidak boleh lebih kecil dari yang sudah dibayar.');
+                        tx.update(ref,{ loanKind:kind,party,amount,wallet,date:formatCustomDate(date),dueDate,note,walletDelta:loanCashDelta(kind,'principal',amount),category:kind === 'receivable' ? 'Dipinjamkan' : 'Saya meminjam' });
+                    });
+                    showToast('Catatan diperbarui.');
+                } else {
+                    await collection.add({ type:'loan',loanPhase:'principal',loanKind:kind,party,amount,paid:0,wallet,date:formatCustomDate(date),dueDate,note,walletDelta:loanCashDelta(kind,'principal',amount),category:kind === 'receivable' ? 'Dipinjamkan' : 'Saya meminjam',timestamp:firebase.firestore.FieldValue.serverTimestamp() });
+                    showToast('Catatan tersimpan.');
+                }
+                resetLoanForm();
+            } catch(error) { showToast(error.message || 'Gagal menyimpan catatan.'); }
+            finally { savingLoan = false; button.disabled = false; }
+        });
+
+        document.getElementById('loanPaymentForm')?.addEventListener('submit', async event => {
+            event.preventDefault();
+            if(savingLoan || !payingLoanId) return;
+            const amount = Number(document.getElementById('loanPaymentAmount').value.replace(/\D/g,''));
+            const wallet = document.getElementById('loanPaymentWallet').value;
+            const date = document.getElementById('loanPaymentDate').value;
+            const note = document.getElementById('loanPaymentNote').value.trim();
+            if(!Number.isSafeInteger(amount) || amount <= 0 || !wallets.includes(wallet) || !date) return showToast('Lengkapi nominal, tanggal, dan rekening pembayaran.');
+            savingLoan = true;
+            const button = document.getElementById('loanPaymentSubmit'); button.disabled = true;
+            try {
+                const collection = db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions');
+                const loanRef = collection.doc(payingLoanId);
+                const paymentRef = collection.doc();
+                await db.runTransaction(async tx => {
+                    const snapshot = await tx.get(loanRef);
+                    if(!snapshot.exists || snapshot.data().type !== 'loan' || snapshot.data().loanPhase !== 'principal') throw new Error('Catatan tidak ditemukan.');
+                    const loan = snapshot.data();
+                    if(amount > loanOutstanding(loan)) throw new Error('Pembayaran melebihi sisa utang atau piutang.');
+                    if(date < parseCustomDateToYMD(loan.date)) throw new Error('Tanggal pembayaran harus setelah tanggal pinjaman.');
+                    tx.update(loanRef,{paid:(Number(loan.paid) || 0) + amount});
+                    tx.set(paymentRef,{type:'loan',loanPhase:'payment',loanId:loanRef.id,loanKind:loan.loanKind,party:loan.party,category:loan.loanKind === 'receivable' ? 'Terima pembayaran' : 'Bayar utang',amount,wallet,walletDelta:loanCashDelta(loan.loanKind,'payment',amount),date:formatCustomDate(date),note,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+                });
+                closeLoanPayment();
+                document.getElementById('loanListFilter').value = 'all';
+                renderLoans();
+                showToast('Pembayaran tersimpan.');
+            } catch(error) { showToast(error.message || 'Gagal menyimpan pembayaran.'); }
+            finally { savingLoan = false; button.disabled = false; }
+        });
+
+        resetLoanForm();
+
+        const views = { 'transaksi': document.getElementById('viewTransaksi'), 'catat': document.getElementById('viewCatat'), 'utangPiutang': document.getElementById('viewUtangPiutang'), 'tabungan': document.getElementById('viewTabungan'), 'analisis': document.getElementById('viewAnalisis'), 'laporan': document.getElementById('viewLaporan'), 'goals': document.getElementById('viewGoals') };
+        const navItems = { 'transaksi': document.getElementById('navTransaksi'), 'catat': document.getElementById('navTransaksi'), 'utangPiutang': document.getElementById('navTransaksi'), 'tabungan': document.getElementById('navTabungan'), 'analisis': document.getElementById('navAnalisis'), 'laporan': document.getElementById('navLaporan'), 'goals': document.getElementById('navTabungan') };
 
         const switchView = (viewName) => { 
             if(!navItems[viewName] || !views[viewName]) return;
@@ -3776,6 +4078,7 @@
             if(viewName === 'analisis') renderAnalytics();
             if(viewName === 'laporan') renderLaporan();
             if(viewName === 'goals') renderGoals();
+            if(viewName === 'utangPiutang') renderLoans();
             closeProfileMenu();
             const fab = document.getElementById('fabAddBtn');
             if(fab) fab.style.display = viewName === 'catat' ? 'none' : 'flex';
@@ -4291,7 +4594,7 @@
             const filteredTrx = getFiltered(transactions); if (filteredTrx.length === 0) return showToast("Belum ada data.");
             let csvContent = "data:text/csv;charset=utf-8,Tanggal,Jenis,Rekening,Kategori,Nominal (Rp),Keterangan\n";
             filteredTrx.forEach(t => { 
-                const jenis = t.type === 'income' ? 'Pemasukan' : t.type === 'expense' ? 'Pengeluaran' : 'Transfer'; const note = t.note ? `"${t.note.replace(/"/g, '""')}"` : "-"; const walletStr = t.type === 'transfer' ? `${t.wallet||'Tunai'} ke ${t.walletTo||'?'}` : (t.wallet || 'Tunai');
+                const jenis = t.type === 'income' ? 'Pemasukan' : t.type === 'expense' ? 'Pengeluaran' : t.type === 'loan' ? 'Utang Piutang' : 'Transfer'; const note = t.type === 'loan' ? `"${[t.party,t.note].filter(Boolean).join(' · ').replace(/"/g, '""')}"` : t.note ? `"${t.note.replace(/"/g, '""')}"` : "-"; const walletStr = t.type === 'transfer' ? `${t.wallet||'Tunai'} ke ${t.walletTo||'?'}` : (t.wallet || 'Tunai');
                 csvContent += `${t.date},${jenis},${walletStr},${t.category},${t.amount},${note}\n`; 
             });
             const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent));
@@ -4315,7 +4618,7 @@
 
         window.populateTrendYearFilter = function() {
             const years = new Set(); 
-            transactions.forEach(t => { 
+            transactions.filter(t => t.type !== 'loan').forEach(t => {
                 const year = parseCustomDateToYMD(t.date).slice(0, 4);
                 if(/^\d{4}$/.test(year)) years.add(year);
             });
@@ -4327,6 +4630,10 @@
 
         let expenseChartInstance = null; let incomeChartInstance = null; let assetChartInstance = null; let trendChartInstance = null; 
 
+        function scrollTrendChart(direction) {
+            document.getElementById('trendChartScroll')?.scrollBy({ left: direction * 300, behavior: 'smooth' });
+        }
+
         window.renderTrendChart = function() {
             if (typeof Chart === 'undefined') { renderAnalytics(); return; }
             const yFilterEl = document.getElementById('trendYearSelector'); const yearFilter = yFilterEl ? yFilterEl.value : 'ALL'; const monthlyData = {};
@@ -4334,7 +4641,7 @@
             const monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
             
             transactions.forEach(t => { 
-                if(t.type === 'transfer') return; 
+                if(t.type === 'transfer' || t.type === 'loan') return;
                 const ymd = parseCustomDateToYMD(t.date);
                 if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return;
                 const monthKey = ymd.slice(0, 7);
@@ -4353,6 +4660,9 @@
             });
             const dataIncTren = sortedLabels.map(key => monthlyData[key]?.income || 0);
             const dataExpTren = sortedLabels.map(key => monthlyData[key]?.expense || 0);
+
+            const trendInner = document.getElementById('trendChartInner');
+            if(trendInner) trendInner.style.minWidth = `${Math.max(12, sortedLabels.length) * 62}px`;
             
             const canvasTren = document.getElementById('trendChart'); if(!canvasTren) return; const ctxTren = canvasTren.getContext('2d'); if(trendChartInstance) trendChartInstance.destroy();
             trendChartInstance = new Chart(ctxTren, { 
@@ -5402,7 +5712,7 @@
             updateUndoButtons();
             if(type === 'transaksi') {
                 // Isi dropdown kategori dari data transaksi yang ada
-                const cats = [...new Set(transactions.map(t => t.category).filter(Boolean))].sort();
+                const cats = [...new Set(transactions.filter(t => t.type !== 'loan').map(t => t.category).filter(Boolean))].sort();
                 const sel = document.getElementById('riwayatTrxKategori');
                 if(sel) {
                     const prev = sel.value;
@@ -5445,7 +5755,7 @@
             const searchQuery = (document.getElementById('riwayatTrxSearch')?.value || '').toLowerCase().trim();
 
             // Gunakan filter periode yang sama dengan aplikasi
-            const baseTrx = getFiltered(transactions);
+            const baseTrx = getFiltered(transactions).filter(t => t.type !== 'loan');
 
             let filtered = [...baseTrx];
             if(typeFilter)  filtered = filtered.filter(t => t.type === typeFilter);
