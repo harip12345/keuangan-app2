@@ -929,6 +929,7 @@
         #aiChatInput:focus { outline:none; border-color:var(--primary) !important; box-shadow:0 0 0 3px rgba(99,102,241,.15); transition:border-color .15s, box-shadow .15s; }
         #aiChatMessages { scroll-behavior:smooth; }
     </style>
+    <link rel="stylesheet" href="./banking-ui.css?v=20261011">
 </head>
 <body>
     <!-- ================= SPLASH SCREEN ================= -->
@@ -956,6 +957,19 @@
 
     <!-- ================== TAMPILAN LOGIN SCREEN (DIPERBARUI) ================== -->
     <div id="loginScreen" class="login-container">
+        <section class="banking-login-hero" aria-label="Selamat datang di MyFinanceApp">
+            <div class="banking-hero-brand"><img src="/icon.svg?v=20261008" alt="" width="38" height="38"><div>MyFinanceApp<small>PERSONAL FINANCE</small></div></div>
+            <div class="banking-hero-copy">
+                <div class="banking-hero-eyebrow">UANG LEBIH TERTATA</div>
+                <h2>Semua keuangan,<br><span>satu kendali.</span></h2>
+                <p>Catat transaksi, pantau aset, dan capai tujuan keuangan dalam satu ruang yang terasa mudah.</p>
+            </div>
+            <div class="banking-hero-visual" aria-hidden="true">
+                <div class="banking-preview-card"><div class="banking-preview-card-top"><b>M</b><span>)))</span></div><small>ILUSTRASI DASHBOARD</small><strong>Keuangan lebih jelas</strong><div class="banking-preview-card-bottom"><span>MYFINANCEAPP</span><span>•••• 2026</span></div></div>
+                <div class="banking-preview-float"><i>↗</i><span><b>Lebih terarah</b><small>Setiap hari</small></span></div>
+            </div>
+            <div class="banking-hero-foot">Jernih dalam setiap keputusan.</div>
+        </section>
         <div class="login-card">
             
             <!-- Logo yang sama dengan landing page dan ikon PWA -->
@@ -963,8 +977,9 @@
                 <img src="/icon.svg?v=20261008" alt="" width="68" height="68">
             </div>
             
-            <h1 class="login-title">MyFinanceApp</h1>
-            <p class="login-subtitle">Kelola Keuangan Jadi Lebih Mudah</p>
+            <div class="banking-form-eyebrow">SELAMAT DATANG KEMBALI</div>
+            <h1 class="login-title" id="authHeading">Masuk ke akun Anda.</h1>
+            <p class="login-subtitle" id="authIntro">Lanjutkan perjalanan finansial Anda bersama MyFinanceApp.</p>
 
             <!-- Segmented Control Tab -->
             <div class="auth-tabs">
@@ -975,7 +990,7 @@
             <!-- Form Login -->
             <form id="formLoginView" onsubmit="handleAppLogin(event)">
                 <div class="login-input-group">
-                    <label class="sr-only" for="loginUser">Username atau email</label>
+                    <label class="banking-field-label" for="loginUser">Email atau username</label>
                     <input type="text" id="loginUser" class="form-control" placeholder="Username / Email" required autocomplete="username">
                     <!-- Icon User Outline -->
                     <svg class="input-icon" viewBox="0 0 24 24">
@@ -984,7 +999,7 @@
                     </svg>
                 </div>
                 <div class="login-input-group">
-                    <label class="sr-only" for="loginPass">Password</label>
+                    <label class="banking-field-label" for="loginPass">Kata sandi</label>
                     <input type="password" id="loginPass" class="form-control has-eye" placeholder="Password" required autocomplete="current-password">
                     <!-- Icon Lock Outline -->
                     <svg class="input-icon" viewBox="0 0 24 24">
@@ -1005,7 +1020,7 @@
                 <div id="loginError" class="login-error" role="alert" aria-live="assertive">Username atau Password salah!</div>
                 
                 <button type="submit" class="login-btn">
-                    MASUK APLIKASI
+                    Masuk ke dashboard
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
             </form>
@@ -1013,7 +1028,7 @@
             <!-- Form Register (Disembunyikan secara default) -->
             <form id="formRegisterView" onsubmit="handleAppRegister(event)" style="display:none;">
                 <div class="login-input-group">
-                    <label class="sr-only" for="regName">Nama lengkap</label>
+                    <label class="banking-field-label" for="regName">Nama lengkap</label>
                     <input type="text" id="regName" class="form-control" placeholder="Nama Lengkap" required autocomplete="name">
                     <svg class="input-icon" viewBox="0 0 24 24">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -1021,7 +1036,7 @@
                     </svg>
                 </div>
                 <div class="login-input-group">
-                    <label class="sr-only" for="regUser">Email pendaftaran</label>
+                    <label class="banking-field-label" for="regUser">Email pendaftaran</label>
                     <input type="email" id="regUser" class="form-control" placeholder="Email" required autocomplete="email">
                     <svg class="input-icon" viewBox="0 0 24 24">
                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -1029,7 +1044,7 @@
                     </svg>
                 </div>
                 <div class="login-input-group">
-                    <label class="sr-only" for="regPass">Buat password</label>
+                    <label class="banking-field-label" for="regPass">Buat kata sandi</label>
                     <input type="password" id="regPass" class="form-control has-eye" placeholder="Buat Password" required minlength="6" autocomplete="new-password">
                     <svg class="input-icon" viewBox="0 0 24 24">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -1045,12 +1060,12 @@
                 </div>
                 <div id="registerError" class="login-error" role="alert" aria-live="assertive"></div>
                 <button type="submit" class="login-btn">
-                    DAFTAR APLIKASI
+                    Buat akun
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
             </form>
 
-            <div class="auth-divider"><span>Atau gunakan</span></div>
+            <div class="auth-divider"><span>atau lanjutkan dengan</span></div>
             
             <!-- Opsi Social & Biometrik di dalam satu baris (row) membulat -->
             <div class="social-login-row">
@@ -1088,6 +1103,19 @@
 
     <!-- ================== TAMPILAN APLIKASI UTAMA ================== -->
     <div class="app-container" id="mainAppContainer" style="display: none;">
+        <aside class="banking-sidebar" aria-label="Navigasi utama">
+            <div class="banking-sidebar-brand"><img src="/icon.svg?v=20261008" alt="" width="34" height="34">MyFinanceApp</div>
+            <div class="banking-sidebar-label">MENU UTAMA</div>
+            <button type="button" class="banking-side-link active" data-view="transaksi" onclick="switchView('transaksi')">▦ <span>Ringkasan & Transaksi</span></button>
+            <button type="button" class="banking-side-link" data-view="tabungan" onclick="switchView('tabungan')">▣ <span>Aset & Tabungan</span></button>
+            <button type="button" class="banking-side-link" data-view="goals" onclick="switchView('goals')">◎ <span>Goals</span></button>
+            <div class="banking-sidebar-divider"></div>
+            <div class="banking-sidebar-label">INSIGHT</div>
+            <button type="button" class="banking-side-link" data-view="analisis" onclick="switchView('analisis')">▥ <span>Analisis</span></button>
+            <button type="button" class="banking-side-link" data-view="laporan" onclick="switchView('laporan')">▤ <span>Laporan</span></button>
+            <div class="banking-sidebar-spacer"></div>
+            <button type="button" class="banking-side-link" onclick="openSettingsModal()">⚙ <span>Pengaturan akun</span></button>
+        </aside>
         
         <div id="cloudLoader">
             <div class="spinner"></div>
@@ -1122,11 +1150,12 @@
                         </button>
                     </div>
                 </div>
-                <div class="header-title">
+                <div class="banking-balance-panel"><div class="header-title">
                     Arus Kas Bersih Periode Ini
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="opacity:0.8; margin-left:4px; cursor:pointer;" onclick="openWalletModal()"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
                 </div>
                 <div class="balance-amount" id="totalBalance" onclick="openWalletModal()" title="Klik untuk rincian per rekening">Rp 0</div>
+                <div class="banking-balance-caption">Ringkasan sesuai periode yang Anda pilih</div></div>
             </div>
 
             <div class="summary-cards">
@@ -1140,7 +1169,30 @@
             </div>
         </div>
 
-        <div style="padding: 0 1.5rem; margin-top: 1.25rem; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; flex-wrap: wrap; gap: 8px;">
+        <section class="banking-dashboard-grid" aria-label="Ringkasan aktivitas keuangan">
+            <div class="banking-insight-panel">
+                <div class="banking-panel-title"><h2>Arus kas bulanan</h2><button type="button" onclick="switchView('analisis')">Lihat analisis →</button></div>
+                <div id="bankingCashflowChart" class="banking-cashflow-chart" aria-label="Grafik pemasukan dan pengeluaran enam bulan terakhir"></div>
+                <div class="banking-chart-legend"><span><i class="income"></i>Pemasukan</span><span><i class="expense"></i>Pengeluaran</span></div>
+            </div>
+            <div class="banking-quick-panel">
+                <div class="banking-panel-title"><h2>Aksi cepat</h2></div>
+                <div class="banking-quick-grid">
+                    <button type="button" onclick="openDashboardQuickAdd()"><i>＋</i>Catat cepat</button>
+                    <button type="button" onclick="document.getElementById('inputScanNota').click()"><i>▣</i>Scan nota</button>
+                    <button type="button" onclick="switchView('tabungan')"><i>◈</i>Aset</button>
+                    <button type="button" onclick="switchView('goals')"><i>◎</i>Goals</button>
+                    <button type="button" onclick="switchView('laporan')"><i>▤</i>Laporan</button>
+                    <button type="button" onclick="toggleAiModal()"><i>✧</i>Tanya AI</button>
+                </div>
+            </div>
+        </section>
+        <section class="banking-recent-panel" aria-label="Transaksi terbaru">
+            <div class="banking-panel-title"><h2>Transaksi terbaru</h2><button type="button" onclick="openRiwayatModal('transaksi')">Lihat semua →</button></div>
+            <div id="bankingRecentList" class="banking-recent-list"></div>
+        </section>
+
+        <div class="banking-period-filter" style="padding: 0 1.5rem; margin-top: 1.25rem; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; flex-wrap: wrap; gap: 8px;">
             <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">🗓 Filter Periode:</span>
             <div style="display: flex; gap: 4px; align-items: center; flex-wrap: nowrap;">
                 <input type="date" class="local-filter" id="startDateTop" onchange="applyDateFilter('startDateTop', 'endDateTop')" style="padding:0.3rem; font-size:0.75rem; width:115px;">
@@ -1149,7 +1201,7 @@
             </div>
         </div>
 
-        <div class="content-section" id="formSection" style="padding-top: 1rem;">
+        <div class="content-section banking-form-panel" id="formSection" style="padding-top: 1rem;">
                 <div class="section-title">
                     <span>Catat Transaksi</span>
                     <div style="display:flex;gap:6px;align-items:center;">
@@ -2223,16 +2275,22 @@
             const tabRegisterBtn = document.getElementById('tabRegisterBtn');
             const errBox = document.getElementById('loginError');
             const regErrBox = document.getElementById('registerError');
+            const authHeading = document.getElementById('authHeading');
+            const authIntro = document.getElementById('authIntro');
             
             errBox.style.display = 'none';
             regErrBox.style.display = 'none';
 
             if(tab === 'login') {
+                if (authHeading) authHeading.textContent = 'Masuk ke akun Anda.';
+                if (authIntro) authIntro.textContent = 'Lanjutkan perjalanan finansial Anda bersama MyFinanceApp.';
                 loginForm.style.display = 'block';
                 regForm.style.display = 'none';
                 tabLoginBtn.classList.add('active');
                 tabRegisterBtn.classList.remove('active');
             } else {
+                if (authHeading) authHeading.textContent = 'Mulai kelola keuangan.';
+                if (authIntro) authIntro.textContent = 'Buat akun MyFinanceApp untuk menata keuangan Anda.';
                 loginForm.style.display = 'none';
                 regForm.style.display = 'block';
                 tabLoginBtn.classList.remove('active');
@@ -3596,6 +3654,7 @@
             const balEl = document.getElementById('totalBalance'); if(balEl) balEl.innerText = formatRupiah(income - expense - assetDeduction); 
             const incEl = document.getElementById('totalIncome'); if(incEl) incEl.innerText = formatRupiah(income); 
             const expEl = document.getElementById('totalExpense'); if(expEl) expEl.innerText = formatRupiah(expense); 
+            renderBankingDashboard(filteredTrx);
             
             const badgeCont = document.getElementById('gamificationBadge');
             if(badgeCont) {
@@ -3629,6 +3688,73 @@
                 listEl.innerHTML += `<li class="transaction-item" onclick="openItemActionModal('${t.id}', 'trx')"><div class="transaction-info"><h4>${t.category}</h4><p>${displayDateDDMMYYYY(t.date)} <span class="wallet-badge">${walletName}</span> ${t.note ? `<br/><i>${t.note}</i>` : ''}</p></div><div class="transaction-amount ${colorClass}">${sign} ${formatRupiah(t.amount)}</div></li>`; 
             }); 
         };
+
+        function renderBankingDashboard(filteredTrx) {
+            const recent = document.getElementById('bankingRecentList');
+            if (recent) {
+                recent.replaceChildren();
+                if (!filteredTrx.length) {
+                    const empty = document.createElement('p');
+                    empty.className = 'banking-empty';
+                    empty.textContent = !transactionDataConfirmed ? 'Memuat transaksi dari server…' : 'Belum ada transaksi pada periode ini.';
+                    recent.appendChild(empty);
+                } else {
+                    filteredTrx.slice(0, 3).forEach(t => {
+                        const row = document.createElement('button');
+                        row.type = 'button'; row.className = 'banking-recent-row';
+                        row.addEventListener('click', () => openItemActionModal(t.id, 'trx'));
+                        const icon = document.createElement('span');
+                        icon.className = 'banking-recent-icon ' + (t.type === 'income' ? 'is-income' : t.type === 'transfer' ? 'is-transfer' : 'is-expense');
+                        icon.textContent = t.type === 'income' ? '↙' : t.type === 'transfer' ? '↔' : '↗';
+                        const detail = document.createElement('span'); detail.className = 'banking-recent-detail';
+                        const name = document.createElement('strong'); name.textContent = t.category || 'Transaksi';
+                        const meta = document.createElement('small'); meta.textContent = `${displayDateDDMMYYYY(t.date)} · ${t.wallet || 'Tunai'}`;
+                        detail.append(name, meta);
+                        const amount = document.createElement('b');
+                        amount.className = 'banking-recent-amount ' + (t.type === 'income' ? 'is-income' : '');
+                        amount.textContent = `${t.type === 'income' ? '+' : t.type === 'transfer' ? '↔' : '−'} ${formatRupiah(t.amount || 0)}`;
+                        row.append(icon, detail, amount); recent.appendChild(row);
+                    });
+                }
+            }
+
+            const chart = document.getElementById('bankingCashflowChart');
+            if (!chart) return;
+            chart.replaceChildren();
+            const now = new Date();
+            const months = Array.from({ length: 6 }, (_, i) => {
+                const date = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+                return { year: date.getFullYear(), month: date.getMonth() + 1,
+                    label: date.toLocaleDateString('id-ID', { month: 'short' }), income: 0, expense: 0 };
+            });
+            transactions.forEach(t => {
+                const date = parseCustomDateToYMD(t.date);
+                if (!date) return;
+                const [year, month] = date.split('-').map(Number);
+                const bucket = months.find(item => item.year === year && item.month === month);
+                if (bucket && (t.type === 'income' || t.type === 'expense')) bucket[t.type] += Number(t.amount) || 0;
+            });
+            const max = Math.max(1, ...months.flatMap(item => [item.income, item.expense]));
+            months.forEach(item => {
+                const col = document.createElement('div'); col.className = 'banking-chart-month';
+                const bars = document.createElement('div'); bars.className = 'banking-chart-bars';
+                for (const type of ['income', 'expense']) {
+                    const bar = document.createElement('span'); bar.className = 'banking-chart-bar ' + type;
+                    bar.style.height = `${Math.max(item[type] > 0 ? 5 : 1, item[type] / max * 100)}%`;
+                    bar.title = `${type === 'income' ? 'Pemasukan' : 'Pengeluaran'} ${item.label}: ${formatRupiah(item[type])}`;
+                    bars.appendChild(bar);
+                }
+                const label = document.createElement('small'); label.textContent = item.label;
+                col.append(bars, label); chart.appendChild(col);
+            });
+        }
+
+        function openDashboardQuickAdd() {
+            const panel = document.getElementById('quickAddPanel');
+            if (panel && panel.style.display === 'none') toggleQuickAdd();
+            document.getElementById('formSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => document.getElementById('quickAddInput')?.focus(), 250);
+        }
 
         const updateSavingsUI = () => { 
             const allSav = getFiltered(savings);
@@ -3665,6 +3791,7 @@
             Object.values(views).forEach(v => { try{ if(v) v.classList.add('hidden'); }catch(e){} });
             try{ views[viewName].classList.remove('hidden'); }catch(e){}
             try{ navItems[viewName].classList.add('active'); }catch(e){}
+            document.querySelectorAll('.banking-side-link[data-view]').forEach(btn => btn.classList.toggle('active', btn.dataset.view === viewName));
             if(viewName === 'analisis') renderAnalytics();
             if(viewName === 'laporan') renderLaporan();
             if(viewName === 'goals') renderGoals();
