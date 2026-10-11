@@ -30,7 +30,22 @@ async function callNineRouterVision(config, imageBase64, mimeType, prompt) {
       max_tokens: 500
     })
   });
-  return { status: response.status, data: await response.json() };
+  const responseText = await response.text();
+  let data;
+  try {
+    data = responseText ? JSON.parse(responseText) : {};
+  } catch (_) {
+    const detail = responseText
+      .replace(/<[^>]*>/g, ' ')
+      .split(config.apiKey).join('[API KEY REDACTED]')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 220);
+    throw new Error(
+      `Respons 9Router bukan JSON (HTTP ${response.status}). Pastikan tunnel aktif dan URL mengarah ke endpoint /v1. Respons: ${detail || '(kosong)'}`
+    );
+  }
+  return { status: response.status, data };
 }
 
 export function buildNotaPrompt(todayISO) {
