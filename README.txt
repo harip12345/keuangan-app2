@@ -33,7 +33,7 @@ Catatan: ikon home screen butuh diakses lewat HTTPS (domain Vercel), bukan file 
 SCAN NOTA DENGAN 9ROUTER
 ========================
 
-Endpoint scan nota dapat memakai model vision dari 9Router. Di Vercel, isi
+Endpoint scan nota hanya memakai model vision dari 9Router. Di Vercel, isi
 Environment Variables berikut lalu redeploy:
   - NINEROUTER_BASE_URL = URL publik 9Router yang diakhiri /v1
   - NINEROUTER_API_KEY  = API key endpoint dari dashboard 9Router
@@ -42,9 +42,10 @@ Environment Variables berikut lalu redeploy:
 Contoh format URL: https://<host-9router-anda>/v1
 Jangan gunakan localhost:20128 untuk deployment Vercel: alamat localhost di
 server Vercel menunjuk ke server Vercel itu sendiri, bukan komputer Anda.
-Model harus mendukung input gambar. GROQ_API_KEY dan GEMINI_API_KEY boleh tetap
-diisi sebagai fallback jika model/router 9Router sedang tidak tersedia.
-Gambar nota dikirim dari endpoint Vercel ke 9Router untuk diproses.
+Model harus mendukung input gambar. Scan nota hanya mengirim gambar ke 9Router;
+jika konfigurasi, router, atau modelnya gagal, pemindaian berhenti dan tidak
+beralih ke penyedia AI lain. Gambar nota dikirim dari endpoint Vercel ke
+9Router untuk diproses.
 
 FITUR BOT TELEGRAM (input transaksi via chat)
 ===========================================
@@ -64,8 +65,7 @@ FITUR BOT TELEGRAM (input transaksi via chat)
                                   dengan \n; Vercel otomatis menambahkan "-----BEGIN..." )
    Catatan: FIREBASE_* diambil dari Firebase Console -> Project Settings ->
    Service Accounts -> Generate new private key. Scan nota via bot memakai
-   konfigurasi 9Router di atas, atau GROQ_API_KEY / GEMINI_API_KEY sebagai
-   fallback.
+   konfigurasi 9Router di atas.
 3. Setelah deploy, buka Pengaturan -> Bot & Otomasi saat login dengan
    Email/Google. Aplikasi akan memeriksa dan mendaftarkan ulang webhook bot
    secara otomatis ke domain produksi. Jika gagal, status akan menunjukkan

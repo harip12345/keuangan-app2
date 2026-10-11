@@ -12,26 +12,17 @@ export default async function handler(req, res) {
     const { imageBase64, mimeType } = req.body;
     if (!imageBase64) return res.status(400).json({ error: 'imageBase64 tidak ada di request' });
 
-    const groqKey = process.env.GROQ_API_KEY;
-    const geminiKey = process.env.GEMINI_API_KEY;
     const nineRouterConfig = {
       baseUrl: process.env.NINEROUTER_BASE_URL,
       apiKey: process.env.NINEROUTER_API_KEY,
       model: process.env.NINEROUTER_MODEL
     };
-    const hasNineRouterConfig = Object.values(nineRouterConfig).every(Boolean);
-    const hasPartialNineRouterConfig = Object.values(nineRouterConfig).some(Boolean) && !hasNineRouterConfig;
-
-    if (hasPartialNineRouterConfig) {
+    if (!Object.values(nineRouterConfig).every(Boolean)) {
       return res.status(500).json({ error: 'Konfigurasi 9Router belum lengkap. Isi NINEROUTER_BASE_URL, NINEROUTER_API_KEY, dan NINEROUTER_MODEL di Vercel.' });
     }
 
-    if (!hasNineRouterConfig && !groqKey && !geminiKey) {
-      return res.status(500).json({ error: 'Konfigurasi 9Router atau API Key (GROQ/GEMINI) belum di-set di Vercel' });
-    }
-
     try {
-      const result = await extractNota(groqKey, geminiKey, imageBase64, mimeType, nineRouterConfig);
+      const result = await extractNota(nineRouterConfig, imageBase64, mimeType);
       return res.status(200).json(result);
     } catch (err) {
       return res.status(503).json({ error: err.message });

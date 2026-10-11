@@ -278,15 +278,13 @@ async function handlePhoto(msg, chatId, binding) {
     const imageBase64 = buf.toString('base64');
 
     const result = await extractNota(
-      process.env.GROQ_API_KEY,
-      process.env.GEMINI_API_KEY,
-      imageBase64,
-      'image/jpeg',
       {
         baseUrl: process.env.NINEROUTER_BASE_URL,
         apiKey: process.env.NINEROUTER_API_KEY,
         model: process.env.NINEROUTER_MODEL
-      }
+      },
+      imageBase64,
+      'image/jpeg'
     );
     const h = result.hasil;
     const kategori = h.kategori === 'Lainnya' && h.kategori_custom ? h.kategori_custom : h.kategori;
