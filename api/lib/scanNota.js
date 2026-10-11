@@ -1,5 +1,6 @@
 // Pemroses Vision (OCR Nota) — dipakai bersama oleh /api/scan-nota dan webhook Telegram.
-// Hanya menggunakan model vision yang dikonfigurasi di 9Router.
+// Scan nota selalu memakai Claude Haiku 5.5 melalui provider Anthropic di 9Router.
+export const SCAN_NOTA_MODEL = 'anthropic/claude-haiku-5-5';
 
 async function callNineRouterVision(config, imageBase64, mimeType, prompt) {
   const baseUrl = String(config.baseUrl).replace(/\/+$/, '');
@@ -18,7 +19,7 @@ async function callNineRouterVision(config, imageBase64, mimeType, prompt) {
     },
     signal: AbortSignal.timeout(50000),
     body: JSON.stringify({
-      model: config.model,
+      model: SCAN_NOTA_MODEL,
       messages: [{
         role: 'user',
         content: [
@@ -93,29 +94,29 @@ const validIncCats = ['Gaji / Upah', 'Hasil Usaha / Bisnis', 'Bonus / THR', 'Pem
 // Mengembalikan { hasil, model_used, provider } atau gagal dengan error 9Router.
 export async function extractNota(nineRouterConfig, imageBase64, mimeType) {
   const prompt = buildNotaPrompt();
-  const nineRouterValues = [nineRouterConfig.baseUrl, nineRouterConfig.apiKey, nineRouterConfig.model];
+  const nineRouterValues = [nineRouterConfig.baseUrl, nineRouterConfig.apiKey];
   if (!nineRouterValues.every(Boolean)) {
-    throw new Error('Konfigurasi 9Router belum lengkap. Isi NINEROUTER_BASE_URL, NINEROUTER_API_KEY, dan NINEROUTER_MODEL di Vercel.');
+    throw new Error('Konfigurasi 9Router belum lengkap. Isi NINEROUTER_BASE_URL dan NINEROUTER_API_KEY di Vercel.');
   }
   const { status, data } = await callNineRouterVision(nineRouterConfig, imageBase64, mimeType, prompt);
   if (status !== 200) {
-    throw new Error(`9Router (${nineRouterConfig.model}): ${data?.error?.message || 'HTTP ' + status}`);
+    throw new Error(`9Router (${SCAN_NOTA_MODEL}): ${data?.error?.message || 'HTTP ' + status}`);
   }
 
   const rawText = data?.choices?.[0]?.message?.content || '';
-  if (!rawText) throw new Error(`9Router (${nineRouterConfig.model}): respons teks kosong`);
+  if (!rawText) throw new Error(`9Router (${SCAN_NOTA_MODEL}): respons teks kosong`);
 
   const cleaned = rawText.replace(/```json|```/g, '').trim();
   const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error(`9Router (${nineRouterConfig.model}): respons JSON tidak ditemukan`);
+  if (!jsonMatch) throw new Error(`9Router (${SCAN_NOTA_MODEL}): respons JSON tidak ditemukan`);
 
   const hasil = JSON.parse(jsonMatch[0]);
-  if (!hasil.nominal && !hasil.keterangan) throw new Error(`9Router (${nineRouterConfig.model}): data penting nota tidak terbaca`);
+  if (!hasil.nominal && !hasil.keterangan) throw new Error(`9Router (${SCAN_NOTA_MODEL}): data penting nota tidak terbaca`);
 
   if (!validTypes.includes(hasil.type)) hasil.type = 'expense';
   if (!validWallets.includes(hasil.wallet)) hasil.wallet = 'Tunai';
   const validCats = hasil.type === 'income' ? validIncCats : validExpCats;
   if (!validCats.includes(hasil.kategori)) hasil.kategori = 'Lainnya';
 
-  return { hasil, model_used: data?.model || nineRouterConfig.model, provider: '9router' };
+  return { hasil, model_used: data?.model || SCAN_NOTA_MODEL, provider: '9router' };
 }

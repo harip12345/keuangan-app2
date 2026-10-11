@@ -37,7 +37,9 @@ Endpoint scan nota hanya memakai model vision dari 9Router. Di Vercel, isi
 Environment Variables berikut lalu redeploy:
   - NINEROUTER_BASE_URL = URL publik 9Router yang diakhiri /v1
   - NINEROUTER_API_KEY  = API key endpoint dari dashboard 9Router
-  - NINEROUTER_MODEL    = ID model vision yang aktif di 9Router
+Model scan nota dikunci ke Claude Haiku 5.5 (`anthropic/claude-haiku-5-5`).
+Hubungkan provider Anthropic API di dashboard 9Router dan pastikan ID model
+tersebut tersedia. Variabel NINEROUTER_MODEL tidak digunakan untuk scan nota.
 
 Contoh format URL: https://<host-9router-anda>/v1
 Jangan gunakan localhost:20128 untuk deployment Vercel: alamat localhost di

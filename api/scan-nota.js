@@ -17,11 +17,10 @@ export default async function handler(req, res) {
 
     const nineRouterConfig = {
       baseUrl: process.env.NINEROUTER_BASE_URL,
-      apiKey: process.env.NINEROUTER_API_KEY,
-      model: process.env.NINEROUTER_MODEL
+      apiKey: process.env.NINEROUTER_API_KEY
     };
     if (!Object.values(nineRouterConfig).every(Boolean)) {
-      return res.status(500).json({ error: 'Konfigurasi 9Router belum lengkap. Isi NINEROUTER_BASE_URL, NINEROUTER_API_KEY, dan NINEROUTER_MODEL di Vercel.' });
+      return res.status(500).json({ error: 'Konfigurasi 9Router belum lengkap. Isi NINEROUTER_BASE_URL dan NINEROUTER_API_KEY di Vercel.' });
     }
 
     try {
