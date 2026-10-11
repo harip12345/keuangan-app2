@@ -43,7 +43,12 @@ export default async function handler(req, res) {
 
     if (action === 'status') {
       const [binding, webhook] = await Promise.all([getBindingByProfile(profileId), ensureWebhook()]);
-      return res.status(200).json({ bound: !!binding, name: binding ? binding.name : '', webhook });
+      let username = null;
+      if (binding) {
+        try { username = (await tgGetMe()).username || null; }
+        catch (error) { console.warn('getMe gagal:', error.message); }
+      }
+      return res.status(200).json({ bound: !!binding, name: binding ? binding.name : '', username, webhook });
     }
 
     if (action === 'unbind') {

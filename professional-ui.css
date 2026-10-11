@@ -38,7 +38,35 @@
 .app-container>.bottom-nav .nav-item .ui-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;animation:none}
 .app-container>.fab-btn{width:53px;height:53px;bottom:87px;border-radius:17px;background:#5148cc;box-shadow:0 12px 26px #5148cc59;font-size:0;animation:none}
 .app-container>.fab-btn .ui-icon{width:26px;height:26px}
-#fabAiBtn{background:#263775!important;box-shadow:0 9px 22px #26377536!important;width:48px!important;height:48px!important;right:83px!important;bottom:90px!important}
+.profile-section{position:relative;z-index:8}
+.profile-control{display:flex;align-items:center;gap:2px;padding:4px;background:#fff;border:1px solid #e4e8f2;border-radius:15px;box-shadow:0 4px 14px #1d2d560a;position:relative}
+.profile-photo-button,.profile-menu-trigger{display:grid;place-items:center;border:0;background:none;cursor:pointer;color:#596782}
+.profile-photo-button{padding:0;width:39px;height:39px;border-radius:11px;overflow:hidden;background:#e8e6ff}
+.profile-photo-button img{width:100%;height:100%;object-fit:cover}
+.profile-menu-trigger{width:24px;height:39px;border-radius:9px}
+.profile-menu-trigger .ui-icon{width:15px;height:15px}
+.profile-menu-trigger[aria-expanded=true]{background:#f0efff;color:#5148cc}
+.profile-menu{position:absolute;right:0;top:calc(100% + 9px);width:min(260px,calc(100vw - 34px));padding:7px;background:#fff;border:1px solid #e2e6f0;border-radius:15px;box-shadow:0 17px 42px #1727482e;z-index:40;color:#25334f}
+.profile-menu-heading{padding:10px 12px 12px;border-bottom:1px solid #edf0f6;margin-bottom:5px}
+.profile-menu-heading strong,.profile-menu-heading small{display:block;overflow-wrap:anywhere}
+.profile-menu-heading strong{font-size:12px}.profile-menu-heading small{font-size:10px;color:#8794a8;margin-top:3px}
+.profile-menu>button{display:flex;align-items:center;gap:11px;width:100%;border:0;border-radius:9px;background:none;padding:10px 11px;text-align:left;color:#35445f;font-size:12px;font-weight:700;cursor:pointer}
+.profile-menu>button:hover{background:#f3f1ff;color:#5148cc}.profile-menu>button .ui-icon{width:17px;height:17px;color:#6259cd}
+.banking-balance-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:relative;z-index:1}
+.banking-balance-top .header-title{min-width:0}.banking-balance-status{flex:none;max-width:48%;text-align:right}
+#viewTransaksi .banking-balance-status .badge-level{cursor:default;background:#ffffff27!important;border:1px solid #ffffff55!important;color:#fff;font-size:10px;padding:5px 9px;border-radius:100px;white-space:nowrap}
+#viewTransaksi .banking-balance-status .badge-level::before{content:"";width:6px;height:6px;border-radius:50%;background:#8fe7c4}
+#viewTransaksi .banking-balance-status .badge-level.is-warning::before{background:#ffd985}
+#viewTransaksi .banking-balance-status .badge-level.is-danger::before{background:#ff99ab}
+#viewTransaksi .banking-balance-status .badge-level.is-neutral::before{background:#d7d9f2}
+#viewCatat .catat-header p{color:#d9def7;font-size:12px;line-height:1.5;margin:8px 0 0}
+#viewCatat .catat-header .header-title{color:#fff!important;font:800 25px 'Poppins',sans-serif!important;letter-spacing:-.05em;text-transform:none}
+#viewCatat .banking-form-panel{background:#fff;border:1px solid #e5e9f2;border-radius:17px;margin:18px 25px 30px;padding:21px!important;box-shadow:0 5px 20px #19284b0a}
+#viewCatat .banking-form-panel .section-title{font-family:'Poppins',sans-serif;font-size:16px;letter-spacing:-.03em}
+#viewCatat .banking-form-panel .form-control{background:#fff;border:1px solid #dfe5ef;border-radius:11px}
+#viewCatat .banking-form-panel .btn-submit{background:#5548d9;box-shadow:0 8px 20px #4f43c826;border-radius:11px}
+#viewCatat .banking-form-panel .btn-submit.hidden{display:none!important}
+#mainAppContainer:has(#viewCatat:not(.hidden)) #fabAddBtn{display:none!important}
 .settings-card{padding:0!important;max-height:min(91vh,850px)!important;overflow:auto;overscroll-behavior:contain;background:#f7f8fc!important}
 .settings-header{position:sticky;top:0;z-index:2;padding:21px 22px 17px;margin:0!important;background:#fff;border-bottom:1px solid #e9edf4}
 .settings-header .modal-title{font-family:'Poppins',sans-serif;font-size:20px;letter-spacing:-.04em}
@@ -56,9 +84,11 @@
 .admin-users-panel{padding:14px}.admin-users-summary{display:flex;align-items:baseline;gap:9px;color:#77859b;font-size:11px}.admin-users-summary strong{font:800 27px 'Poppins',sans-serif;color:#263675}.admin-users-panel>.settings-status{padding:5px 0 10px;border:0}.admin-user-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid #eef1f5}.admin-user-avatar{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#ecebfc;color:#5249c5;font-weight:800;font-size:13px;flex:none}.admin-user-detail{min-width:0}.admin-user-detail strong{display:block;font-size:11px;color:#263550}.admin-user-detail small{display:block;font-size:10px;color:#8b98aa;margin-top:2px;overflow-wrap:anywhere}.admin-users-more{width:100%;padding:10px;border:1px solid #dcdcf4;background:#f6f5ff;color:#5148cc;border-radius:9px;font-weight:700;font-size:11px;margin:8px 0}.admin-users-panel>small{display:block;color:#9ba5b6;font-size:10px;line-height:1.5;margin-top:8px}
 [hidden]{display:none!important}
 body.dark-mode .app-container,body.dark-mode .app-container .main-view,body.dark-mode .settings-card{background:#101a2d!important}
+body.dark-mode .profile-control,body.dark-mode .profile-menu,body.dark-mode #viewCatat .banking-form-panel{background:#1e293b;border-color:#344158;color:#e4eaf4}
+body.dark-mode .profile-menu-heading{border-color:#344158}body.dark-mode .profile-menu>button{color:#e4eaf4}body.dark-mode .profile-menu>button:hover{background:#30335b}body.dark-mode #viewCatat .banking-form-panel .form-control{background:#1e293b;border-color:#344158;color:#e4eaf4}
 body.dark-mode .settings-header,body.dark-mode .settings-group,body.dark-mode .settings-row,body.dark-mode .asset-goals-entry,body.dark-mode .app-container>.bottom-nav{background:#1e293b;border-color:#344158}
 body.dark-mode .settings-row{color:#e4eaf4;border-color:#344158}body.dark-mode .settings-section h4,body.dark-mode .settings-status{color:#aab6c9}body.dark-mode .asset-goals-entry strong{color:#e4eaf4}body.dark-mode .app-container .section-title{color:#eef2f8}
 @media(min-width:900px){.app-container>.bottom-nav{display:none}.asset-goals-entry{margin:18px 36px 0}#settingsModal{align-items:center}.settings-card{width:min(520px,calc(100% - 32px))!important;border-radius:22px!important;max-height:80vh!important;border:1px solid #e7ebf3}}
-@media(max-width:899px){.app-container .main-view{padding-bottom:100px}.app-container>.bottom-nav{display:grid}.asset-goals-entry{margin:14px 25px 0}#fabAiBtn{display:none!important}}
-@media(max-width:420px){.asset-goals-entry{margin:13px 16px 0}.asset-goals-entry button{font-size:10px}.settings-card{max-height:95vh!important}.app-container .main-view:not(#viewTransaksi)>.header{padding:24px 18px 40px}.app-container .content-section{padding-left:17px;padding-right:17px}}
+@media(max-width:899px){.app-container .main-view{padding-bottom:100px}.app-container>.bottom-nav{display:grid}.asset-goals-entry{margin:14px 25px 0}}
+@media(max-width:420px){.asset-goals-entry{margin:13px 16px 0}.asset-goals-entry button{font-size:10px}.settings-card{max-height:95vh!important}.app-container .main-view:not(#viewTransaksi)>.header{padding:24px 18px 40px}.app-container .content-section{padding-left:17px;padding-right:17px}#viewCatat .banking-form-panel{margin:14px 16px 28px;padding:17px!important}#viewCatat .banking-form-panel .section-title{flex-wrap:wrap;gap:12px}#viewCatat .banking-form-panel .section-title>span{flex-basis:100%}.profile-menu{right:0}}
 @media(prefers-reduced-motion:reduce){.app-container .main-view:not(.hidden),.app-container>.fab-btn,.app-container>.bottom-nav .nav-item .ui-icon{animation:none!important}.app-container .main-view{scroll-behavior:auto}}
