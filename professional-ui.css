@@ -39,19 +39,76 @@
 .app-container>.fab-btn{width:53px;height:53px;bottom:87px;border-radius:17px;background:#5148cc;box-shadow:0 12px 26px #5148cc59;font-size:0;animation:none}
 .app-container>.fab-btn .ui-icon{width:26px;height:26px}
 .profile-section{position:relative;z-index:8}
-.profile-control{display:flex;align-items:center;gap:2px;padding:4px;background:#fff;border:1px solid #e4e8f2;border-radius:15px;box-shadow:0 4px 14px #1d2d560a;position:relative}
-.profile-photo-button,.profile-menu-trigger{display:grid;place-items:center;border:0;background:none;cursor:pointer;color:#596782}
-.profile-photo-button{padding:0;width:39px;height:39px;border-radius:11px;overflow:hidden;background:#e8e6ff}
+.profile-control{display:flex;align-items:center;padding:4px;background:#fff;border:1px solid #e4e8f2;border-radius:15px;box-shadow:0 4px 14px #1d2d560a;position:relative}
+.profile-photo-button{display:grid;place-items:center;border:0;cursor:pointer;padding:0;width:39px;height:39px;border-radius:11px;overflow:hidden;background:#e8e6ff}
 .profile-photo-button img{width:100%;height:100%;object-fit:cover}
-.profile-menu-trigger{width:24px;height:39px;border-radius:9px}
-.profile-menu-trigger .ui-icon{width:15px;height:15px}
-.profile-menu-trigger[aria-expanded=true]{background:#f0efff;color:#5148cc}
+.profile-photo-button[aria-expanded=true]{box-shadow:0 0 0 3px #e7e4ff}
 .profile-menu{position:absolute;right:0;top:calc(100% + 9px);width:min(260px,calc(100vw - 34px));padding:7px;background:#fff;border:1px solid #e2e6f0;border-radius:15px;box-shadow:0 17px 42px #1727482e;z-index:40;color:#25334f}
-.profile-menu-heading{padding:10px 12px 12px;border-bottom:1px solid #edf0f6;margin-bottom:5px}
+.profile-menu-heading{display:flex;align-items:center;gap:10px;padding:10px 10px 13px;border-bottom:1px solid #edf0f6;margin-bottom:5px;min-width:0}
+.profile-menu-heading>div{min-width:0;flex:1}
+.profile-menu-avatar{display:grid;place-items:center;flex:none;width:43px;height:43px;padding:0;border:0;border-radius:12px;overflow:hidden;background:#eeedff;cursor:pointer}
+.profile-menu-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-photo-edit{border:0;background:none;color:#5148cc;font-size:10px;font-weight:800;padding:5px 0 0;cursor:pointer}
 .profile-menu-heading strong,.profile-menu-heading small{display:block;overflow-wrap:anywhere}
 .profile-menu-heading strong{font-size:12px}.profile-menu-heading small{font-size:10px;color:#8794a8;margin-top:3px}
 .profile-menu>button{display:flex;align-items:center;gap:11px;width:100%;border:0;border-radius:9px;background:none;padding:10px 11px;text-align:left;color:#35445f;font-size:12px;font-weight:700;cursor:pointer}
 .profile-menu>button:hover{background:#f3f1ff;color:#5148cc}.profile-menu>button .ui-icon{width:17px;height:17px;color:#6259cd}
+.app-container #viewTransaksi .banking-period-filter{display:flex;align-items:center;justify-content:flex-end;gap:9px;width:max-content;max-width:calc(100% - 50px);margin:11px 25px 0 auto!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;position:relative;z-index:2}
+.banking-period-filter>span{display:flex;align-items:center;gap:4px;color:#78859d;font-size:11px;font-weight:700;white-space:nowrap}
+.banking-period-filter>span .ui-icon{width:14px;height:14px;color:#6158cf}
+.banking-period-fields{display:flex;align-items:center;gap:5px;min-width:0;color:#9aa5b6;font-size:11px}
+.app-container #viewTransaksi .banking-period-fields .local-filter{width:118px;min-height:34px;padding:5px 6px;font-size:11px;background:#fff;color:#45536d;border-color:#e5e9f2;border-radius:8px}
+.app-container>.fab-btn{overflow:visible}
+.app-container>.fab-btn .fab-label{position:absolute;right:0;bottom:calc(100% + 8px);width:max-content;padding:6px 9px;border-radius:7px;background:#fff;color:#5148cc;border:1px solid #e4e3f4;box-shadow:0 5px 13px #26345514;font:700 10px 'Inter',sans-serif;letter-spacing:0;white-space:nowrap}
+.asset-recent-panel{margin-top:15px}.asset-recent-panel .banking-recent-icon.is-asset{background:#efedff;color:#554dc9}.asset-recent-panel .banking-recent-icon .ui-icon{width:18px;height:18px}.asset-recent-panel .banking-recent-amount{color:#243452}
+#viewTabungan .summary-cards .card{min-width:0!important;flex:1 1 140px;background:#fff;border:1px solid #e7ebf3;border-radius:15px;box-shadow:0 3px 14px #19294d08}
+#viewTabungan .summary-cards .card:last-child{flex-basis:100%}
+#viewTabungan .content-section{background:#fff;border:1px solid #e7ebf3;border-radius:17px;margin:17px 25px 30px;padding:20px!important}
+#viewTabungan .section-title{font-size:16px}
+#viewGoals .content-section{background:transparent;border:0;box-shadow:none}
+#viewGoals .goal-summary-grid{gap:10px}
+#viewGoals .goal-summary-tile,#viewGoals .goal-form-card,#viewGoals .goal-card{background:#fff;border:1px solid #e5e9f2;border-radius:16px;box-shadow:0 4px 15px #182b4a0a}
+#viewGoals .goal-summary-tile{padding:14px}
+#viewGoals .goal-summary-tile-label{color:#7c8aa1;font-size:11px}
+#viewGoals .goal-dropdown-header{min-height:64px}
+#viewAnalisis>.content-section,#viewLaporan>.content-section{background:transparent;border:0;box-shadow:none;padding:0 25px 28px!important;margin-top:17px!important}
+#viewAnalisis>.content-section>div:first-child,#viewLaporan>.content-section>div:first-child{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;justify-content:flex-end!important;gap:9px!important;margin-bottom:17px!important}
+#viewAnalisis .analysis-panel,#viewAnalisis .health-card,#viewAnalisis .budget-container,#viewAnalisis .chart-wrapper,#viewLaporan .report-paper{background:#fff;border:1px solid #e5e9f2;border-radius:17px;box-shadow:0 4px 18px #182b4a0b}
+#viewAnalisis .analysis-panel{padding:18px}
+#viewAnalisis .analysis-panel-header{border-color:#edf0f6}
+#viewAnalisis .analysis-panel-icon{background:#efedff!important;color:#554dcc}
+#viewAnalisis .analysis-panel-icon .ui-icon{color:#554dcc}
+#viewAnalisis .chart-wrapper{padding:14px 12px 8px;overflow:hidden}
+#viewAnalisis .section-title{font-size:15px;margin:21px 0 11px}
+#viewAnalisis .local-filter,#viewLaporan .local-filter{min-height:36px;background:#fff;color:#4e5b73;border-color:#dfe4ef;font-size:11px}
+#viewAnalisis #trendYearSelector,#viewAnalisis #chartTypeSelector{color:#5148cc;border-color:#dcdaf4}
+#viewLaporan>.content-section>div:nth-child(2){gap:10px!important;margin-bottom:16px!important}
+#viewLaporan .btn-pdf{background:#5148cc!important;border-radius:10px;box-shadow:0 6px 17px #5148cc24}
+#viewLaporan .btn-csv{background:#f0efff!important;color:#5148cc!important;border:1px solid #dcdaf4!important;border-radius:10px;box-shadow:none!important}
+#viewLaporan .report-paper{padding:22px 20px}
+#viewLaporan .report-paper::before{height:5px;background:#5148cc}
+#viewLaporan .report-title h2{color:#213157;font-size:16px;letter-spacing:-.03em}
+#viewLaporan .report-row-main{background:#f5f4ff;color:#35328c}
+#viewLaporan .total-highlight{background:linear-gradient(120deg,#293777,#5148cc);border-radius:12px;color:#fff}
+.riwayat-modal-overlay{background:#111c39a8;backdrop-filter:blur(5px)}
+.riwayat-modal{background:#f7f8fc;border-radius:23px 23px 0 0}
+.riwayat-modal-header{background:#fff;border-color:#e8ecf4;padding:13px 18px}
+.riwayat-modal-title{display:flex;align-items:center;gap:9px;color:#22314f;font:800 16px 'Poppins',sans-serif;letter-spacing:-.03em}
+.riwayat-modal-title .ui-icon{width:19px;height:19px;color:#5b52ce}
+.riwayat-sticky-top{background:#fff;border-color:#e8ecf4}
+.riwayat-filter-bar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px 16px 7px}
+.riwayat-filter-select,.riwayat-search{width:100%;min-width:0;min-height:39px;background:#f8f9fc;border-color:#e2e7f0;color:#374661;font-size:12px}
+.riwayat-search{grid-column:1/-1}
+.riwayat-count{padding:6px 16px 12px;gap:12px;color:#79869b;font-size:11px}
+.riwayat-count>span:last-child{color:#5148cc!important}
+.riwayat-modal-body{padding:6px 16px 18px}
+.riwayat-modal-body .click-hint{padding:6px 2px 8px!important;color:#8793a7;font-size:11px}
+.riwayat-modal-body .transaction-list{padding:0!important;margin:0}
+.riwayat-modal-body .transaction-item{background:#fff;border:1px solid #e7ebf3;border-radius:12px;padding:12px;margin:0 0 8px;box-shadow:0 2px 9px #23345108;min-width:0}
+.riwayat-modal-body .transaction-info{min-width:0}
+.riwayat-modal-body .transaction-info h4{font-size:12px;color:#263550;overflow-wrap:anywhere}
+.riwayat-modal-body .transaction-info p{font-size:10px;color:#8692a5;line-height:1.55}
+.riwayat-modal-body .transaction-amount{font-size:12px;white-space:nowrap}
 .banking-balance-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:relative;z-index:1}
 .banking-balance-top .header-title{min-width:0}.banking-balance-status{flex:none;max-width:48%;text-align:right}
 #viewTransaksi .banking-balance-status .badge-level{cursor:default;background:#ffffff27!important;border:1px solid #ffffff55!important;color:#fff;font-size:10px;padding:5px 9px;border-radius:100px;white-space:nowrap}
@@ -86,9 +143,11 @@
 body.dark-mode .app-container,body.dark-mode .app-container .main-view,body.dark-mode .settings-card{background:#101a2d!important}
 body.dark-mode .profile-control,body.dark-mode .profile-menu,body.dark-mode #viewCatat .banking-form-panel{background:#1e293b;border-color:#344158;color:#e4eaf4}
 body.dark-mode .profile-menu-heading{border-color:#344158}body.dark-mode .profile-menu>button{color:#e4eaf4}body.dark-mode .profile-menu>button:hover{background:#30335b}body.dark-mode #viewCatat .banking-form-panel .form-control{background:#1e293b;border-color:#344158;color:#e4eaf4}
+body.dark-mode .profile-photo-edit{color:#b2aaff}body.dark-mode .app-container #viewTransaksi .banking-period-fields .local-filter,body.dark-mode #viewTabungan .summary-cards .card,body.dark-mode #viewTabungan .content-section,body.dark-mode #viewGoals .goal-summary-tile,body.dark-mode #viewGoals .goal-form-card,body.dark-mode #viewGoals .goal-card,body.dark-mode #viewAnalisis .analysis-panel,body.dark-mode #viewAnalisis .health-card,body.dark-mode #viewAnalisis .budget-container,body.dark-mode #viewAnalisis .chart-wrapper,body.dark-mode #viewLaporan .report-paper,body.dark-mode .riwayat-modal-header,body.dark-mode .riwayat-sticky-top,body.dark-mode .riwayat-modal-body .transaction-item{background:#1e293b;border-color:#344158;color:#e4eaf4}
+body.dark-mode .riwayat-modal{background:#101a2d}body.dark-mode .riwayat-modal-title,body.dark-mode .riwayat-modal-body .transaction-info h4{color:#e4eaf4}body.dark-mode .riwayat-filter-select,body.dark-mode .riwayat-search{background:#182238;border-color:#344158;color:#e4eaf4}body.dark-mode .app-container>.fab-btn .fab-label{background:#1e293b;border-color:#344158;color:#d8d4ff}
 body.dark-mode .settings-header,body.dark-mode .settings-group,body.dark-mode .settings-row,body.dark-mode .asset-goals-entry,body.dark-mode .app-container>.bottom-nav{background:#1e293b;border-color:#344158}
 body.dark-mode .settings-row{color:#e4eaf4;border-color:#344158}body.dark-mode .settings-section h4,body.dark-mode .settings-status{color:#aab6c9}body.dark-mode .asset-goals-entry strong{color:#e4eaf4}body.dark-mode .app-container .section-title{color:#eef2f8}
-@media(min-width:900px){.app-container>.bottom-nav{display:none}.asset-goals-entry{margin:18px 36px 0}#settingsModal{align-items:center}.settings-card{width:min(520px,calc(100% - 32px))!important;border-radius:22px!important;max-height:80vh!important;border:1px solid #e7ebf3}}
+@media(min-width:900px){.app-container>.bottom-nav{display:none}.asset-goals-entry{margin:18px 36px 0}.asset-recent-panel{margin:16px 36px 0}.app-container #viewTransaksi .banking-period-filter{margin-right:36px!important}#viewTabungan .content-section{margin:17px 36px 30px}#viewAnalisis>.content-section,#viewLaporan>.content-section{padding-left:36px!important;padding-right:36px!important}#settingsModal{align-items:center}.settings-card{width:min(520px,calc(100% - 32px))!important;border-radius:22px!important;max-height:80vh!important;border:1px solid #e7ebf3}.riwayat-modal-overlay{align-items:center;justify-content:center}.riwayat-modal{width:min(700px,calc(100% - 48px));height:min(82vh,760px);border-radius:20px;transform:translateY(18px)}.riwayat-filter-bar{grid-template-columns:1fr 1fr 1.5fr}.riwayat-search{grid-column:auto}}
 @media(max-width:899px){.app-container .main-view{padding-bottom:100px}.app-container>.bottom-nav{display:grid}.asset-goals-entry{margin:14px 25px 0}}
-@media(max-width:420px){.asset-goals-entry{margin:13px 16px 0}.asset-goals-entry button{font-size:10px}.settings-card{max-height:95vh!important}.app-container .main-view:not(#viewTransaksi)>.header{padding:24px 18px 40px}.app-container .content-section{padding-left:17px;padding-right:17px}#viewCatat .banking-form-panel{margin:14px 16px 28px;padding:17px!important}#viewCatat .banking-form-panel .section-title{flex-wrap:wrap;gap:12px}#viewCatat .banking-form-panel .section-title>span{flex-basis:100%}.profile-menu{right:0}}
+@media(max-width:420px){.asset-goals-entry{margin:13px 16px 0}.asset-goals-entry button{font-size:10px}.asset-recent-panel{margin:13px 16px 0}.app-container #viewTransaksi .banking-period-filter{max-width:calc(100% - 32px);margin-right:16px!important;gap:6px}.banking-period-filter>span{font-size:10px}.app-container #viewTransaksi .banking-period-fields .local-filter{width:105px;min-height:32px;font-size:10px;padding:3px}.settings-card{max-height:95vh!important}.app-container .main-view:not(#viewTransaksi)>.header{padding:24px 18px 40px}.app-container .content-section{padding-left:17px;padding-right:17px}#viewTabungan .content-section{margin:14px 16px 28px;padding:17px!important}#viewAnalisis>.content-section,#viewLaporan>.content-section{padding-left:16px!important;padding-right:16px!important}#viewLaporan>.content-section>div:nth-child(2) .btn-submit{font-size:11px;padding:11px 7px}.riwayat-modal-body .transaction-item{gap:7px}.riwayat-modal-body .transaction-amount{font-size:11px}#viewCatat .banking-form-panel{margin:14px 16px 28px;padding:17px!important}#viewCatat .banking-form-panel .section-title{flex-wrap:wrap;gap:12px}#viewCatat .banking-form-panel .section-title>span{flex-basis:100%}.profile-menu{right:0}}
 @media(prefers-reduced-motion:reduce){.app-container .main-view:not(.hidden),.app-container>.fab-btn,.app-container>.bottom-nav .nav-item .ui-icon{animation:none!important}.app-container .main-view{scroll-behavior:auto}}

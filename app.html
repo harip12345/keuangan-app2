@@ -905,7 +905,7 @@
         #aiChatMessages { scroll-behavior:smooth; }
     </style>
     <link rel="stylesheet" href="./banking-ui.css?v=20261011">
-    <link rel="stylesheet" href="./professional-ui.css?v=20261011b">
+    <link rel="stylesheet" href="./professional-ui.css?v=20261011c">
 </head>
 <body>
     <!-- ================= SPLASH SCREEN ================= -->
@@ -1091,12 +1091,11 @@
                         </div>
                     </div>
                     <div class="profile-control" id="profileControl">
-                        <button type="button" class="profile-photo-button" onclick="closeProfileMenu();openPhotoActionModal()" aria-label="Ganti foto profil" title="Ganti foto profil">
+                        <button type="button" class="profile-photo-button" id="profileMenuTrigger" onclick="toggleProfileMenu()" aria-label="Buka menu profil" aria-controls="profileMenu" aria-expanded="false" title="Menu profil">
                             <img loading="lazy" id="profileImg" src="https://ui-avatars.com/api/?name=User&background=FFFFFF&color=4F46E5&bold=true" alt="Foto profil">
                         </button>
-                        <button type="button" class="profile-menu-trigger" id="profileMenuTrigger" onclick="toggleProfileMenu()" aria-label="Buka menu profil" aria-controls="profileMenu" aria-expanded="false" title="Menu profil"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#chevron-down"/></svg></button>
                         <div class="profile-menu" id="profileMenu" hidden>
-                            <div class="profile-menu-heading"><strong id="profileMenuName">Akun MyFinanceApp</strong><small id="profileMenuEmail">Kelola aplikasi Anda</small></div>
+                            <div class="profile-menu-heading"><button type="button" class="profile-menu-avatar" onclick="closeProfileMenu();openPhotoActionModal()" aria-label="Ganti foto profil" title="Ganti foto profil"><img id="profileMenuImg" alt="Foto profil"></button><div><strong id="profileMenuName">Akun MyFinanceApp</strong><small id="profileMenuEmail">Kelola aplikasi Anda</small><button type="button" class="profile-photo-edit" onclick="closeProfileMenu();openPhotoActionModal()">Ganti foto</button></div></div>
                             <button type="button" onclick="closeProfileMenu();openSettingsModal()"><svg class="ui-icon"><use href="/app-icons.svg#settings"/></svg>Pengaturan akun</button>
                             <button type="button" onclick="closeProfileMenu();toggleDarkMode()"><svg class="ui-icon"><use href="/app-icons.svg#moon"/></svg><span id="profileThemeLabel">Mode gelap</span></button>
                             <button type="button" onclick="closeProfileMenu();refreshApp()"><svg class="ui-icon"><use href="/app-icons.svg#refresh"/></svg>Muat ulang aplikasi</button>
@@ -1109,6 +1108,15 @@
                 </div><div id="gamificationBadge" class="banking-balance-status" role="status"></div></div>
                 <div class="balance-amount" id="totalBalance" onclick="openWalletModal()" title="Klik untuk rincian per rekening">Rp 0</div>
                 <div class="banking-balance-caption">Ringkasan sesuai periode yang Anda pilih</div></div>
+            </div>
+
+            <div class="banking-period-filter" aria-label="Filter periode beranda">
+                <span><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#calendar"/></svg> Periode</span>
+                <div class="banking-period-fields">
+                    <input type="date" class="local-filter" id="startDateTop" aria-label="Tanggal mulai" onchange="applyDateFilter('startDateTop', 'endDateTop')">
+                    <span aria-hidden="true">–</span>
+                    <input type="date" class="local-filter" id="endDateTop" aria-label="Tanggal akhir" onchange="applyDateFilter('startDateTop', 'endDateTop')">
+                </div>
             </div>
 
             <div class="summary-cards">
@@ -1144,15 +1152,6 @@
             <div class="banking-panel-title"><h2>Transaksi terbaru</h2><button type="button" onclick="openRiwayatModal('transaksi')">Lihat semua →</button></div>
             <div id="bankingRecentList" class="banking-recent-list"></div>
         </section>
-
-        <div class="banking-period-filter" style="padding: 0 1.5rem; margin-top: 1.25rem; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; flex-wrap: wrap; gap: 8px;">
-            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#calendar"/></svg> Filter periode:</span>
-            <div style="display: flex; gap: 4px; align-items: center; flex-wrap: nowrap;">
-                <input type="date" class="local-filter" id="startDateTop" onchange="applyDateFilter('startDateTop', 'endDateTop')" style="padding:0.3rem; font-size:0.75rem; width:115px;">
-                <span style="font-size:0.8rem; color:var(--text-main)">-</span>
-                <input type="date" class="local-filter" id="endDateTop" onchange="applyDateFilter('startDateTop', 'endDateTop')" style="padding:0.3rem; font-size:0.75rem; width:115px;">
-            </div>
-        </div>
 
         </div>
         <div id="viewCatat" class="main-view hidden">
@@ -1269,6 +1268,10 @@
                 <div><strong>Goals & perencanaan</strong><p>Pantau target dan setoran dalam satu tempat.</p></div>
                 <button type="button" onclick="switchView('goals')" aria-label="Buka Goals">Lihat target <span aria-hidden="true">→</span></button>
             </section>
+            <section class="banking-recent-panel asset-recent-panel" aria-label="Aset terbaru">
+                <div class="banking-panel-title"><h2>Aset terbaru</h2><button type="button" onclick="openRiwayatModal('aset')">Lihat semua →</button></div>
+                <div id="assetRecentList" class="banking-recent-list"></div>
+            </section>
             
             <div style="padding: 0 1.5rem; margin-top: 1.25rem; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; flex-wrap: wrap; gap: 8px;">
                 <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#calendar"/></svg> Filter periode:</span>
@@ -1280,13 +1283,7 @@
             </div>
 
             <div class="content-section" style="padding-top: 1rem;">
-                <h3 class="section-title">
-                    <span>Catat Data Aset / Tabungan</span>
-                    <button type="button" class="btn-riwayat" id="btnRiwayatAset" onclick="openRiwayatModal('aset')" style="color:var(--primary); border-color:var(--primary); background:var(--primary-light);">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 1 1 7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-                        Riwayat
-                    </button>
-                </h3>
+                <h3 class="section-title">Catat Data Aset / Tabungan</h3>
                 <form id="savingsForm">
                     <div class="form-group">
                         <label class="form-label">Tanggal Aset/Tabungan</label>
@@ -1509,7 +1506,7 @@
         </div>
 
         <!-- FAB Tambah Transaksi -->
-        <button class="fab-btn" id="fabAddBtn" onclick="openAddTransaction()" title="Tambah Transaksi" aria-label="Tambah transaksi"><svg class="ui-icon"><use href="/app-icons.svg#plus"/></svg></button>
+        <button class="fab-btn" id="fabAddBtn" onclick="openAddTransaction()" title="Catat transaksi" aria-label="Catat transaksi"><span class="fab-label">Catat transaksi</span><svg class="ui-icon"><use href="/app-icons.svg#plus"/></svg></button>
 
         <div class="bottom-nav">
             <button class="nav-item active" onclick="switchView('transaksi')" id="navTransaksi">
@@ -1771,7 +1768,7 @@
                 <div class="riwayat-modal-header">
                     <div class="riwayat-modal-title"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#file"/></svg> Riwayat transaksi</div>
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <button id="riwayatTrxUndoBtn" class="btn-undo-perm" onclick="undoLastDelete()" disabled title="Tidak ada yang bisa dikembalikan">↩️ Undo<span class="undo-count"></span></button>
+                        <button id="riwayatTrxUndoBtn" class="btn-undo-perm" onclick="undoLastDelete()" disabled title="Tidak ada yang bisa dikembalikan"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#refresh"/></svg> Undo<span class="undo-count"></span></button>
                         <button class="btn-close" onclick="closeRiwayatModal('trx')">&times;</button>
                     </div>
                 </div>
@@ -1786,7 +1783,7 @@
                         <select class="riwayat-filter-select" id="riwayatTrxKategori" onchange="renderRiwayatTrx()">
                             <option value="">Semua Kategori</option>
                         </select>
-                        <input class="riwayat-search" id="riwayatTrxSearch" placeholder="Cari transaksi…" oninput="renderRiwayatTrx()">
+                        <input type="search" class="riwayat-search" id="riwayatTrxSearch" aria-label="Cari transaksi" placeholder="Cari transaksi…" oninput="renderRiwayatTrx()">
                     </div>
                     <div class="riwayat-count" id="riwayatTrxCount"></div>
                 </div>
@@ -1823,7 +1820,7 @@
                             <option value="investment">Investasi</option>
                             <option value="tangible">Aset Fisik</option>
                         </select>
-                        <input class="riwayat-search" id="riwayatAsetSearch" placeholder="Cari nama aset…" oninput="renderRiwayatAset()">
+                        <input type="search" class="riwayat-search" id="riwayatAsetSearch" aria-label="Cari nama aset" placeholder="Cari nama aset…" oninput="renderRiwayatAset()">
                     </div>
                     <div class="riwayat-count" id="riwayatAsetCount"></div>
                 </div>
@@ -2224,6 +2221,7 @@
             if (menu.hidden) {
                 document.getElementById('profileMenuName').textContent = document.getElementById('displayProfileName').textContent.trim() || 'Akun MyFinanceApp';
                 document.getElementById('profileMenuEmail').textContent = auth.currentUser?.email || 'Akun lokal';
+                document.getElementById('profileMenuImg').src = document.getElementById('profileImg').src;
                 document.getElementById('profileThemeLabel').textContent = document.body.classList.contains('dark-mode') ? 'Mode terang' : 'Mode gelap';
             }
             menu.hidden = !menu.hidden;
@@ -3701,6 +3699,7 @@
         const updateSavingsUI = () => { 
             const allSav = getFiltered(savings);
             const filteredSav = allSav.filter(s => s.type !== 'goal_deposit'); 
+            renderAssetRecent(filteredSav);
             const goalDepositSav = allSav.filter(s => s.type === 'goal_deposit');
             const savAmt = filteredSav.filter(s => s.type === 'savings' || !s.type).reduce((a, b) => a + b.amount, 0); const invAmt = filteredSav.filter(s => s.type === 'investment').reduce((a, b) => a + b.amount, 0); const tanAmt = filteredSav.filter(s => s.type === 'tangible').reduce((a, b) => a + b.amount, 0); 
             const goalDepositAmt = goalDepositSav.reduce((a, b) => a + b.amount, 0);
@@ -3723,6 +3722,45 @@
                 listEl.innerHTML += `<li class="transaction-item" onclick="openItemActionModal('${s.id}', 'sav')"><div class="transaction-info"><h4>${badgeHtml} ${s.name}</h4><p>${displayDateDDMMYYYY(s.date)} ${sourceW}</p></div><div class="transaction-amount" style="color: ${colorHex};">+ ${formatRupiah(s.amount)}</div></li>`; 
             }); 
         };
+
+        function renderAssetRecent(items) {
+            const host = document.getElementById('assetRecentList');
+            if (!host) return;
+            host.replaceChildren();
+            const recent = [...items].sort((a, b) => {
+                const dateA = parseCustomDateToYMD(a.date || '');
+                const dateB = parseCustomDateToYMD(b.date || '');
+                return dateB.localeCompare(dateA);
+            }).slice(0, 3);
+            if (!recent.length) {
+                const empty = document.createElement('p');
+                empty.className = 'banking-empty';
+                empty.textContent = 'Belum ada aset pada periode ini.';
+                host.appendChild(empty);
+                return;
+            }
+            recent.forEach(item => {
+                const row = document.createElement('button');
+                row.type = 'button';
+                row.className = 'banking-recent-row';
+                row.addEventListener('click', () => openItemActionModal(item.id, 'sav'));
+                const icon = document.createElement('span');
+                icon.className = 'banking-recent-icon is-asset';
+                icon.innerHTML = uiIcon(item.type === 'investment' ? 'chart' : item.type === 'tangible' ? 'home-asset' : 'wallet');
+                const detail = document.createElement('span');
+                detail.className = 'banking-recent-detail';
+                const name = document.createElement('strong');
+                name.textContent = item.name || 'Aset';
+                const meta = document.createElement('small');
+                meta.textContent = `${displayDateDDMMYYYY(item.date)} · ${item.type === 'investment' ? 'Investasi' : item.type === 'tangible' ? 'Aset fisik' : 'Kas & tabungan'}`;
+                detail.append(name, meta);
+                const amount = document.createElement('b');
+                amount.className = 'banking-recent-amount';
+                amount.textContent = formatRupiah(item.amount || 0);
+                row.append(icon, detail, amount);
+                host.appendChild(row);
+            });
+        }
 
         const views = { 'transaksi': document.getElementById('viewTransaksi'), 'catat': document.getElementById('viewCatat'), 'tabungan': document.getElementById('viewTabungan'), 'analisis': document.getElementById('viewAnalisis'), 'laporan': document.getElementById('viewLaporan'), 'goals': document.getElementById('viewGoals') };
         const navItems = { 'transaksi': document.getElementById('navTransaksi'), 'catat': document.getElementById('navTransaksi'), 'tabungan': document.getElementById('navTabungan'), 'analisis': document.getElementById('navAnalisis'), 'laporan': document.getElementById('navLaporan'), 'goals': document.getElementById('navTabungan') };
@@ -4278,8 +4316,8 @@
         window.populateTrendYearFilter = function() {
             const years = new Set(); 
             transactions.forEach(t => { 
-                const p = getPeriodData(t.date); 
-                if(p.endYear) years.add(p.endYear.toString()); 
+                const year = parseCustomDateToYMD(t.date).slice(0, 4);
+                if(/^\d{4}$/.test(year)) years.add(year);
             });
             const currentYear = new Date().getFullYear().toString(); years.add(currentYear); const yearArr = Array.from(years).sort().reverse();
             const select = document.getElementById('trendYearSelector'); if(!select) return; const currentVal = select.value;
@@ -4291,29 +4329,36 @@
 
         window.renderTrendChart = function() {
             if (typeof Chart === 'undefined') { renderAnalytics(); return; }
-            const yFilterEl = document.getElementById('trendYearSelector'); const yearFilter = yFilterEl ? yFilterEl.value : 'ALL'; const monthlyData = {}; 
-            const isDark = document.body.classList.contains('dark-mode'); const textColor = isDark ? '#F9FAFB' : '#111827';
+            const yFilterEl = document.getElementById('trendYearSelector'); const yearFilter = yFilterEl ? yFilterEl.value : 'ALL'; const monthlyData = {};
+            const isDark = document.body.classList.contains('dark-mode'); const textColor = isDark ? '#CBD5E1' : '#68758E';
+            const monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
             
             transactions.forEach(t => { 
                 if(t.type === 'transfer') return; 
-                const p = getPeriodData(t.date); 
-                if(yearFilter !== 'ALL' && p.endYear.toString() !== yearFilter) return; 
-                
-                const m = p.label; 
-                if(!monthlyData[m]) monthlyData[m] = { income: 0, expense: 0, sortVal: p.sortVal, shortLabel: `${p.startMonthStr}-${p.endMonthStr}` }; 
-                if(t.type === 'income') monthlyData[m].income += t.amount; else if(t.type === 'expense') monthlyData[m].expense += t.amount; 
+                const ymd = parseCustomDateToYMD(t.date);
+                if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return;
+                const monthKey = ymd.slice(0, 7);
+                if(yearFilter !== 'ALL' && monthKey.slice(0, 4) !== yearFilter) return;
+                if(!monthlyData[monthKey]) monthlyData[monthKey] = { income: 0, expense: 0 };
+                if(t.type === 'income') monthlyData[monthKey].income += Number(t.amount) || 0;
+                else if(t.type === 'expense') monthlyData[monthKey].expense += Number(t.amount) || 0;
             });
             
-            const sortedLabels = Object.keys(monthlyData).sort((a,b) => monthlyData[a].sortVal - monthlyData[b].sortVal); 
-            const displayLabels = sortedLabels.map(l => monthlyData[l].shortLabel); // Sumbu x grafik tren pakai label padat
-            const dataIncTren = sortedLabels.map(m => monthlyData[m].income); 
-            const dataExpTren = sortedLabels.map(m => monthlyData[m].expense);
+            const sortedLabels = yearFilter === 'ALL'
+                ? Object.keys(monthlyData).sort()
+                : monthNames.map((_, index) => `${yearFilter}-${String(index + 1).padStart(2, '0')}`);
+            const displayLabels = sortedLabels.map(key => {
+                const label = monthNames[Number(key.slice(5, 7)) - 1] || key;
+                return yearFilter === 'ALL' ? `${label} ${key.slice(2, 4)}` : label;
+            });
+            const dataIncTren = sortedLabels.map(key => monthlyData[key]?.income || 0);
+            const dataExpTren = sortedLabels.map(key => monthlyData[key]?.expense || 0);
             
             const canvasTren = document.getElementById('trendChart'); if(!canvasTren) return; const ctxTren = canvasTren.getContext('2d'); if(trendChartInstance) trendChartInstance.destroy();
             trendChartInstance = new Chart(ctxTren, { 
                 type: 'bar', 
-                data: { labels: displayLabels.length ? displayLabels : ['Belum Ada Data'], datasets: [ { label: 'Pemasukan', data: dataIncTren.length ? dataIncTren : [0], backgroundColor: '#10B981', borderRadius: 4 }, { label: 'Pengeluaran', data: dataExpTren.length ? dataExpTren : [0], backgroundColor: '#EF4444', borderRadius: 4 } ] }, 
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: textColor, callback: function(val){ return formatK(val); } }, grid: { color: isDark ? '#374151' : '#E5E7EB' } }, x: { ticks: { color: textColor }, grid: { display: false } } }, plugins: { legend: { position: 'top', labels: { color: textColor, font: { family: 'Inter', size: 11 } } }, tooltip: { bodyFont: { family: 'Inter' }, callbacks: { title: function(ctx){ return sortedLabels[ctx[0].dataIndex]; }, label: function(ctx) { return ctx.dataset.label + ': ' + formatRupiah(ctx.raw); } } } } } 
+                data: { labels: displayLabels.length ? displayLabels : ['Belum ada data'], datasets: [ { label: 'Pemasukan', data: dataIncTren.length ? dataIncTren : [0], backgroundColor: '#6258D8', borderRadius: 6, maxBarThickness: 20 }, { label: 'Pengeluaran', data: dataExpTren.length ? dataExpTren : [0], backgroundColor: '#86D7C9', borderRadius: 6, maxBarThickness: 20 } ] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: textColor, callback: function(val){ return formatK(val); } }, grid: { color: isDark ? '#374151' : '#E8EBF3' } }, x: { ticks: { color: textColor, maxRotation: 0, autoSkip: true }, grid: { display: false } } }, plugins: { legend: { position: 'top', labels: { color: textColor, font: { family: 'Inter', size: 11 } } }, tooltip: { bodyFont: { family: 'Inter' }, callbacks: { title: function(ctx){ const key = sortedLabels[ctx[0].dataIndex]; return key ? new Date(`${key}-01T00:00:00`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) : 'Belum ada data'; }, label: function(ctx) { return ctx.dataset.label + ': ' + formatRupiah(ctx.raw); } } } } }
             });
         };
 
