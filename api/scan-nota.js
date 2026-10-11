@@ -12,8 +12,6 @@ export default async function handler(req, res) {
     const { imageBase64, mimeType } = req.body;
     if (!imageBase64) return res.status(400).json({ error: 'imageBase64 tidak ada di request' });
 
-    const groqKey = process.env.GROQ_API_KEY;
-    const geminiKey = process.env.GEMINI_API_KEY;
     const nineRouterConfig = {
       baseUrl: process.env.NINEROUTER_BASE_URL,
       apiKey: process.env.NINEROUTER_API_KEY,
