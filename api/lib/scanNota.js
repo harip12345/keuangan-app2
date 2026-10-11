@@ -1,5 +1,5 @@
 // Pemroses Vision (OCR Nota) — dipakai bersama oleh /api/scan-nota dan webhook Telegram.
-// Model: Groq qwen vision utama, fallback Gemini 2.5 / 2.0.
+// 9Router custom adalah prioritas; Groq dan Gemini tetap tersedia sebagai fallback.
 
 const VISION_MODELS = [
   { provider: 'groq', id: 'qwen/qwen3.6-27b' },
@@ -28,6 +28,38 @@ async function callGroqVision(apiKey, model, imageBase64, mimeType, prompt) {
       response_format: { type: 'json_object' },
       reasoning_effort: 'none',
       reasoning_format: 'hidden'
+    })
+  });
+  return { status: response.status, data: await response.json() };
+}
+
+async function callNineRouterVision(config, imageBase64, mimeType, prompt) {
+  const baseUrl = String(config.baseUrl).replace(/\/+$/, '');
+  const parsedBaseUrl = new URL(baseUrl);
+  if (parsedBaseUrl.protocol !== 'https:' && !(process.env.NODE_ENV !== 'production' && ['localhost', '127.0.0.1'].includes(parsedBaseUrl.hostname))) {
+    throw new Error('NINEROUTER_BASE_URL harus menggunakan HTTPS pada deployment production.');
+  }
+  const endpoint = /\/chat\/completions$/i.test(baseUrl)
+    ? baseUrl
+    : `${baseUrl}/chat/completions`;
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${config.apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    signal: AbortSignal.timeout(50000),
+    body: JSON.stringify({
+      model: config.model,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'text', text: prompt },
+          { type: 'image_url', image_url: { url: `data:${mimeType};base64,${imageBase64}` } }
+        ]
+      }],
+      temperature: 0.1,
+      max_tokens: 500
     })
   });
   return { status: response.status, data: await response.json() };
@@ -97,14 +129,26 @@ const validExpCats = ['Bensin', 'Body care', 'Dating', 'Ganti Oli', 'Infak', 'Ja
 const validIncCats = ['Gaji / Upah', 'Hasil Usaha / Bisnis', 'Bonus / THR', 'Pemberian / Uang Saku', 'Pencairan Investasi', 'Lainnya'];
 
 // Mengembalikan { hasil, model_used, provider } atau melempar Error bila semua model gagal.
-export async function extractNota(groqKey, geminiKey, imageBase64, mimeType) {
+export async function extractNota(groqKey, geminiKey, imageBase64, mimeType, nineRouterConfig = {}) {
   const prompt = buildNotaPrompt();
   let lastError = '';
+  const nineRouterValues = [nineRouterConfig.baseUrl, nineRouterConfig.apiKey, nineRouterConfig.model];
+  const hasPartialNineRouterConfig = nineRouterValues.some(Boolean) && !nineRouterValues.every(Boolean);
+  if (hasPartialNineRouterConfig) {
+    throw new Error('Konfigurasi 9Router belum lengkap. Isi NINEROUTER_BASE_URL, NINEROUTER_API_KEY, dan NINEROUTER_MODEL di Vercel.');
+  }
+  const visionModels = [
+    ...(nineRouterValues.every(Boolean) ? [{ provider: '9router', id: nineRouterConfig.model }] : []),
+    ...VISION_MODELS
+  ];
 
-  for (const item of VISION_MODELS) {
+  for (const item of visionModels) {
     try {
       let status, data;
-      if (item.provider === 'groq') {
+      if (item.provider === '9router') {
+        const res = await callNineRouterVision(nineRouterConfig, imageBase64, mimeType, prompt);
+        status = res.status; data = res.data;
+      } else if (item.provider === 'groq') {
         if (!groqKey) continue;
         const res = await callGroqVision(groqKey, item.id, imageBase64, mimeType, prompt);
         status = res.status; data = res.data;
@@ -120,7 +164,7 @@ export async function extractNota(groqKey, geminiKey, imageBase64, mimeType) {
       }
 
       let rawText = '';
-      if (item.provider === 'groq') rawText = data?.choices?.[0]?.message?.content || '';
+      if (item.provider === '9router' || item.provider === 'groq') rawText = data?.choices?.[0]?.message?.content || '';
       else if (item.provider === 'gemini') rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
       if (!rawText) { lastError = `${item.id}: Respons teks kosong`; continue; }
 
@@ -136,7 +180,7 @@ export async function extractNota(groqKey, geminiKey, imageBase64, mimeType) {
       const validCats = hasil.type === 'income' ? validIncCats : validExpCats;
       if (!validCats.includes(hasil.kategori)) hasil.kategori = 'Lainnya';
 
-      return { hasil, model_used: item.id, provider: item.provider };
+      return { hasil, model_used: data?.model || item.id, provider: item.provider };
     } catch (err) {
       lastError = `${item.id} (${item.provider}): ${err.message}`;
     }

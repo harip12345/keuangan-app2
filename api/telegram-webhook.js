@@ -281,7 +281,12 @@ async function handlePhoto(msg, chatId, binding) {
       process.env.GROQ_API_KEY,
       process.env.GEMINI_API_KEY,
       imageBase64,
-      'image/jpeg'
+      'image/jpeg',
+      {
+        baseUrl: process.env.NINEROUTER_BASE_URL,
+        apiKey: process.env.NINEROUTER_API_KEY,
+        model: process.env.NINEROUTER_MODEL
+      }
     );
     const h = result.hasil;
     const kategori = h.kategori === 'Lainnya' && h.kategori_custom ? h.kategori_custom : h.kategori;
