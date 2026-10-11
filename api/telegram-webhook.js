@@ -3,6 +3,7 @@
 import { getDb, BOT_COLLECTION, FieldValue } from './lib/firebaseAdmin.js';
 import { getBindingByChat, getBindingByProfile, setBinding, removeBinding, getPending, deletePending } from './lib/bindings.js';
 import { extractNota } from './lib/scanNota.js';
+import { webhookSecret } from './lib/_telegramWebhook.js';
 import {
   ymdToCustom, parseAmount, parseDate, detectType, detectCategory, detectWallet,
   isTransferSyntax, parseTransfer, cleanNote, formatRupiah, has
@@ -20,7 +21,7 @@ const GREETINGS = ['halo', 'hai', 'hi', 'hello', 'p', 'test', 'tes', 'oke', 'ok'
 export function routeIntent(text) {
   const lower = text.toLowerCase().trim();
   const first = lower.split(/\s+/)[0] || '';
-  if (first.startsWith('/')) return 'command';
+  if (first.startsWith('/') || ['start', 'link', 'help', 'bantuan', 'menu', 'panduan', 'status', 'unbind', 'putus', 'riwayat', 'history', 'mutasi'].includes(first)) return 'command';
   const t = ' ' + lower + ' ';
   if (GREETINGS.includes(first)) return 'greetings';
   if (first === 'ai') return 'ai';
@@ -420,8 +421,8 @@ function esc(s) { return escapeHtml(s); }
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
-  if (secret && req.headers['x-telegram-bot-api-secret-token'] !== secret) {
+  const secret = webhookSecret();
+  if (req.headers['x-telegram-bot-api-secret-token'] !== secret) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 

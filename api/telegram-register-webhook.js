@@ -1,8 +1,9 @@
-// Daftarkan / info / hapus webhook Telegram ke endpoint Vercel.
-// Panggil sekali setelah deploy (dan tiap ganti domain).
+// Daftarkan / info / hapus webhook Telegram ke endpoint produksi.
 //   POST /api/telegram-register-webhook
 //   Header: x-service-key: <TELEGRAM_SERVICE_KEY>
 //   Body:   { "action": "set" | "info" | "unset" }
+import { telegramApi, webhookSecret, webhookUrl } from './lib/_telegramWebhook.js';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -17,33 +18,19 @@ export default async function handler(req, res) {
 
   try {
     if (action === 'info') {
-      const resp = await fetch(`https://api.telegram.org/bot${token}/getWebhookInfo`);
-      const data = await resp.json();
-      return res.status(200).json(data);
+      return res.status(200).json({ ok: true, result: await telegramApi('getWebhookInfo') });
     }
 
     if (action === 'unset') {
-      const resp = await fetch(`https://api.telegram.org/bot${token}/deleteWebhook`);
-      const data = await resp.json();
-      return res.status(200).json(data);
+      return res.status(200).json({ ok: true, result: await telegramApi('deleteWebhook') });
     }
 
-    const host = req.body.url ? null : req.headers.host;
-    if (!host && !req.body.url) return res.status(400).json({ error: 'Tidak bisa menentukan host' });
-    const url = req.body.url || `https://${host}/api/telegram-webhook`;
-    const secret = process.env.TELEGRAM_WEBHOOK_SECRET || '';
-
-    const resp = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        url,
-        secret_token: secret || undefined,
-        allowed_updates: ['message']
-      })
+    if (action !== 'set') return res.status(400).json({ error: 'action tidak dikenal' });
+    const url = webhookUrl();
+    const result = await telegramApi('setWebhook', {
+      url, secret_token: webhookSecret(), allowed_updates: ['message']
     });
-    const data = await resp.json();
-    return res.status(200).json({ ...data, url });
+    return res.status(200).json({ ok: true, result, url });
   } catch (err) {
     console.error('register-webhook error:', err);
     return res.status(500).json({ error: err.message || 'Internal server error' });

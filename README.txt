@@ -36,8 +36,12 @@ FITUR BOT TELEGRAM (input transaksi via chat)
 1. Bikin bot lewat @BotFather di Telegram (gratis, resmi) -> dapatkan token.
 2. Di Vercel, set Environment Variables:
    - TELEGRAM_BOT_TOKEN        = token dari BotFather (wajib)
-   - TELEGRAM_WEBHOOK_SECRET   = string rahasia bebas (opsional, disarankan)
-   - TELEGRAM_SERVICE_KEY      = string rahasia bebas (untuk daftarkan webhook)
+   - TELEGRAM_WEBHOOK_SECRET   = string rahasia Telegram (opsional; jika kosong,
+                                 aplikasi membuatnya otomatis dari token bot)
+   - TELEGRAM_WEBHOOK_URL      = URL HTTPS webhook (opsional; default:
+                                 https://myfinanceapp.my.id/api/telegram-webhook)
+   - TELEGRAM_SERVICE_KEY      = string rahasia bebas (opsional, untuk endpoint
+                                 registrasi manual)
    - FIREBASE_PROJECT_ID       = ID project Firebase (wajib)
    - FIREBASE_CLIENT_EMAIL     = email service account Firebase (wajib)
    - FIREBASE_PRIVATE_KEY      = private key service account (wajib, simpan utuh
@@ -45,12 +49,14 @@ FITUR BOT TELEGRAM (input transaksi via chat)
    Catatan: FIREBASE_* diambil dari Firebase Console -> Project Settings ->
    Service Accounts -> Generate new private key. GROQ_API_KEY / GEMINI_API_KEY
    (sudah dipakai scan nota) juga dibutuhkan untuk scan foto via bot.
-3. Setelah deploy, daftarkan webhook sekali:
+3. Setelah deploy, buka Pengaturan -> Bot & Otomasi saat login dengan
+   Email/Google. Aplikasi akan memeriksa dan mendaftarkan ulang webhook bot
+   secara otomatis ke domain produksi. Jika gagal, status akan menunjukkan
+   pesan error. Untuk memeriksa webhook secara manual (perlu SERVICE_KEY):
    curl -X POST https://<domain-vercel>/api/telegram-register-webhook \
         -H "Content-Type: application/json" \
         -H "x-service-key: <TELEGRAM_SERVICE_KEY>" \
-        -d '{"action":"set"}'
-   (Ulangi jika ganti domain Vercel.)
+        -d '{"action":"info"}'
 4. Di app: login -> Pengaturan -> "Hubungkan Bot Telegram" -> tap "Buka Telegram
    & Kirim Kode". Chat otomatis terikat ke profil yang sedang login.
 5. Contoh perintah di bot: "makan 50000", "ngopi 25rb", "gaji 3jt",

@@ -5,6 +5,7 @@
 import { getAuth } from 'firebase-admin/auth';
 import { getDb } from './lib/firebaseAdmin.js';
 import { createPending, getBindingByProfile, removeBindingByProfile } from './lib/bindings.js';
+import { ensureWebhook } from './lib/_telegramWebhook.js';
 
 async function tgGetMe() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -26,19 +27,24 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'TELEGRAM_BOT_TOKEN belum di-set di Vercel' });
     }
 
-    const { action = 'status', profileId } = req.body;
-    if (!profileId) return res.status(400).json({ error: 'profileId wajib diisi' });
-
-    if (action === 'status') {
-      const binding = await getBindingByProfile(profileId);
-      return res.status(200).json({ bound: !!binding, name: binding ? binding.name : '', chatId: binding ? binding.chatId : null });
-    }
-
-    const { idToken } = req.body;
+    const { action = 'status', profileId, idToken } = req.body || {};
+    if (typeof profileId !== 'string' || !profileId) return res.status(400).json({ error: 'profileId wajib diisi' });
     if (!idToken) return res.status(401).json({ error: 'idToken wajib diisi (login Firebase)' });
 
+    getDb(); // Inisialisasi Firebase Admin sebelum getAuth().
     const decoded = await getAuth().verifyIdToken(idToken);
     const uid = decoded.uid;
+    if (profileId !== uid) {
+      const mapping = await getDb().collection('keuangan_v2').doc('uid_mappings').get();
+      if (!mapping.exists || mapping.data()[uid] !== profileId) {
+        return res.status(403).json({ error: 'Profil ini belum terhubung ke akun Firebase Anda' });
+      }
+    }
+
+    if (action === 'status') {
+      const [binding, webhook] = await Promise.all([getBindingByProfile(profileId), ensureWebhook()]);
+      return res.status(200).json({ bound: !!binding, name: binding ? binding.name : '', webhook });
+    }
 
     if (action === 'unbind') {
       const removed = await removeBindingByProfile(profileId);
@@ -46,9 +52,10 @@ export default async function handler(req, res) {
     }
 
     if (action === 'link') {
+      const webhook = await ensureWebhook();
       const existing = await getBindingByProfile(profileId);
       if (existing) {
-        return res.status(200).json({ alreadyBound: true, name: existing.name });
+        return res.status(200).json({ alreadyBound: true, name: existing.name, webhook });
       }
       const name = (req.body.name || decoded.name || 'User').slice(0, 40);
       const pending = await createPending(profileId, name);

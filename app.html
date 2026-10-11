@@ -2521,23 +2521,34 @@
             const line = document.getElementById('botStatusLine');
             const unlinkBtn = document.getElementById('btnBotUnlink');
             if (!line || !currentProfileId) return;
+            const user = auth.currentUser;
+            if (!user) {
+                line.textContent = 'Status: masuk dengan Email/Google untuk memeriksa bot';
+                if (unlinkBtn) unlinkBtn.style.display = 'none';
+                return;
+            }
             line.innerHTML = 'Status: memeriksa...';
             try {
+                const idToken = await user.getIdToken();
                 const resp = await fetch('/api/gen-link', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'status', profileId: currentProfileId })
+                    body: JSON.stringify({ action: 'status', idToken, profileId: currentProfileId })
                 });
                 const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+                const webhookNote = data.webhook && data.webhook.lastError
+                    ? ` · Telegram: ${_escHtmlBot(data.webhook.lastError)}` : '';
                 if (data.bound) {
-                    line.innerHTML = `Status: <span style="color:var(--income);">Terhubung ke profil <b>${_escHtmlBot(data.name)}</b></span>`;
+                    line.innerHTML = `Status: <span style="color:var(--income);">Terhubung ke profil <b>${_escHtmlBot(data.name)}</b> · webhook terdaftar</span>${webhookNote}`;
                     if (unlinkBtn) unlinkBtn.style.display = 'block';
                 } else {
-                    line.innerHTML = 'Status: <span style="color:var(--text-muted);">Belum terhubung</span>';
+                    line.innerHTML = `Status: <span style="color:var(--text-muted);">Webhook terdaftar · chat belum terhubung</span>${webhookNote}`;
                     if (unlinkBtn) unlinkBtn.style.display = 'none';
                 }
             } catch (e) {
-                line.innerHTML = 'Status: <span style="color:var(--expense);">tidak bisa dihubungi server</span>';
+                line.innerHTML = `Status: <span style="color:var(--expense);">bot belum siap: ${_escHtmlBot(e.message || 'tidak bisa dihubungi server')}</span>`;
+                if (unlinkBtn) unlinkBtn.style.display = 'none';
             }
         }
         async function genBotLink() {
