@@ -5899,9 +5899,11 @@
                 statusEl.innerHTML = '⏳ Mengompres & mengirim ke AI...';
                 btnScan.disabled = true;
                 try {
+                    if (!auth.currentUser) throw new Error('Masuk dengan akun email atau Google untuk scan nota.');
+                    var scanIdToken = await auth.currentUser.getIdToken();
                     var compressed = await compressImage(file);
                     var response = await fetch('/api/scan-nota', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + scanIdToken },
                         body: JSON.stringify({ imageBase64: compressed.base64, mimeType: compressed.mimeType })
                     });
                     if (!response.ok) { var ed = await response.json().catch(function(){return{};}); throw new Error(ed.error || 'HTTP ' + response.status); }

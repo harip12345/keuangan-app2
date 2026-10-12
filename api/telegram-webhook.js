@@ -279,8 +279,7 @@ async function handlePhoto(msg, chatId, binding) {
 
     const result = await extractNota(
       {
-        baseUrl: process.env.NINEROUTER_BASE_URL,
-        apiKey: process.env.NINEROUTER_API_KEY
+        apiKey: process.env.ANTHROPIC_API_KEY
       },
       imageBase64,
       'image/jpeg'

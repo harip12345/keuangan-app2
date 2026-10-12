@@ -30,24 +30,17 @@ Cara pakai di HP:
 
 Catatan: ikon home screen butuh diakses lewat HTTPS (domain Vercel), bukan file lokal.
 
-SCAN NOTA DENGAN 9ROUTER
-========================
+SCAN NOTA DENGAN CLAUDE
+=======================
 
-Endpoint scan nota hanya memakai model vision dari 9Router. Di Vercel, isi
-Environment Variables berikut lalu redeploy:
-  - NINEROUTER_BASE_URL = URL publik 9Router yang diakhiri /v1
-  - NINEROUTER_API_KEY  = API key endpoint dari dashboard 9Router
-Model scan nota dikunci ke Claude Haiku 5.5 (`anthropic/claude-haiku-5-5`).
-Hubungkan provider Anthropic API di dashboard 9Router dan pastikan ID model
-tersebut tersedia. Variabel NINEROUTER_MODEL tidak digunakan untuk scan nota.
-
-Contoh format URL: https://<host-9router-anda>/v1
-Jangan gunakan localhost:20128 untuk deployment Vercel: alamat localhost di
-server Vercel menunjuk ke server Vercel itu sendiri, bukan komputer Anda.
-Model harus mendukung input gambar. Scan nota hanya mengirim gambar ke 9Router;
-jika konfigurasi, router, atau modelnya gagal, pemindaian berhenti dan tidak
-beralih ke penyedia AI lain. Gambar nota dikirim dari endpoint Vercel ke
-9Router untuk diproses.
+Endpoint scan nota dan foto nota bot Telegram menghubungi Anthropic langsung
+dari server Vercel dengan model `claude-haiku-5-5`. Buat API key di Claude
+Console, lalu isi Environment Variable `ANTHROPIC_API_KEY` di Vercel untuk
+Production dan redeploy. Jangan menaruh API key di app.html atau Git.
+NINEROUTER_BASE_URL, NINEROUTER_API_KEY, dan NINEROUTER_MODEL tidak dipakai
+lagi untuk scan nota. Scan mendukung JPG, PNG, WebP, GIF, dan PDF.
+Scan dari aplikasi memerlukan sesi Firebase (login email atau Google); foto
+yang dikirim ke bot memakai webhook Telegram yang sudah terdaftar.
 
 FITUR BOT TELEGRAM (input transaksi via chat)
 ===========================================
@@ -67,7 +60,7 @@ FITUR BOT TELEGRAM (input transaksi via chat)
                                   dengan \n; Vercel otomatis menambahkan "-----BEGIN..." )
    Catatan: FIREBASE_* diambil dari Firebase Console -> Project Settings ->
    Service Accounts -> Generate new private key. Scan nota via bot memakai
-   konfigurasi 9Router di atas.
+   ANTHROPIC_API_KEY di atas.
 3. Setelah deploy, buka Pengaturan -> Bot & Otomasi saat login dengan
    Email/Google. Aplikasi akan memeriksa dan mendaftarkan ulang webhook bot
    secara otomatis ke domain produksi. Jika gagal, status akan menunjukkan

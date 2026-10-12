@@ -1,36 +1,43 @@
 // Pemroses Vision (OCR Nota) — dipakai bersama oleh /api/scan-nota dan webhook Telegram.
-// Scan nota selalu memakai Claude Haiku 5.5 melalui provider Anthropic di 9Router.
-export const SCAN_NOTA_MODEL = 'anthropic/claude-haiku-5-5';
+// Kunci API hanya dipakai di server; gambar dikirim langsung ke Anthropic.
+export const SCAN_NOTA_MODEL = 'claude-haiku-5-5';
 
-async function callNineRouterVision(config, imageBase64, mimeType, prompt) {
-  const baseUrl = String(config.baseUrl).replace(/\/+$/, '');
-  const parsedBaseUrl = new URL(baseUrl);
-  if (parsedBaseUrl.protocol !== 'https:' && !(process.env.NODE_ENV !== 'production' && ['localhost', '127.0.0.1'].includes(parsedBaseUrl.hostname))) {
-    throw new Error('NINEROUTER_BASE_URL harus menggunakan HTTPS pada deployment production.');
+function notaContentBlock(imageBase64, mimeType) {
+  const mediaType = String(mimeType || 'image/jpeg').split(';')[0].toLowerCase();
+  if (mediaType === 'application/pdf') {
+    return { type: 'document', source: { type: 'base64', media_type: mediaType, data: imageBase64 } };
   }
-  const endpoint = /\/chat\/completions$/i.test(baseUrl)
-    ? baseUrl
-    : `${baseUrl}/chat/completions`;
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${config.apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    signal: AbortSignal.timeout(50000),
-    body: JSON.stringify({
-      model: SCAN_NOTA_MODEL,
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'text', text: prompt },
-          { type: 'image_url', image_url: { url: `data:${mimeType};base64,${imageBase64}` } }
-        ]
-      }],
-      temperature: 0.1,
-      max_tokens: 500
-    })
-  });
+  if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(mediaType)) {
+    throw new Error('Format nota tidak didukung Claude. Gunakan JPG, PNG, WebP, GIF, atau PDF.');
+  }
+  return { type: 'image', source: { type: 'base64', media_type: mediaType, data: imageBase64 } };
+}
+
+async function callClaudeVision(apiKey, imageBase64, mimeType, prompt) {
+  let response;
+  try {
+    response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json'
+      },
+      signal: AbortSignal.timeout(50000),
+      body: JSON.stringify({
+        model: SCAN_NOTA_MODEL,
+        max_tokens: 1024,
+        output_config: { effort: 'low' },
+        messages: [{
+          role: 'user',
+          content: [notaContentBlock(imageBase64, mimeType), { type: 'text', text: prompt }]
+        }]
+      })
+    });
+  } catch (error) {
+    if (error?.name === 'TimeoutError') throw new Error('Claude tidak merespons dalam 50 detik. Coba lagi.');
+    throw error;
+  }
   const responseText = await response.text();
   let data;
   try {
@@ -38,13 +45,11 @@ async function callNineRouterVision(config, imageBase64, mimeType, prompt) {
   } catch (_) {
     const detail = responseText
       .replace(/<[^>]*>/g, ' ')
-      .split(config.apiKey).join('[API KEY REDACTED]')
+      .split(apiKey).join('[API KEY REDACTED]')
       .replace(/\s+/g, ' ')
       .trim()
       .slice(0, 220);
-    throw new Error(
-      `Respons 9Router bukan JSON (HTTP ${response.status}). Pastikan tunnel aktif dan URL mengarah ke endpoint /v1. Respons: ${detail || '(kosong)'}`
-    );
+    throw new Error(`Respons Claude bukan JSON (HTTP ${response.status}): ${detail || '(kosong)'}`);
   }
   return { status: response.status, data };
 }
@@ -91,32 +96,32 @@ const validWallets = ['Tunai', 'Muamalat', 'BSI', 'Bank Jago', 'SeaBank', 'Blu',
 const validExpCats = ['Bensin', 'Body care', 'Dating', 'Ganti Oli', 'Infak', 'Jajan', 'Jalan-jalan', 'Makan dan Minum', 'Make up', 'Ngasih Ortu', 'Ngopi', 'Ojek', 'Parkir', 'Kuota/Wifi', 'Sabun Muka', 'Shopping', 'Skincare', 'Staycation', 'Sunscreen', 'Tabungan', 'Lainnya'];
 const validIncCats = ['Gaji / Upah', 'Hasil Usaha / Bisnis', 'Bonus / THR', 'Pemberian / Uang Saku', 'Pencairan Investasi', 'Lainnya'];
 
-// Mengembalikan { hasil, model_used, provider } atau gagal dengan error 9Router.
-export async function extractNota(nineRouterConfig, imageBase64, mimeType) {
+// Mengembalikan { hasil, model_used, provider } atau gagal dengan error Claude.
+export async function extractNota(anthropicConfig, imageBase64, mimeType) {
   const prompt = buildNotaPrompt();
-  const nineRouterValues = [nineRouterConfig.baseUrl, nineRouterConfig.apiKey];
-  if (!nineRouterValues.every(Boolean)) {
-    throw new Error('Konfigurasi 9Router belum lengkap. Isi NINEROUTER_BASE_URL dan NINEROUTER_API_KEY di Vercel.');
+  if (!anthropicConfig.apiKey) {
+    throw new Error('ANTHROPIC_API_KEY belum diatur di Vercel.');
   }
-  const { status, data } = await callNineRouterVision(nineRouterConfig, imageBase64, mimeType, prompt);
+  const { status, data } = await callClaudeVision(anthropicConfig.apiKey, imageBase64, mimeType, prompt);
   if (status !== 200) {
-    throw new Error(`9Router (${SCAN_NOTA_MODEL}): ${data?.error?.message || 'HTTP ' + status}`);
+    throw new Error(`Claude (${SCAN_NOTA_MODEL}): ${data?.error?.message || 'HTTP ' + status}`);
   }
 
-  const rawText = data?.choices?.[0]?.message?.content || '';
-  if (!rawText) throw new Error(`9Router (${SCAN_NOTA_MODEL}): respons teks kosong`);
+  if (data?.stop_reason === 'max_tokens') throw new Error('Claude memotong hasil scan nota. Coba foto nota yang lebih jelas.');
+  const rawText = (data?.content || []).filter(block => block.type === 'text').map(block => block.text).join('\n');
+  if (!rawText) throw new Error(`Claude (${SCAN_NOTA_MODEL}): respons teks kosong`);
 
   const cleaned = rawText.replace(/```json|```/g, '').trim();
   const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error(`9Router (${SCAN_NOTA_MODEL}): respons JSON tidak ditemukan`);
+  if (!jsonMatch) throw new Error(`Claude (${SCAN_NOTA_MODEL}): respons JSON tidak ditemukan`);
 
   const hasil = JSON.parse(jsonMatch[0]);
-  if (!hasil.nominal && !hasil.keterangan) throw new Error(`9Router (${SCAN_NOTA_MODEL}): data penting nota tidak terbaca`);
+  if (!hasil.nominal && !hasil.keterangan) throw new Error(`Claude (${SCAN_NOTA_MODEL}): data penting nota tidak terbaca`);
 
   if (!validTypes.includes(hasil.type)) hasil.type = 'expense';
   if (!validWallets.includes(hasil.wallet)) hasil.wallet = 'Tunai';
   const validCats = hasil.type === 'income' ? validIncCats : validExpCats;
   if (!validCats.includes(hasil.kategori)) hasil.kategori = 'Lainnya';
 
-  return { hasil, model_used: data?.model || SCAN_NOTA_MODEL, provider: '9router' };
+  return { hasil, model_used: data?.model || SCAN_NOTA_MODEL, provider: 'claude' };
 }
