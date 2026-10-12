@@ -881,6 +881,21 @@
         .ai-user-avatar-fallback { width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px; }
         /* ===== SCAN NOTA ===== */
         #btnScanNota:disabled { opacity:.65; cursor:not-allowed; }
+        .scan-success-card { max-width:460px; padding:1.5rem; padding-bottom:calc(1.5rem + env(safe-area-inset-bottom)); }
+        .scan-success-icon { width:52px; height:52px; display:grid; place-items:center; margin:0 auto .8rem; border-radius:18px; background:#DCFCE7; color:#15803D; }
+        .scan-success-icon svg { width:27px; height:27px; }
+        .scan-success-heading { text-align:center; margin-bottom:1.2rem; }
+        .scan-success-heading h3 { margin:0 0 .35rem; font-size:1.15rem; color:var(--text-main); }
+        .scan-success-heading p { margin:0; color:var(--text-muted); font-size:.82rem; line-height:1.5; }
+        .scan-success-details { margin:0 0 1.25rem; padding:.3rem .9rem; border:1px solid var(--border); border-radius:16px; background:var(--surface-color); }
+        .scan-success-row { display:flex; justify-content:space-between; gap:1rem; padding:.72rem 0; border-bottom:1px solid var(--border); font-size:.82rem; }
+        .scan-success-row:last-child { border-bottom:0; }
+        .scan-success-row dt { color:var(--text-muted); flex-shrink:0; }
+        .scan-success-row dd { margin:0; color:var(--text-main); font-weight:700; text-align:right; overflow-wrap:anywhere; }
+        .scan-success-row.amount dd { color:var(--primary); font-size:1rem; }
+        .scan-success-actions { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; }
+        .scan-success-actions .btn-submit { margin:0; }
+        .scan-success-edit { background:var(--card-bg); color:var(--primary); border:1px solid var(--primary); box-shadow:none; }
         #btnQuickAdd:disabled { opacity:.65; cursor:not-allowed; }
         .quick-add-panel { margin:.5rem 0 .2rem; padding:.85rem; border:1px solid var(--border); border-radius:14px; background:var(--surface-color,#F8FAFC); box-shadow:0 4px 14px rgba(139,92,246,.08); animation:qaSlide .25s ease; }
         body.dark-mode .quick-add-panel { background:#0f172a; }
@@ -1998,6 +2013,28 @@
                 <div style="display:flex; gap:0.75rem;">
                     <button class="btn-submit" style="background:var(--surface-color); color:var(--text-main); border:1px solid var(--border); box-shadow:none; flex:1;" onclick="closeConfirmModal()">Batal</button>
                     <button class="btn-submit" style="background:var(--expense); flex:1;" id="confirmBtnOk">Ya, Lanjutkan</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="scanSuccessModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="scanSuccessTitle" aria-describedby="scanSuccessDescription">
+            <div class="modal-card scan-success-card">
+                <div class="scan-success-icon"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#check"/></svg></div>
+                <div class="scan-success-heading">
+                    <h3 id="scanSuccessTitle">Nota berhasil dicatat</h3>
+                    <p id="scanSuccessDescription">Periksa rincian transaksi yang sudah tersimpan.</p>
+                </div>
+                <dl class="scan-success-details">
+                    <div class="scan-success-row"><dt>Jenis transaksi</dt><dd id="scanSuccessType"></dd></div>
+                    <div class="scan-success-row"><dt>Rekening / dompet</dt><dd id="scanSuccessWallet"></dd></div>
+                    <div class="scan-success-row"><dt>Kategori</dt><dd id="scanSuccessCategory"></dd></div>
+                    <div class="scan-success-row"><dt>Keterangan</dt><dd id="scanSuccessNote"></dd></div>
+                    <div class="scan-success-row"><dt>Tanggal</dt><dd id="scanSuccessDate"></dd></div>
+                    <div class="scan-success-row amount"><dt>Nominal</dt><dd id="scanSuccessAmount"></dd></div>
+                </dl>
+                <div class="scan-success-actions">
+                    <button type="button" class="btn-submit scan-success-edit" onclick="editScanSuccessTransaction()">Edit</button>
+                    <button type="button" class="btn-submit" id="scanSuccessOk" onclick="closeScanSuccessModal()">Oke</button>
                 </div>
             </div>
         </div>
@@ -3132,6 +3169,9 @@
         let transactions = []; 
         let savings = [];
         let editingTrxId = null; 
+        let pendingScanConfirmation = false;
+        let scanSuccessRecord = null;
+        let transactionSaveInProgress = false;
         let editingAssetId = null; 
         let unsubscribeTrx = null; 
         let transactionDataConfirmed = false;
@@ -3660,8 +3700,8 @@
         const formatRupiah = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number); const formatRupiahStr = (number) => number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         function triggerConfetti() { celebrate({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#4F46E5', '#10B981', '#F59E0B'] }); }
 
-        const editTransaction = (id) => { 
-            const t = transactions.find(item => item.id === id); if(!t || !typeSelect || !amountInput || !btnSubmitTrx || !btnCancelEdit) return; 
+        const editTransaction = (id, savedFallback) => {
+            const t = transactions.find(item => item.id === id) || savedFallback; if(!t || !typeSelect || !amountInput || !btnSubmitTrx || !btnCancelEdit) return;
             editingTrxId = t.id; const dateEl = document.getElementById('trxDate'); if(dateEl) dateEl.value = parseCustomDateToYMD(t.date);
             typeSelect.value = t.type; handleTypeChange();
             if(t.type !== 'transfer') {
@@ -3690,6 +3730,38 @@
             if(_riwayatSource === 'trx') { _riwayatSource = null; switchView('transaksi'); openRiwayatModal('transaksi'); }
             else _riwayatSource = null;
         };
+
+        function showScanSuccessModal(id, savedData) {
+            scanSuccessRecord = { id, ...savedData };
+            const details = {
+                scanSuccessType: savedData.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+                scanSuccessWallet: savedData.wallet || '—',
+                scanSuccessCategory: savedData.category || '—',
+                scanSuccessNote: savedData.note || '—',
+                scanSuccessDate: savedData.date || '—',
+                scanSuccessAmount: formatRupiah(savedData.amount)
+            };
+            Object.entries(details).forEach(([elementId, value]) => {
+                const element = document.getElementById(elementId);
+                if (element) element.textContent = value;
+            });
+            document.getElementById('scanSuccessModal')?.classList.add('show');
+            document.getElementById('scanSuccessOk')?.focus();
+        }
+
+        function closeScanSuccessModal() {
+            document.getElementById('scanSuccessModal')?.classList.remove('show');
+            scanSuccessRecord = null;
+            document.getElementById('btnScanNota')?.focus();
+        }
+
+        function editScanSuccessTransaction() {
+            const saved = scanSuccessRecord;
+            if (!saved) return;
+            closeScanSuccessModal();
+            switchView('catat');
+            editTransaction(saved.id, saved);
+        }
 
         const editAsset = (id) => { 
             const s = savings.find(item => item.id === id); if(!s || !savingsTypeSelect || !savingsAmountInput || !btnSubmitAsset || !btnCancelAssetEdit) return; 
@@ -4193,7 +4265,7 @@
         const trxForm = document.getElementById('transactionForm');
         if(trxForm) {
             trxForm.addEventListener('submit', async (e) => { 
-                e.preventDefault(); if(!typeSelect || !amountInput) return; showToast("Menyimpan..."); 
+                e.preventDefault(); if(!typeSelect || !amountInput || transactionSaveInProgress) return;
                 const type = typeSelect.value; let category = categorySelect ? categorySelect.value : ""; 
                 if(type === 'transfer') category = "Transfer Mutasi"; else if (category === "Lainnya" && customCategoryInput) category = customCategoryInput.value; 
                 
@@ -4207,14 +4279,43 @@
                     if(wallet === walletTo) return showToast(" Rekening asal & tujuan tidak boleh sama!");
                     dataToSave.walletTo = walletTo;
                 }
-                
-                if (editingTrxId) { 
-                    await db.collection(DB_COLLECTION).doc(currentProfileId).collection("transactions").doc(editingTrxId).update(dataToSave); cancelEdit(); 
-                } else { 
-                    dataToSave.timestamp = firebase.firestore.FieldValue.serverTimestamp(); 
-                    await db.collection(DB_COLLECTION).doc(currentProfileId).collection("transactions").add(dataToSave); 
-                    amountInput.value = ''; if(noteEl) noteEl.value = ''; typeSelect.value = 'expense'; handleTypeChange(); 
-                } 
+
+                const showScanConfirmation = pendingScanConfirmation;
+                pendingScanConfirmation = false;
+                transactionSaveInProgress = true;
+                if (btnSubmitTrx) btnSubmitTrx.disabled = true;
+                if (!showScanConfirmation) showToast('Menyimpan...');
+                try {
+                    if (editingTrxId) {
+                        await db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions').doc(editingTrxId).update(dataToSave);
+                        cancelEdit();
+                    } else {
+                        dataToSave.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                        const savedRef = await db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions').add(dataToSave);
+                        amountInput.value = ''; if(noteEl) noteEl.value = ''; typeSelect.value = 'expense'; handleTypeChange();
+                        if (showScanConfirmation) {
+                            const scanStatus = document.getElementById('scanNotaStatus');
+                            if (scanStatus) scanStatus.style.display = 'none';
+                            showScanSuccessModal(savedRef.id, dataToSave);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Gagal menyimpan transaksi:', error);
+                    const message = 'Transaksi gagal disimpan. Coba lagi.';
+                    showToast(message);
+                    if (showScanConfirmation) {
+                        const scanStatus = document.getElementById('scanNotaStatus');
+                        if (scanStatus) {
+                            scanStatus.style.display = 'block';
+                            scanStatus.style.background = 'var(--warning-bg)';
+                            scanStatus.style.color = 'var(--warning-text)';
+                            scanStatus.textContent = message + ' Periksa data di formulir sebelum mengulang.';
+                        }
+                    }
+                } finally {
+                    transactionSaveInProgress = false;
+                    if (btnSubmitTrx) btnSubmitTrx.disabled = false;
+                }
             });
         }
 
@@ -6043,15 +6144,13 @@
                         var opts = Array.from(catEl.options).map(function(o){return o.value;});
                         if (opts.includes(hasil.kategori)) {
                             catEl.value = hasil.kategori;
-                        }
-                        // Custom category jika "Lainnya"
-                        if (hasil.kategori === 'Lainnya') {
-                            var ccGroup = document.getElementById('customCategoryGroup');
-                            var ccInput = document.getElementById('customCategory');
-                            if (ccGroup) ccGroup.classList.remove('hidden');
-                            if (ccInput && hasil.kategori_custom) ccInput.value = hasil.kategori_custom;
                         } else {
-                            if (typeof checkCustomCategory === 'function') checkCustomCategory();
+                            catEl.value = 'Lainnya';
+                        }
+                        if (typeof checkCustomCategory === 'function') checkCustomCategory();
+                        if (catEl.value === 'Lainnya') {
+                            var ccInput = document.getElementById('customCategory');
+                            if (ccInput) ccInput.value = hasil.kategori_custom || (hasil.kategori !== 'Lainnya' ? hasil.kategori : '');
                         }
                         filled.push('kategori');
                     }
@@ -6063,20 +6162,21 @@
                         else if (wOpts.includes('Tunai')) { walletEl.value = 'Tunai'; filled.push('rekening: Tunai'); }
                     }
 
-                    var modelInfo = data.model_used ? ' <span style="opacity:.6;font-size:.75rem">(' + data.model_used + ')</span>' : '';
                     statusEl.style.background = '#D1FAE5'; statusEl.style.color = '#065F46';
                     // Auto-simpan transaksi hasil scan
                     var _trxForm = document.getElementById('transactionForm');
-                    var _canAutoSave = _trxForm && hasil.nominal && hasil.type && (typeof editingTrxId === 'undefined' || !editingTrxId);
+                    var _canAutoSave = _trxForm && Number(hasil.nominal) > 0 && ['income', 'expense'].includes(hasil.type) && !editingTrxId && !transactionSaveInProgress && _trxForm.reportValidity();
                     if (_canAutoSave) {
-                        statusEl.innerHTML = 'Nota terbaca & <strong>langsung disimpan</strong> (' + filled.join(', ') + ').' + modelInfo;
+                        statusEl.textContent = 'Nota berhasil dibaca. Menyimpan transaksi...';
+                        pendingScanConfirmation = true;
                         if (typeof _trxForm.requestSubmit === 'function') _trxForm.requestSubmit();
                         else _trxForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
                     } else {
-                        statusEl.innerHTML = 'Berhasil! <strong>' + filled.join(', ') + '</strong> terisi otomatis.' + modelInfo;
+                        statusEl.textContent = 'Nota berhasil dibaca. ' + filled.join(', ') + ' terisi otomatis. Periksa dan simpan formulir.';
                     }
                 } catch(err) {
                     console.error('Scan nota:', err);
+                    pendingScanConfirmation = false;
                     statusEl.style.background = 'var(--warning-bg)'; statusEl.style.color = 'var(--warning-text)';
                     statusEl.textContent = 'Error: ' + (err.message || 'Gagal membaca nota.');
                 } finally {
