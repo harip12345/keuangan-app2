@@ -1,4 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true
+  "cleanUrls": true,
+  "fluid": true,
+  "functions": {
+    "api/scan-nota.js": {
+      "maxDuration": 60,
+      "includeFiles": "node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex"
+    },
+    "api/telegram-webhook.js": {
+      "maxDuration": 60,
+      "includeFiles": "node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex"
+    }
+  }
 }

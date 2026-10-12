@@ -7,31 +7,30 @@ const sample = {
   kategori_custom: '', wallet: 'Tunai'
 };
 
-test('scan nota memakai OpenAI terlebih dahulu dan mengirim gambar sebagai input vision', async () => {
+test('scan nota memakai Codex CLI terlebih dahulu', async () => {
   const { extractNota } = await import('../api/lib/scanNota.js');
   const originalFetch = global.fetch;
-  const requests = [];
-  global.fetch = async (url, options) => {
-    requests.push({ url, body: JSON.parse(options.body) });
-    return new Response(JSON.stringify({
-      status: 'completed', model: 'gpt-6-luna',
-      output: [{ type: 'message', content: [{ type: 'output_text', text: JSON.stringify(sample) }] }]
-    }), { status: 200 });
-  };
+  global.fetch = () => { throw new Error('Claude tidak seharusnya dipanggil'); };
   try {
-    const result = await extractNota({ openaiApiKey: 'openai-test', anthropicApiKey: 'claude-test' }, 'ZmFrZQ==', 'image/png');
-    assert.equal(result.provider, 'openai');
+    let received;
+    const result = await extractNota({
+      anthropicApiKey: 'claude-test',
+      codexRunner: async (...args) => {
+        received = args;
+        return { rawText: JSON.stringify(sample), model: 'gpt-6-luna' };
+      }
+    }, 'ZmFrZQ==', 'image/png');
+    assert.equal(result.provider, 'codex');
     assert.equal(result.hasil.nominal, 75000);
-    assert.equal(requests.length, 1);
-    assert.equal(requests[0].url, 'https://api.openai.com/v1/responses');
-    assert.equal(requests[0].body.model, 'gpt-6-luna');
-    assert.equal(requests[0].body.input[0].content[1].image_url, 'data:image/png;base64,ZmFrZQ==');
+    assert.equal(received[0], 'ZmFrZQ==');
+    assert.equal(received[1], 'image/png');
+    assert.match(received[2], /nota\/struk/);
   } finally {
     global.fetch = originalFetch;
   }
 });
 
-test('scan nota beralih ke Claude jika OpenAI gagal', async () => {
+test('scan nota beralih ke Claude jika Codex gagal', async () => {
   const { extractNota } = await import('../api/lib/scanNota.js');
   const originalFetch = global.fetch;
   const originalWarn = console.warn;
@@ -39,69 +38,54 @@ test('scan nota beralih ke Claude jika OpenAI gagal', async () => {
   console.warn = () => {};
   global.fetch = async (url, options) => {
     requests.push({ url, body: JSON.parse(options.body) });
-    if (url.includes('openai.com')) {
-      return new Response(JSON.stringify({ error: { message: 'sementara tidak tersedia' } }), { status: 503 });
-    }
     return new Response(JSON.stringify({
       model: 'claude-haiku-5-5', content: [{ type: 'text', text: JSON.stringify(sample) }]
     }), { status: 200 });
   };
   try {
-    const result = await extractNota({ openaiApiKey: 'openai-test', anthropicApiKey: 'claude-test' }, 'ZmFrZQ==', 'application/pdf');
+    const result = await extractNota({
+      anthropicApiKey: 'claude-test',
+      codexRunner: async () => { throw new Error('CLI sementara tidak tersedia'); }
+    }, 'ZmFrZQ==', 'application/pdf');
     assert.equal(result.provider, 'claude');
-    assert.deepEqual(requests.map(item => item.url), ['https://api.openai.com/v1/responses', 'https://api.anthropic.com/v1/messages']);
-    assert.equal(requests[0].body.input[0].content[1].type, 'input_file');
-    assert.equal(requests[1].body.messages[0].content[0].type, 'document');
+    assert.deepEqual(requests.map(item => item.url), ['https://api.anthropic.com/v1/messages']);
+    assert.equal(requests[0].body.messages[0].content[0].type, 'document');
   } finally {
     global.fetch = originalFetch;
     console.warn = originalWarn;
   }
 });
 
-test('scan nota tetap memakai Claude jika kunci OpenAI belum tersedia', async () => {
-  const { extractNota } = await import('../api/lib/scanNota.js');
-  const originalFetch = global.fetch;
-  const urls = [];
-  global.fetch = async (url) => {
-    urls.push(url);
-    return new Response(JSON.stringify({
-      model: 'claude-haiku-5-5', content: [{ type: 'text', text: JSON.stringify(sample) }]
-    }), { status: 200 });
-  };
-  try {
-    const result = await extractNota({ anthropicApiKey: 'claude-test' }, 'ZmFrZQ==', 'image/jpeg');
-    assert.equal(result.provider, 'claude');
-    assert.deepEqual(urls, ['https://api.anthropic.com/v1/messages']);
-  } finally {
-    global.fetch = originalFetch;
-  }
-});
-
-test('hasil OpenAI tanpa nominal yang terbaca memicu fallback', async () => {
+test('hasil Codex tanpa nominal yang terbaca memicu fallback', async () => {
   const { extractNota } = await import('../api/lib/scanNota.js');
   const originalFetch = global.fetch;
   const originalWarn = console.warn;
-  const urls = [];
   console.warn = () => {};
-  global.fetch = async (url) => {
-    urls.push(url);
-    if (url.includes('openai.com')) {
-      return new Response(JSON.stringify({
-        status: 'completed', output: [{ type: 'message', content: [{
-          type: 'output_text', text: JSON.stringify({ ...sample, nominal: 0 })
-        }] }]
-      }), { status: 200 });
-    }
-    return new Response(JSON.stringify({
-      model: 'claude-haiku-5-5', content: [{ type: 'text', text: JSON.stringify(sample) }]
-    }), { status: 200 });
-  };
+  global.fetch = async () => new Response(JSON.stringify({
+    model: 'claude-haiku-5-5', content: [{ type: 'text', text: JSON.stringify(sample) }]
+  }), { status: 200 });
   try {
-    const result = await extractNota({ openaiApiKey: 'openai-test', anthropicApiKey: 'claude-test' }, 'ZmFrZQ==', 'image/jpeg');
+    const result = await extractNota({
+      anthropicApiKey: 'claude-test',
+      codexRunner: async () => ({ rawText: JSON.stringify({ ...sample, nominal: 0 }), model: 'gpt-6-luna' })
+    }, 'ZmFrZQ==', 'image/jpeg');
     assert.equal(result.provider, 'claude');
-    assert.deepEqual(urls, ['https://api.openai.com/v1/responses', 'https://api.anthropic.com/v1/messages']);
   } finally {
     global.fetch = originalFetch;
+    console.warn = originalWarn;
+  }
+});
+
+test('scan gagal jelas bila Codex dan fallback tidak tersedia', async () => {
+  const { extractNota } = await import('../api/lib/scanNota.js');
+  const originalWarn = console.warn;
+  console.warn = () => {};
+  try {
+    await assert.rejects(
+      extractNota({ codexRunner: async () => { throw new Error('Sesi Codex belum tersedia'); } }, 'ZmFrZQ==', 'image/png'),
+      /Fallback Claude belum dikonfigurasi/
+    );
+  } finally {
     console.warn = originalWarn;
   }
 });

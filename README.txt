@@ -30,14 +30,29 @@ Cara pakai di HP:
 
 Catatan: ikon home screen butuh diakses lewat HTTPS (domain Vercel), bukan file lokal.
 
-SCAN NOTA DENGAN OPENAI DAN CLAUDE
-==================================
+SCAN NOTA DENGAN CODEX CLI DAN CLAUDE
+====================================
 
-Endpoint scan nota dan foto nota bot Telegram memakai OpenAI `gpt-6-luna`
-lebih dulu, lalu Claude `claude-haiku-5-5` jika OpenAI gagal. Isi Environment
-Variables `OPENAI_API_KEY` dan `ANTHROPIC_API_KEY` di Vercel untuk Production,
-lalu redeploy. Jika hanya salah satu kunci tersedia, scan memakai provider itu.
-Jangan menaruh API key di app.html atau Git.
+Endpoint scan nota dan foto nota bot Telegram menjalankan Codex CLI model
+`gpt-6-luna` lebih dulu. Claude `claude-haiku-5-5` menjadi fallback jika Codex
+gagal atau nota berupa PDF. OPENAI_API_KEY tidak digunakan untuk scan nota.
+
+Konfigurasi Vercel (Environment Variables untuk Production):
+- CODEX_AUTH_ENCRYPTION_KEY = 32 byte acak dalam base64. Buat sekali dengan
+  `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`.
+- CODEX_AUTH_JSON_B64 = isi file auth.json hasil `codex login`, dienkode base64.
+  Buat secara lokal dengan PowerShell:
+  `[Convert]::ToBase64String([IO.File]::ReadAllBytes("$env:USERPROFILE\.codex\auth.json"))`
+  Simpan hasilnya hanya sebagai Environment Variable rahasia di Vercel.
+- ANTHROPIC_API_KEY = kunci Claude untuk fallback (opsional).
+- VERCEL_SUPPORT_LARGE_FUNCTIONS = 1 (untuk proyek Vercel yang sudah ada;
+  binary Codex melampaui ukuran Function standar). Aktifkan Fluid Compute.
+
+Setelah mengisi variabel, redeploy. Sesi Codex disimpan terenkripsi di Firestore
+oleh server agar pembaruan login bertahan antar-Function. Jangan menaruh sesi,
+kunci enkripsi, atau API key di app.html maupun Git. Jika sesi kedaluwarsa,
+perbarui CODEX_AUTH_JSON_B64 dari hasil `codex login` lalu hapus dokumen
+`server_config/codex_scan_auth` di Firestore agar server memuat sesi baru.
 NINEROUTER_BASE_URL, NINEROUTER_API_KEY, dan NINEROUTER_MODEL tidak dipakai
 lagi untuk scan nota. Scan mendukung JPG, PNG, WebP, GIF, dan PDF.
 Scan dari aplikasi memerlukan sesi Firebase (login email atau Google); foto
@@ -61,7 +76,7 @@ FITUR BOT TELEGRAM (input transaksi via chat)
                                   dengan \n; Vercel otomatis menambahkan "-----BEGIN..." )
    Catatan: FIREBASE_* diambil dari Firebase Console -> Project Settings ->
    Service Accounts -> Generate new private key. Scan nota via bot memakai
-   OPENAI_API_KEY dan ANTHROPIC_API_KEY di atas.
+   konfigurasi Codex CLI dan ANTHROPIC_API_KEY di atas.
 3. Setelah deploy, buka Pengaturan -> Bot & Otomasi saat login dengan
    Email/Google. Aplikasi akan memeriksa dan mendaftarkan ulang webhook bot
    secara otomatis ke domain produksi. Jika gagal, status akan menunjukkan

@@ -24,13 +24,7 @@ export default async function handler(req, res) {
     const { imageBase64, mimeType } = req.body;
     if (!imageBase64) return res.status(400).json({ error: 'imageBase64 tidak ada di request' });
 
-    const providerConfig = {
-      openaiApiKey: process.env.OPENAI_API_KEY,
-      anthropicApiKey: process.env.ANTHROPIC_API_KEY
-    };
-    if (!providerConfig.openaiApiKey && !providerConfig.anthropicApiKey) {
-      return res.status(500).json({ error: 'OPENAI_API_KEY dan ANTHROPIC_API_KEY belum diatur di Vercel.' });
-    }
+    const providerConfig = { anthropicApiKey: process.env.ANTHROPIC_API_KEY };
 
     try {
       const result = await extractNota(providerConfig, imageBase64, mimeType);
