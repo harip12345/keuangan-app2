@@ -920,7 +920,7 @@
         #aiChatMessages { scroll-behavior:smooth; }
     </style>
     <link rel="stylesheet" href="./banking-ui.css?v=20261011">
-    <link rel="stylesheet" href="./professional-ui.css?v=20261012a">
+    <link rel="stylesheet" href="./professional-ui.css?v=20261012b">
 </head>
 <body>
     <!-- ================= SPLASH SCREEN ================= -->
@@ -1114,6 +1114,9 @@
                             <button type="button" onclick="closeProfileMenu();openSettingsModal()"><svg class="ui-icon"><use href="/app-icons.svg#settings"/></svg>Pengaturan akun</button>
                             <button type="button" onclick="closeProfileMenu();toggleDarkMode()"><svg class="ui-icon"><use href="/app-icons.svg#moon"/></svg><span id="profileThemeLabel">Mode gelap</span></button>
                             <button type="button" onclick="closeProfileMenu();refreshApp()"><svg class="ui-icon"><use href="/app-icons.svg#refresh"/></svg>Muat ulang aplikasi</button>
+                            <div class="profile-menu-divider"></div>
+                            <button type="button" onclick="closeProfileMenu();openFeedbackModal()"><svg class="ui-icon"><use href="/app-icons.svg#mail"/></svg>Saran &amp; masukan</button>
+                            <button type="button" onclick="closeProfileMenu();openDonationModal()"><svg class="ui-icon"><use href="/app-icons.svg?v=20261012#heart"/></svg>Dukung lewat donasi</button>
                         </div>
                     </div>
                 </div>
@@ -1986,6 +1989,30 @@
             </div>
         </div>
 
+        <div id="feedbackModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+            <div class="modal-card community-modal">
+                <div class="modal-header"><div><div class="settings-eyebrow">BANTU KAMI BERKEMBANG</div><h3 class="modal-title" id="feedbackTitle">Saran &amp; Masukan</h3></div><button class="btn-close" type="button" onclick="closeFeedbackModal()" aria-label="Tutup formulir masukan">&times;</button></div>
+                <p class="community-intro">Ceritakan ide atau kendala yang Anda temui. Pesan akan dikirim ke admin@myfinanceapp.my.id.</p>
+                <form id="feedbackForm" onsubmit="submitFeedback(event)">
+                    <div class="form-group"><label class="form-label" for="feedbackType">Jenis masukan</label><select class="form-control" id="feedbackType" required><option value="saran">Saran fitur</option><option value="masalah">Laporan masalah</option><option value="lainnya">Masukan lainnya</option></select></div>
+                    <div class="form-group"><label class="form-label" for="feedbackMessage">Pesan Anda</label><textarea class="form-control community-textarea" id="feedbackMessage" minlength="10" maxlength="2000" rows="5" required placeholder="Tuliskan pengalaman atau ide Anda secara jelas..."></textarea><small class="community-hint">10–2000 karakter. Jangan sertakan kata sandi atau data keuangan pribadi.</small></div>
+                    <input class="community-honeypot" type="text" id="feedbackWebsite" tabindex="-1" autocomplete="off" aria-hidden="true">
+                    <p class="community-status" id="feedbackStatus" role="status" aria-live="polite"></p>
+                    <button class="btn-submit" id="feedbackSubmit" type="submit">Kirim masukan</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="donationModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="donationTitle">
+            <div class="modal-card community-modal">
+                <div class="modal-header"><div><div class="settings-eyebrow">DUKUNG MYFINANCEAPP</div><h3 class="modal-title" id="donationTitle">Donasi</h3></div><button class="btn-close" type="button" onclick="closeDonationModal()" aria-label="Tutup donasi">&times;</button></div>
+                <div class="donation-intro-icon"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg?v=20261012#heart"/></svg></div>
+                <p class="community-intro">Dukungan Anda membantu kami mengembangkan fitur dan menjaga MyFinanceApp tetap nyaman digunakan.</p>
+                <div class="donation-coming-soon"><strong>Metode donasi sedang disiapkan</strong><span>Tautan pembayaran atau QRIS akan tersedia di sini setelah diaktifkan.</span></div>
+                <button class="btn-submit" type="button" onclick="closeDonationModal()">Mengerti</button>
+            </div>
+        </div>
+
         <div id="walletModal" class="modal-overlay">
             <div class="modal-card" style="max-height: 85vh;">
                 <div class="modal-header">
@@ -2840,6 +2867,68 @@
         function closeSettingsModal() {
             const m = document.getElementById('settingsModal');
             if(m) m.classList.remove('show');
+        }
+
+        function openFeedbackModal() {
+            const modal = document.getElementById('feedbackModal');
+            const status = document.getElementById('feedbackStatus');
+            const button = document.getElementById('feedbackSubmit');
+            if (!modal || !status || !button) return;
+            const signedIn = !!auth.currentUser;
+            status.className = 'community-status' + (signedIn ? '' : ' error');
+            status.textContent = signedIn ? '' : 'Hubungkan akun Google atau email di Pengaturan untuk mengirim masukan.';
+            button.disabled = !signedIn;
+            modal.classList.add('show');
+            document.getElementById('feedbackType')?.focus();
+        }
+
+        function closeFeedbackModal() {
+            document.getElementById('feedbackModal')?.classList.remove('show');
+            document.getElementById('profileMenuTrigger')?.focus();
+        }
+
+        async function submitFeedback(event) {
+            event.preventDefault();
+            const user = auth.currentUser;
+            const status = document.getElementById('feedbackStatus');
+            const button = document.getElementById('feedbackSubmit');
+            const message = document.getElementById('feedbackMessage')?.value.trim() || '';
+            if (!user || !status || !button) return;
+            status.className = 'community-status';
+            status.textContent = 'Mengirim masukan...';
+            button.disabled = true;
+            try {
+                const token = await user.getIdToken();
+                const response = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({
+                        type: document.getElementById('feedbackType').value,
+                        message,
+                        website: document.getElementById('feedbackWebsite').value
+                    })
+                });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || !result.ok) throw new Error(result.error || 'Masukan belum berhasil dikirim.');
+                document.getElementById('feedbackMessage').value = '';
+                status.className = 'community-status success';
+                status.textContent = 'Terima kasih. Masukan Anda berhasil dikirim ke email admin.';
+            } catch (error) {
+                status.className = 'community-status error';
+                status.textContent = error.message || 'Masukan belum berhasil dikirim. Coba lagi.';
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        function openDonationModal() {
+            document.getElementById('donationModal')?.classList.add('show');
+            document.querySelector('#donationModal .btn-close')?.focus();
+        }
+
+        function closeDonationModal() {
+            document.getElementById('donationModal')?.classList.remove('show');
+            document.getElementById('profileMenuTrigger')?.focus();
         }
 
         function updateName() {
