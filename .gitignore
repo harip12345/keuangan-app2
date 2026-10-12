@@ -1,4 +1,5 @@
 node_modules/
+public/
 api/lib/codex.gz
 .vercel/
 .env

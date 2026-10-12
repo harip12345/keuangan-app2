@@ -2,6 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "buildCommand": "npm run build",
+  "outputDirectory": "public",
   "functions": {
     "api/scan-nota.js": {
       "maxDuration": 60,
