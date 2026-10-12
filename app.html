@@ -1954,6 +1954,12 @@
                             <button id="adminUsersMore" class="admin-users-more" type="button" onclick="loadAdminUsers(false)" hidden>Muat pengguna berikutnya</button>
                             <small>Daftar ini hanya mencakup akun Firebase Auth. Data keuangan pribadi tidak ditampilkan.</small>
                         </div>
+                        <button class="settings-row" type="button" onclick="toggleAdminCodex()" aria-controls="adminCodexPanel"><svg class="ui-icon"><use href="/app-icons.svg#bot"/></svg><span>Koneksi Codex CLI</span><b aria-hidden="true">›</b></button>
+                        <div id="adminCodexPanel" class="admin-users-panel" hidden>
+                            <p id="adminCodexStatus" class="settings-status" role="status">Buka untuk memeriksa sesi Codex di server.</p>
+                            <small>Menu ini hanya untuk admin. Login aplikasi dengan email atau Google tetap diperlukan untuk mengirim nota. Login Codex CLI dikelola terpisah pada server.</small>
+                            <button id="adminCodexRefresh" class="admin-users-more" type="button" onclick="loadAdminCodexStatus()">Periksa status koneksi</button>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -2490,6 +2496,7 @@
             adminSection.hidden = !(user && user.email?.toLowerCase() === ADMIN_EMAIL && user.emailVerified);
             if (adminSection.hidden) {
                 document.getElementById('adminUsersPanel').hidden = true;
+                document.getElementById('adminCodexPanel').hidden = true;
                 document.getElementById('adminUsersList').replaceChildren();
                 document.getElementById('adminUsersCount').textContent = '—';
                 adminUsersLoaded = false;
@@ -2506,6 +2513,36 @@
         let adminUsersPageToken = null;
         let adminUsersLoaded = false;
         let adminUsersLoading = false;
+        function toggleAdminCodex() {
+            const panel = document.getElementById('adminCodexPanel');
+            if (!panel || document.getElementById('adminSettingsSection').hidden) return;
+            panel.hidden = !panel.hidden;
+            if (!panel.hidden) loadAdminCodexStatus();
+        }
+        async function loadAdminCodexStatus() {
+            const user = auth.currentUser;
+            const status = document.getElementById('adminCodexStatus');
+            const button = document.getElementById('adminCodexRefresh');
+            if (!status || !user || user.email?.toLowerCase() !== ADMIN_EMAIL || !user.emailVerified) return;
+            status.textContent = 'Memeriksa koneksi Codex...';
+            button.disabled = true;
+            try {
+                const token = await user.getIdToken();
+                const response = await fetch('/api/admin-codex-status', {
+                    headers: { Authorization: `Bearer ${token}` }, cache: 'no-store'
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Gagal memeriksa koneksi Codex.');
+                if (auth.currentUser?.uid !== user.uid) return;
+                if (!data.encryptionConfigured) status.textContent = 'Kunci penyimpanan sesi Codex belum dikonfigurasi di server.';
+                else if (data.sessionAvailable) status.textContent = 'Sesi Codex tersedia di server. Keaktifannya akan diuji saat scan nota.';
+                else status.textContent = 'Sesi Codex belum tersedia di server. Scan akan memakai Claude jika fallback dikonfigurasi.';
+            } catch (error) {
+                status.textContent = error.message || 'Status Codex belum dapat diperiksa.';
+            } finally {
+                button.disabled = false;
+            }
+        }
         function toggleAdminUsers() {
             const panel = document.getElementById('adminUsersPanel');
             if (!panel || document.getElementById('adminSettingsSection').hidden) return;
@@ -5899,7 +5936,7 @@
                 statusEl.innerHTML = '⏳ Mengompres & mengirim ke AI...';
                 btnScan.disabled = true;
                 try {
-                    if (!auth.currentUser) throw new Error('Masuk dengan akun email atau Google untuk scan nota.');
+                    if (!auth.currentUser) throw new Error('Akun username lama belum memiliki sesi Firebase. Hubungkan akun Google di Pengaturan untuk memakai Scan Nota. Login Codex hanya dikelola admin secara terpisah.');
                     var scanIdToken = await auth.currentUser.getIdToken();
                     var compressed = await compressImage(file);
                     var response = await fetch('/api/scan-nota', {
@@ -5973,7 +6010,7 @@
                 } catch(err) {
                     console.error('Scan nota:', err);
                     statusEl.style.background = 'var(--warning-bg)'; statusEl.style.color = 'var(--warning-text)';
-                    statusEl.innerHTML = '<strong>Error:</strong> ' + (err.message || 'Gagal membaca nota.');
+                    statusEl.textContent = 'Error: ' + (err.message || 'Gagal membaca nota.');
                 } finally {
                     btnScan.disabled = false;
                     inputEl.value = '';

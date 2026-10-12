@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const bearer = /^Bearer ([^\s]+)$/.exec(req.headers.authorization || '');
-  if (!bearer) return res.status(401).json({ error: 'Masuk dengan akun email atau Google untuk scan nota.' });
+  if (!bearer) return res.status(401).json({ error: 'Scan nota memerlukan sesi akun aplikasi dengan email atau Google. Hubungkan akun Google di Pengaturan jika Anda memakai username lama.' });
   try {
     getDb();
     await getAuth().verifyIdToken(bearer[1]);
