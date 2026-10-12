@@ -279,7 +279,8 @@ async function handlePhoto(msg, chatId, binding) {
 
     const result = await extractNota(
       {
-        apiKey: process.env.ANTHROPIC_API_KEY
+        openaiApiKey: process.env.OPENAI_API_KEY,
+        anthropicApiKey: process.env.ANTHROPIC_API_KEY
       },
       imageBase64,
       'image/jpeg'

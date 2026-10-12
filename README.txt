@@ -30,13 +30,14 @@ Cara pakai di HP:
 
 Catatan: ikon home screen butuh diakses lewat HTTPS (domain Vercel), bukan file lokal.
 
-SCAN NOTA DENGAN CLAUDE
-=======================
+SCAN NOTA DENGAN OPENAI DAN CLAUDE
+==================================
 
-Endpoint scan nota dan foto nota bot Telegram menghubungi Anthropic langsung
-dari server Vercel dengan model `claude-haiku-5-5`. Buat API key di Claude
-Console, lalu isi Environment Variable `ANTHROPIC_API_KEY` di Vercel untuk
-Production dan redeploy. Jangan menaruh API key di app.html atau Git.
+Endpoint scan nota dan foto nota bot Telegram memakai OpenAI `gpt-6-luna`
+lebih dulu, lalu Claude `claude-haiku-5-5` jika OpenAI gagal. Isi Environment
+Variables `OPENAI_API_KEY` dan `ANTHROPIC_API_KEY` di Vercel untuk Production,
+lalu redeploy. Jika hanya salah satu kunci tersedia, scan memakai provider itu.
+Jangan menaruh API key di app.html atau Git.
 NINEROUTER_BASE_URL, NINEROUTER_API_KEY, dan NINEROUTER_MODEL tidak dipakai
 lagi untuk scan nota. Scan mendukung JPG, PNG, WebP, GIF, dan PDF.
 Scan dari aplikasi memerlukan sesi Firebase (login email atau Google); foto
@@ -60,7 +61,7 @@ FITUR BOT TELEGRAM (input transaksi via chat)
                                   dengan \n; Vercel otomatis menambahkan "-----BEGIN..." )
    Catatan: FIREBASE_* diambil dari Firebase Console -> Project Settings ->
    Service Accounts -> Generate new private key. Scan nota via bot memakai
-   ANTHROPIC_API_KEY di atas.
+   OPENAI_API_KEY dan ANTHROPIC_API_KEY di atas.
 3. Setelah deploy, buka Pengaturan -> Bot & Otomasi saat login dengan
    Email/Google. Aplikasi akan memeriksa dan mendaftarkan ulang webhook bot
    secara otomatis ke domain produksi. Jika gagal, status akan menunjukkan
