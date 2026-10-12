@@ -37,25 +37,25 @@ Endpoint scan nota dan foto nota bot Telegram menjalankan Codex CLI model
 `gpt-6-luna` lebih dulu. Claude `claude-haiku-5-5` menjadi fallback jika Codex
 gagal atau nota berupa PDF. OPENAI_API_KEY tidak digunakan untuk scan nota.
 
-Konfigurasi Vercel (Environment Variables untuk Production):
-- CODEX_AUTH_ENCRYPTION_KEY = 32 byte acak dalam base64. Buat sekali dengan
-  `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`.
-- CODEX_AUTH_JSON_B64 = isi file auth.json hasil `codex login`, dienkode base64.
-  Buat secara lokal dengan PowerShell:
-  `[Convert]::ToBase64String([IO.File]::ReadAllBytes("$env:USERPROFILE\.codex\auth.json"))`
-  Simpan hasilnya hanya sebagai Environment Variable rahasia di Vercel.
-- ANTHROPIC_API_KEY = kunci Claude untuk fallback (opsional).
+Cara menghubungkan Codex di aplikasi:
+1. Masuk dengan akun Google admin `haripamungkas519@gmail.com` yang terverifikasi.
+2. Buka Pengaturan -> Administrasi -> Koneksi Codex CLI -> Masuk dengan ChatGPT.
+3. Buka tautan verifikasi yang muncul, masukkan kode sekali pakai, lalu tunggu
+   aplikasi menampilkan status login berhasil.
+
+Firebase Admin harus sudah dikonfigurasi di Vercel (`FIREBASE_PRIVATE_KEY`,
+`FIREBASE_CLIENT_EMAIL`, `FIREBASE_PROJECT_ID`). Sesi Codex disimpan terenkripsi
+di Firestore memakai kunci turunan dari FIREBASE_PRIVATE_KEY. Variabel opsional
+`CODEX_AUTH_ENCRYPTION_KEY` dapat dipakai sebagai kunci khusus 32 byte base64.
+`ANTHROPIC_API_KEY` tetap dapat diatur untuk fallback Claude.
 
 Saat build, binary Linux Codex dikompresi ke `api/lib/codex.gz` (sekitar 104 MiB).
 Function hanya membawa arsip tersebut dan mengekstraknya ke direktori sementara
 saat pertama kali dipakai. `VERCEL_SUPPORT_LARGE_FUNCTIONS` tidak diperlukan
 untuk ukuran binary ini. Jika pernah mengatur variabel itu, boleh dihapus.
 
-Setelah mengisi variabel, redeploy. Sesi Codex disimpan terenkripsi di Firestore
-oleh server agar pembaruan login bertahan antar-Function. Jangan menaruh sesi,
-kunci enkripsi, atau API key di app.html maupun Git. Jika sesi kedaluwarsa,
-perbarui CODEX_AUTH_JSON_B64 dari hasil `codex login` lalu hapus dokumen
-`server_config/codex_scan_auth` di Firestore agar server memuat sesi baru.
+Jangan menaruh sesi, kunci enkripsi, atau API key di app.html maupun Git. Jika
+sesi kedaluwarsa, gunakan tombol masuk di panel admin untuk menghubungkan ulang.
 NINEROUTER_BASE_URL, NINEROUTER_API_KEY, dan NINEROUTER_MODEL tidak dipakai
 lagi untuk scan nota. Scan mendukung JPG, PNG, WebP, GIF, dan PDF.
 Scan dari aplikasi memerlukan sesi Firebase (login email atau Google); foto

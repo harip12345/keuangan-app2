@@ -1,7 +1,7 @@
 // Codex CLI vision runner. On Vercel, a protected Firestore document stores
 // the rotating CLI login cache encrypted at rest; local runs use codex login.
 import { spawn } from 'node:child_process';
-import { createCipheriv, createDecipheriv, randomBytes, randomUUID } from 'node:crypto';
+import { createCipheriv, createDecipheriv, hkdfSync, randomBytes, randomUUID } from 'node:crypto';
 import { createReadStream, createWriteStream, existsSync } from 'node:fs';
 import { chmod, mkdtemp, readFile, rmdir, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -21,8 +21,17 @@ let unpackedBinaryPromise;
 function encryptionKey() {
   const value = process.env.CODEX_AUTH_ENCRYPTION_KEY;
   const key = value ? Buffer.from(value, 'base64') : null;
-  if (!key || key.length !== 32) throw new Error('CODEX_AUTH_ENCRYPTION_KEY belum diatur dengan benar.');
-  return key;
+  if (key) {
+    if (key.length !== 32) throw new Error('CODEX_AUTH_ENCRYPTION_KEY belum diatur dengan benar.');
+    return key;
+  }
+  const firebaseKey = process.env.FIREBASE_PRIVATE_KEY;
+  if (!firebaseKey) throw new Error('Kunci enkripsi sesi Codex belum tersedia di server.');
+  return Buffer.from(hkdfSync('sha256', firebaseKey, 'myfinanceapp-codex-auth', 'v1', 32));
+}
+
+export function codexStorageReady() {
+  try { encryptionKey(); return true; } catch { return false; }
 }
 
 function encryptAuth(auth, key) {
@@ -94,6 +103,30 @@ async function acquireStoredAuth() {
   throw new Error('Codex sedang memproses nota lain.');
 }
 
+export async function saveCodexAuth(auth) {
+  const key = encryptionKey();
+  if (!Buffer.isBuffer(auth) || auth.length < 100 || auth.length > 65536) {
+    throw new Error('Sesi Codex yang diterima tidak valid.');
+  }
+  try { JSON.parse(auth.toString('utf8')); } catch { throw new Error('Sesi Codex bukan JSON yang valid.'); }
+  const ref = getDb().collection(AUTH_COLLECTION).doc(AUTH_DOCUMENT);
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    const saved = await getDb().runTransaction(async transaction => {
+      const snapshot = await transaction.get(ref);
+      if (Number(snapshot.data()?.leaseUntil) > Date.now()) return false;
+      transaction.set(ref, {
+        auth: encryptAuth(auth, key), leaseOwner: null, leaseUntil: 0,
+        updatedAt: Date.now()
+      }, { merge: true });
+      return true;
+    });
+    if (saved) return;
+    await new Promise(resolve => setTimeout(resolve, 300));
+  }
+  throw new Error('Codex sedang memproses nota lain. Coba hubungkan lagi sesaat kemudian.');
+}
+
 async function unpackCodexBinary() {
   const archive = join(process.cwd(), 'api', 'lib', 'codex.gz');
   if (!existsSync(archive)) throw new Error('Arsip Codex tidak ikut dalam Vercel Function.');
@@ -104,7 +137,7 @@ async function unpackCodexBinary() {
   return binary;
 }
 
-async function executable() {
+export async function getCodexExecutable() {
   if (process.env.CODEX_CLI_PATH) return process.env.CODEX_CLI_PATH;
   if (process.env.VERCEL) {
     if (process.platform !== 'linux' || process.arch !== 'x64') throw new Error('Codex memerlukan Vercel Linux x64.');
@@ -127,7 +160,7 @@ function childEnvironment(codexHome) {
 }
 
 async function runCli(args, cwd, codexHome) {
-  const binary = await executable();
+  const binary = await getCodexExecutable();
   return new Promise((resolve, reject) => {
     const child = spawn(binary, args, {
       cwd, env: childEnvironment(codexHome), windowsHide: true,

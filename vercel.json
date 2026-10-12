@@ -1,11 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
+  "fluid": true,
   "buildCommand": "npm run build",
   "outputDirectory": "public",
   "functions": {
     "api/scan-nota.js": {
-      "maxDuration": 60,
+      "maxDuration": 300,
       "includeFiles": "api/lib/codex.gz",
       "excludeFiles": "node_modules/@openai/codex-linux-x64/**"
     },

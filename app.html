@@ -1957,7 +1957,13 @@
                         <button class="settings-row" type="button" onclick="toggleAdminCodex()" aria-controls="adminCodexPanel"><svg class="ui-icon"><use href="/app-icons.svg#bot"/></svg><span>Koneksi Codex CLI</span><b aria-hidden="true">›</b></button>
                         <div id="adminCodexPanel" class="admin-users-panel" hidden>
                             <p id="adminCodexStatus" class="settings-status" role="status">Buka untuk memeriksa sesi Codex di server.</p>
-                            <small>Menu ini hanya untuk admin. Login aplikasi dengan email atau Google tetap diperlukan untuk mengirim nota. Login Codex CLI dikelola terpisah pada server.</small>
+                            <small>Menu ini hanya untuk admin. Login aplikasi dengan email atau Google tetap diperlukan untuk mengirim nota.</small>
+                            <button id="adminCodexLogin" class="admin-users-more" type="button" onclick="startAdminCodexLogin()">Masuk dengan ChatGPT untuk Codex CLI</button>
+                            <div id="adminCodexLoginBox" hidden>
+                                <p><a id="adminCodexLoginLink" href="https://auth.openai.com/codex/device" target="_blank" rel="noopener noreferrer">Buka halaman verifikasi ChatGPT</a></p>
+                                <p>Kode sekali pakai: <strong id="adminCodexLoginCode" style="font-size:1.15rem;letter-spacing:.08em;user-select:all"></strong></p>
+                                <small>Lanjutkan hanya jika Anda sendiri memulai login ini dari panel admin. Tunggu sampai status tersambung.</small>
+                            </div>
                             <button id="adminCodexRefresh" class="admin-users-more" type="button" onclick="loadAdminCodexStatus()">Periksa status koneksi</button>
                         </div>
                     </div>
@@ -2513,6 +2519,7 @@
         let adminUsersPageToken = null;
         let adminUsersLoaded = false;
         let adminUsersLoading = false;
+        let adminCodexLoggingIn = false;
         function toggleAdminCodex() {
             const panel = document.getElementById('adminCodexPanel');
             if (!panel || document.getElementById('adminSettingsSection').hidden) return;
@@ -2540,6 +2547,65 @@
             } catch (error) {
                 status.textContent = error.message || 'Status Codex belum dapat diperiksa.';
             } finally {
+                button.disabled = false;
+            }
+        }
+        async function startAdminCodexLogin() {
+            if (adminCodexLoggingIn) return;
+            const user = auth.currentUser;
+            const status = document.getElementById('adminCodexStatus');
+            const button = document.getElementById('adminCodexLogin');
+            const box = document.getElementById('adminCodexLoginBox');
+            if (!user || user.email?.toLowerCase() !== ADMIN_EMAIL || !user.emailVerified) return;
+            adminCodexLoggingIn = true;
+            button.disabled = true;
+            box.hidden = true;
+            status.textContent = 'Memulai login Codex CLI...';
+            try {
+                const token = await user.getIdToken();
+                const response = await fetch('/api/scan-nota', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ action: 'codex-login' }), cache: 'no-store'
+                });
+                if (!response.ok) {
+                    const data = await response.json().catch(() => ({}));
+                    throw new Error(data.error || 'Login Codex belum bisa dimulai.');
+                }
+                if (!response.body) throw new Error('Browser tidak mendukung proses login Codex ini.');
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let pending = '';
+                let completed = false;
+                while (true) {
+                    const { value, done } = await reader.read();
+                    pending += decoder.decode(value || new Uint8Array(), { stream: !done });
+                    const lines = pending.split('\n');
+                    pending = lines.pop() || '';
+                    for (const line of lines) {
+                        if (!line.trim()) continue;
+                        const event = JSON.parse(line);
+                        if (auth.currentUser?.uid !== user.uid) throw new Error('Sesi admin berubah. Mulai login kembali.');
+                        if (event.type === 'code') {
+                            document.getElementById('adminCodexLoginCode').textContent = event.code || '';
+                            if (event.url === 'https://auth.openai.com/codex/device') document.getElementById('adminCodexLoginLink').href = event.url;
+                            box.hidden = false;
+                            status.textContent = 'Buka tautan, masukkan kode, lalu tunggu konfirmasi.';
+                        } else if (event.type === 'success') {
+                            completed = true;
+                            box.hidden = true;
+                            status.textContent = 'Login Codex berhasil. Sesi scan nota tersimpan di server.';
+                        } else if (event.type === 'error') {
+                            throw new Error(event.message || 'Login Codex gagal.');
+                        }
+                    }
+                    if (done) break;
+                }
+                if (!completed) throw new Error('Koneksi login terputus sebelum selesai.');
+            } catch (error) {
+                status.textContent = error.message || 'Login Codex gagal.';
+            } finally {
+                adminCodexLoggingIn = false;
                 button.disabled = false;
             }
         }

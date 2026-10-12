@@ -1,5 +1,6 @@
 import { getAuth } from 'firebase-admin/auth';
 import { getDb } from './lib/firebaseAdmin.js';
+import { codexStorageReady } from './lib/codexScanNota.js';
 
 const ADMIN_EMAIL = 'haripamungkas519@gmail.com';
 
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
     const snapshot = await db.collection('server_config').doc('codex_scan_auth').get();
     const stored = !!snapshot.data()?.auth;
     const bootstrap = !!process.env.CODEX_AUTH_JSON_B64;
-    const encryption = Buffer.from(process.env.CODEX_AUTH_ENCRYPTION_KEY || '', 'base64').length === 32;
+    const encryption = codexStorageReady();
     return res.status(200).json({
       sessionAvailable: stored || bootstrap,
       encryptionConfigured: encryption,
