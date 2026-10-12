@@ -2535,8 +2535,10 @@
             button.disabled = true;
             try {
                 const token = await user.getIdToken();
-                const response = await fetch('/api/admin-codex-status', {
-                    headers: { Authorization: `Bearer ${token}` }, cache: 'no-store'
+                const response = await fetch('/api/admin-users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ action: 'codex-status' }), cache: 'no-store'
                 });
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Gagal memeriksa koneksi Codex.');

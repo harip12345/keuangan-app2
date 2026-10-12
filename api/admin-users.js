@@ -27,6 +27,20 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Akses hanya untuk akun admin terverifikasi.' });
     }
 
+    if (req.body?.action === 'codex-status') {
+      const snapshot = await getDb().collection('server_config').doc('codex_scan_auth').get();
+      const key = process.env.CODEX_AUTH_ENCRYPTION_KEY;
+      const encryptionConfigured = key
+        ? Buffer.from(key, 'base64').length === 32
+        : !!process.env.FIREBASE_PRIVATE_KEY;
+      return res.status(200).json({
+        sessionAvailable: !!snapshot.data()?.auth || !!process.env.CODEX_AUTH_JSON_B64,
+        encryptionConfigured: !!encryptionConfigured,
+        claudeFallbackAvailable: !!process.env.ANTHROPIC_API_KEY,
+        note: 'Status ini memeriksa konfigurasi, bukan masa berlaku sesi Codex.'
+      });
+    }
+
     const pageToken = req.body?.pageToken;
     if (pageToken !== undefined && (typeof pageToken !== 'string' || pageToken.length > 4096)) {
       return res.status(400).json({ error: 'Penanda halaman tidak valid.' });

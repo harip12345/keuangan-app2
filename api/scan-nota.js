@@ -1,6 +1,6 @@
 // Endpoint scan-nota — delegasi ke _lib/scanNota.js (logika Vision dibagi dengan webhook Telegram).
 import { extractNota } from './lib/scanNota.js';
-import { startCodexDeviceLogin } from './lib/codexDeviceLogin.js';
+import { startCodexDeviceLogin } from './lib/_codexDeviceLogin.js';
 import { getAuth } from 'firebase-admin/auth';
 import { getDb } from './lib/firebaseAdmin.js';
 

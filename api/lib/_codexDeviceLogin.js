@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { codexStorageReady, getCodexExecutable, saveCodexAuth } from './codexScanNota.js';
+import { codexStorageReady, getCodexExecutable, saveCodexAuth } from './_codexScanNota.js';
 
 const LOGIN_TIMEOUT_MS = 240000;
 const DEVICE_URL = 'https://auth.openai.com/codex/device';

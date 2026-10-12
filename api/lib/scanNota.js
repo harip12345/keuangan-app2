@@ -1,6 +1,6 @@
 // Pemroses Vision (OCR Nota) — dipakai bersama oleh /api/scan-nota dan webhook Telegram.
 // Codex CLI digunakan lebih dulu; kunci Claude hanya dipakai di server sebagai fallback.
-import { scanNotaWithCodex, CODEX_SCAN_MODEL } from './codexScanNota.js';
+import { scanNotaWithCodex, CODEX_SCAN_MODEL } from './_codexScanNota.js';
 
 export const SCAN_NOTA_MODEL = CODEX_SCAN_MODEL;
 export const SCAN_NOTA_FALLBACK_MODEL = 'claude-haiku-5-5';
