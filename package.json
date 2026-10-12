@@ -2,8 +2,10 @@
   "name": "keuangan-app",
   "private": true,
   "type": "module",
+  "scripts": {
+    "build": "node scripts/prepare-codex-binary.mjs"
+  },
   "dependencies": {
-    "@openai/codex": "0.156.1",
     "firebase-admin": "^13.0.0"
   },
   "optionalDependencies": {

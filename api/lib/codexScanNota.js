@@ -2,11 +2,12 @@
 // the rotating CLI login cache encrypted at rest; local runs use codex login.
 import { spawn } from 'node:child_process';
 import { createCipheriv, createDecipheriv, randomBytes, randomUUID } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { mkdtemp, readFile, rmdir, unlink, writeFile } from 'node:fs/promises';
-import { createRequire } from 'node:module';
+import { createReadStream, createWriteStream, existsSync } from 'node:fs';
+import { chmod, mkdtemp, readFile, rmdir, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
+import { pipeline } from 'node:stream/promises';
+import { createGunzip } from 'node:zlib';
 import { getDb } from './firebaseAdmin.js';
 
 export const CODEX_SCAN_MODEL = 'gpt-6-luna';
@@ -15,7 +16,7 @@ const AUTH_DOCUMENT = 'codex_scan_auth';
 const AUTH_AAD = Buffer.from('myfinanceapp:codex-scan-auth:v1');
 const CLI_TIMEOUT_MS = 22000;
 const LEASE_MS = 45000;
-const moduleRequire = createRequire(import.meta.url);
+let unpackedBinaryPromise;
 
 function encryptionKey() {
   const value = process.env.CODEX_AUTH_ENCRYPTION_KEY;
@@ -93,23 +94,28 @@ async function acquireStoredAuth() {
   throw new Error('Codex sedang memproses nota lain.');
 }
 
-function packagedBinary() {
-  if (process.platform !== 'linux' || process.arch !== 'x64') return null;
-  const candidates = [];
-  try { candidates.push(dirname(moduleRequire.resolve('@openai/codex-linux-x64/package.json'))); } catch (_) { /* fallback below */ }
-  candidates.push(join(process.cwd(), 'node_modules', '@openai', 'codex-linux-x64'));
-  for (const root of candidates) {
-    const binary = join(root, 'vendor', 'x86_64-unknown-linux-musl', 'bin', 'codex');
-    if (existsSync(binary)) return binary;
-  }
-  return null;
+async function unpackCodexBinary() {
+  const archive = join(process.cwd(), 'api', 'lib', 'codex.gz');
+  if (!existsSync(archive)) throw new Error('Arsip Codex tidak ikut dalam Vercel Function.');
+  const directory = await mkdtemp(join(tmpdir(), 'myfinance-codex-bin-'));
+  const binary = join(directory, 'codex');
+  await pipeline(createReadStream(archive), createGunzip(), createWriteStream(binary, { mode: 0o700 }));
+  await chmod(binary, 0o700);
+  return binary;
 }
 
-function executable() {
+async function executable() {
   if (process.env.CODEX_CLI_PATH) return process.env.CODEX_CLI_PATH;
-  const packaged = packagedBinary();
-  if (packaged) return packaged;
-  if (process.env.VERCEL) throw new Error('Binary Codex tidak ikut dalam Vercel Function.');
+  if (process.env.VERCEL) {
+    if (process.platform !== 'linux' || process.arch !== 'x64') throw new Error('Codex memerlukan Vercel Linux x64.');
+    if (!unpackedBinaryPromise) {
+      unpackedBinaryPromise = unpackCodexBinary().catch(error => {
+        unpackedBinaryPromise = null;
+        throw error;
+      });
+    }
+    return unpackedBinaryPromise;
+  }
   return 'codex';
 }
 
@@ -120,9 +126,10 @@ function childEnvironment(codexHome) {
   return env;
 }
 
-function runCli(args, cwd, codexHome) {
+async function runCli(args, cwd, codexHome) {
+  const binary = await executable();
   return new Promise((resolve, reject) => {
-    const child = spawn(executable(), args, {
+    const child = spawn(binary, args, {
       cwd, env: childEnvironment(codexHome), windowsHide: true,
       stdio: ['ignore', 'pipe', 'pipe']
     });

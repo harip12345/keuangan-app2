@@ -45,8 +45,11 @@ Konfigurasi Vercel (Environment Variables untuk Production):
   `[Convert]::ToBase64String([IO.File]::ReadAllBytes("$env:USERPROFILE\.codex\auth.json"))`
   Simpan hasilnya hanya sebagai Environment Variable rahasia di Vercel.
 - ANTHROPIC_API_KEY = kunci Claude untuk fallback (opsional).
-- VERCEL_SUPPORT_LARGE_FUNCTIONS = 1 (untuk proyek Vercel yang sudah ada;
-  binary Codex melampaui ukuran Function standar). Aktifkan Fluid Compute.
+
+Saat build, binary Linux Codex dikompresi ke `api/lib/codex.gz` (sekitar 104 MiB).
+Function hanya membawa arsip tersebut dan mengekstraknya ke direktori sementara
+saat pertama kali dipakai. `VERCEL_SUPPORT_LARGE_FUNCTIONS` tidak diperlukan
+untuk ukuran binary ini. Jika pernah mengatur variabel itu, boleh dihapus.
 
 Setelah mengisi variabel, redeploy. Sesi Codex disimpan terenkripsi di Firestore
 oleh server agar pembaruan login bertahan antar-Function. Jangan menaruh sesi,
