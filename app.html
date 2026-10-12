@@ -2700,7 +2700,7 @@
                 const response = await fetch('/api/admin-users', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                    body: JSON.stringify({ pageToken: adminUsersPageToken })
+                    body: JSON.stringify(adminUsersPageToken ? { pageToken: adminUsersPageToken } : {})
                 });
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Gagal memuat pengguna');

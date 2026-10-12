@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     }
 
     const pageToken = req.body?.pageToken;
-    if (pageToken !== undefined && (typeof pageToken !== 'string' || pageToken.length > 4096)) {
+    if (pageToken != null && (typeof pageToken !== 'string' || pageToken.length > 4096)) {
       return res.status(400).json({ error: 'Penanda halaman tidak valid.' });
     }
 
