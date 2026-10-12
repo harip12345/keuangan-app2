@@ -3171,6 +3171,7 @@
         let editingTrxId = null; 
         let pendingScanConfirmation = false;
         let scanSuccessRecord = null;
+        let scanSuccessSource = 'scan';
         let transactionSaveInProgress = false;
         let editingAssetId = null; 
         let unsubscribeTrx = null; 
@@ -3731,11 +3732,14 @@
             else _riwayatSource = null;
         };
 
-        function showScanSuccessModal(id, savedData) {
+        function showScanSuccessModal(id, savedData, source = 'scan') {
             scanSuccessRecord = { id, ...savedData };
+            scanSuccessSource = source;
+            document.getElementById('scanSuccessTitle').textContent = source === 'quick' ? 'Catat Cepat berhasil' : 'Nota berhasil dicatat';
+            document.getElementById('scanSuccessDescription').textContent = 'Periksa rincian transaksi yang sudah tersimpan.';
             const details = {
-                scanSuccessType: savedData.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
-                scanSuccessWallet: savedData.wallet || '—',
+                scanSuccessType: savedData.type === 'income' ? 'Pemasukan' : (savedData.type === 'transfer' ? 'Transfer' : 'Pengeluaran'),
+                scanSuccessWallet: savedData.type === 'transfer' ? `${savedData.wallet || '—'} → ${savedData.walletTo || '—'}` : (savedData.wallet || '—'),
                 scanSuccessCategory: savedData.category || '—',
                 scanSuccessNote: savedData.note || '—',
                 scanSuccessDate: savedData.date || '—',
@@ -3752,7 +3756,7 @@
         function closeScanSuccessModal() {
             document.getElementById('scanSuccessModal')?.classList.remove('show');
             scanSuccessRecord = null;
-            document.getElementById('btnScanNota')?.focus();
+            document.getElementById(scanSuccessSource === 'quick' ? 'btnQuickAdd' : 'btnScanNota')?.focus();
         }
 
         function editScanSuccessTransaction() {
@@ -4465,20 +4469,18 @@
 
         async function quickAddSave(){
             var inp=document.getElementById('quickAddInput'); if(!inp) return;
+            var btn=document.getElementById('quickAddSaveBtn'); if(btn && btn.disabled) return;
             var p=parseQuickText(inp.value.trim()); var prev=document.getElementById('quickAddPreview'); var panel=document.getElementById('quickAddPanel');
             if(!p.ok){ if(prev){ prev.classList.add('qa-error'); prev.textContent=p.error||'Tidak bisa membaca teks.'; } if(panel){ panel.classList.remove('quick-add-shake'); void panel.offsetWidth; panel.classList.add('quick-add-shake'); } return; }
-            var btn=document.getElementById('quickAddSaveBtn'); if(btn) btn.disabled=true; showToast('Menyimpan...');
+            if(btn){ btn.disabled=true; btn.textContent='Menyimpan...'; }
             try {
                 var data={ type:p.type, category:p.category, amount:p.amount, wallet:p.wallet, note:p.note, date:formatCustomDate(p.dateYMD), timestamp:firebase.firestore.FieldValue.serverTimestamp() };
                 if(p.type==='transfer') data.walletTo=p.walletTo;
-                await db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions').add(data);
+                var savedRef = await db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions').add(data);
                 inp.value=''; quickAddPreviewUpdate();
-                var lbl=p.type==='income'?'Pemasukan':(p.type==='transfer'?'Transfer':'Pengeluaran');
-                showToast('Tersimpan \u2705'+lbl+' Rp '+formatRupiahStr(p.amount));
-                if(typeof triggerConfetti==='function') triggerConfetti();
-                if(inp) inp.focus();
+                showScanSuccessModal(savedRef.id, data, 'quick');
             } catch(err){ console.error('quickAdd', err); showToast('Gagal menyimpan \u274c'); }
-            finally { if(btn) btn.disabled=false; }
+            finally { if(btn){ btn.disabled=false; btn.textContent='Simpan'; } }
         }
 
         (function(){
