@@ -1172,10 +1172,11 @@
         </section>
 
         </div>
-        <div id="viewCatat" class="main-view hidden">
+        <div id="viewCatat" class="transaction-modal hidden" role="dialog" aria-modal="true" aria-labelledby="transactionModalTitle">
+          <div class="transaction-dialog">
             <div class="header catat-header">
-                <button type="button" class="goals-back" onclick="switchView('transaksi')"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#arrow-left"/></svg> Kembali ke Beranda</button>
-                <div class="header-title">Catat transaksi</div>
+                <button type="button" class="transaction-close" onclick="closeTransactionModal()" aria-label="Tutup pencatatan transaksi"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#close"/></svg></button>
+                <div class="header-title" id="transactionModalTitle">Catat transaksi</div>
                 <p>Catat pemasukan, pengeluaran, dan transfer dalam satu tempat.</p>
             </div>
 
@@ -1260,6 +1261,7 @@
                     <button type="button" class="btn-submit hidden" id="btnCancelEdit" onclick="cancelEdit()" style="background: var(--surface-color); color: var(--text-main); margin-top: 0.5rem; box-shadow:none; border: 1px solid var(--border);">Batal Edit</button>
                 </form>
             </div>
+          </div>
         </div>
 
         <div id="viewUtangPiutang" class="main-view hidden">
@@ -3379,6 +3381,23 @@
             document.getElementById('viewCatat')?.scrollTo({ top: 0, behavior: 'auto' });
         }
 
+        let transactionModalReturnFocus = null;
+        function openTransactionModal() {
+            const modal = document.getElementById('viewCatat');
+            if(modal.classList.contains('hidden')) transactionModalReturnFocus = document.activeElement;
+            modal.classList.remove('hidden');
+            document.body.classList.add('transaction-modal-open');
+            modal.querySelector('.transaction-dialog').scrollTop = 0;
+            document.getElementById('trxDate')?.focus();
+        }
+        function closeTransactionModal() {
+            if(transactionSaveInProgress) return showToast('Tunggu hingga transaksi selesai disimpan.');
+            document.getElementById('viewCatat').classList.add('hidden');
+            document.body.classList.remove('transaction-modal-open');
+            if(editingTrxId) cancelEdit();
+            transactionModalReturnFocus?.focus();
+        }
+
         let _riwayatSource     = null;
         let _riwayatActionId   = null;
         let _riwayatActionType = null;
@@ -3710,7 +3729,7 @@
                 if (walletBalances[walletUsed] === undefined) walletBalances[walletUsed] = 0; 
                 if(t.type === 'income') walletBalances[walletUsed] += t.amount;
                 else if(t.type === 'expense') walletBalances[walletUsed] -= t.amount;
-                else if(t.type === 'loan') walletBalances[walletUsed] += Number(t.walletDelta) || 0;
+                else if(t.type === 'loan') walletBalances[walletUsed] += effectiveLoanDelta(t, getTodayYMD());
                 else if(t.type === 'transfer') {
                     walletBalances[walletUsed] -= t.amount;
                     if(t.walletTo) { if(walletBalances[t.walletTo] === undefined) walletBalances[t.walletTo] = 0; walletBalances[t.walletTo] += t.amount; }
@@ -3881,7 +3900,7 @@
         const updateUI = () => { 
             const filteredTrx = getFiltered(transactions); const filteredSav = getFiltered(savings); 
             const income = filteredTrx.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0); const expense = filteredTrx.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0); const assetDeduction = filteredSav.filter(s => s.sourceWallet && s.sourceWallet !== 'None').reduce((acc, s) => acc + s.amount, 0);
-            const loanCashflow = filteredTrx.filter(t => t.type === 'loan').reduce((sum, t) => sum + (Number(t.walletDelta) || 0), 0);
+            const loanCashflow = filteredTrx.filter(t => t.type === 'loan').reduce((sum, t) => sum + effectiveLoanDelta(t, getTodayYMD()), 0);
             
             const balEl = document.getElementById('totalBalance'); if(balEl) balEl.innerText = formatRupiah(income - expense - assetDeduction + loanCashflow);
             const incEl = document.getElementById('totalIncome'); if(incEl) incEl.innerText = formatRupiah(income); 
@@ -4091,6 +4110,7 @@
 
         let editingLoanId = null;
         let payingLoanId = null;
+        let editingLoanPaymentId = null;
         let savingLoan = false;
 
         function loanCashDelta(kind, phase, amount) {
@@ -4100,6 +4120,31 @@
 
         function loanOutstanding(loan) {
             return Math.max(0, (Number(loan.amount) || 0) - (Number(loan.paid) || 0));
+        }
+
+        function effectiveLoanDelta(record, asOf) {
+            const date = parseCustomDateToYMD(record.date);
+            if(!date || date > asOf) return 0;
+            return loanCashDelta(record.loanKind, record.loanPhase, Number(record.amount) || 0);
+        }
+
+        // Read every known payment before changing a principal. A stale list must not
+        // delete a newer payment or allow a principal smaller than the paid amount.
+        async function readLoanLedger(tx, collection, id) {
+            const ref = collection.doc(id);
+            const snapshot = await tx.get(ref);
+            if(!snapshot.exists || snapshot.data().loanPhase !== 'principal') throw new Error('Catatan tidak ditemukan.');
+            const loan = snapshot.data();
+            const payments = [];
+            for(const known of transactions.filter(t => t.loanId === id && t.loanPhase === 'payment')) {
+                const paymentRef = collection.doc(known.id);
+                const saved = await tx.get(paymentRef);
+                if(!saved.exists) throw new Error('Data pembayaran berubah. Tunggu sinkronisasi lalu coba lagi.');
+                payments.push({ref:paymentRef,data:saved.data()});
+            }
+            const total = payments.reduce((sum,p) => sum + Number(p.data.amount),0);
+            if(total !== Number(loan.paid || 0)) throw new Error('Data pembayaran belum tersinkron. Tunggu sebentar lalu coba lagi.');
+            return {ref,loan,payments};
         }
 
         function loanNode(tag, className, value) {
@@ -4143,9 +4188,9 @@
             document.getElementById('loanDate').value = parseCustomDateToYMD(loan.date);
             document.getElementById('loanDueDate').value = loan.dueDate || '';
             document.getElementById('loanNote').value = loan.note || '';
-            if(Number(loan.paid) > 0) {
-                for(const fieldId of ['loanKind','loanAmount','loanWallet','loanDate']) document.getElementById(fieldId).disabled = true;
-            }
+            // Each payment keeps its own account and date; changing the principal
+            // must not move those cashflows to the date of the loan.
+            document.getElementById('loanKind').disabled = Number(loan.paid) > 0;
             document.getElementById('loanCancelEdit').hidden = false;
             document.getElementById('loanFormHeading').textContent = `Ubah catatan ${loan.party || ''}`;
             updateLoanFormCopy();
@@ -4154,6 +4199,7 @@
 
         function closeLoanPayment() {
             payingLoanId = null;
+            editingLoanPaymentId = null;
             document.getElementById('loanPaymentCard').hidden = true;
             document.getElementById('loanPaymentForm')?.reset();
         }
@@ -4162,8 +4208,10 @@
             const loan = transactions.find(t => t.id === id && t.type === 'loan' && t.loanPhase === 'principal');
             if(!loan || loanOutstanding(loan) <= 0) return showToast('Pos ini sudah lunas.');
             payingLoanId = id;
+            editingLoanPaymentId = null;
+            document.getElementById('loanPaymentSubmit').textContent = 'Simpan Pembayaran';
             document.getElementById('loanPaymentHeading').textContent = loan.loanKind === 'receivable' ? 'Terima pembayaran' : 'Bayar utang';
-            document.getElementById('loanPaymentContext').textContent = `${loan.party || 'Tanpa nama'} · Sisa ${formatRupiah(loanOutstanding(loan))}`;
+            document.getElementById('loanPaymentContext').textContent = `${loan.party || 'Tanpa nama'} · Sisa ${formatRupiah(loanOutstanding(loan))}. Saldo berubah sesuai tanggal pembayaran; tanggal mendatang dihitung saat tanggal tersebut tiba.`;
             document.getElementById('loanPaymentAmount').value = formatRupiahStr(loanOutstanding(loan));
             document.getElementById('loanPaymentWallet').value = loan.wallet || 'Tunai';
             document.getElementById('loanPaymentDate').value = getTodayYMD();
@@ -4173,20 +4221,58 @@
 
         function deleteLoan(id) {
             const loan = transactions.find(t => t.id === id && t.type === 'loan' && t.loanPhase === 'principal');
-            if(!loan || Number(loan.paid) > 0) return showToast('Catatan dengan pembayaran tidak dapat dihapus.');
-            requireConfirm(`Hapus catatan ${loan.party || 'ini'}? Perubahan saldo akan dibatalkan.`, async () => {
+            if(!loan) return;
+            requireConfirm(`Hapus catatan ${loan.party || 'ini'} beserta seluruh pembayarannya? Semua perubahan saldo dari pos ini akan dibatalkan.`, async () => {
                 try {
-                    const ref = db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions').doc(id);
+                    const collection = db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions');
                     await db.runTransaction(async tx => {
-                        const snapshot = await tx.get(ref);
-                        if(!snapshot.exists || Number(snapshot.data().paid) > 0) throw new Error('Catatan sudah memiliki pembayaran.');
-                        tx.delete(ref);
+                        const ledger = await readLoanLedger(tx,collection,id);
+                        if(ledger.payments.length > 490) throw new Error('Terlalu banyak pembayaran untuk dihapus sekaligus. Hapus pembayaran terlebih dahulu.');
+                        ledger.payments.forEach(p => tx.delete(p.ref));
+                        tx.delete(ledger.ref);
                     });
-                    const backup = {...loan}; delete backup.id;
-                    pushUndo({id,collection:'transactions',data:backup});
                     if(editingLoanId === id) resetLoanForm();
-                    showToastUndo('Catatan dihapus');
+                    closeLoanPayment();
+                    showToast('Catatan dan pembayarannya dihapus. Saldo diperbarui.');
                 } catch(error) { showToast(error.message || 'Gagal menghapus catatan.'); }
+            });
+        }
+
+        function editLoanPayment(id) {
+            const payment = transactions.find(t => t.id === id && t.loanPhase === 'payment');
+            const loan = transactions.find(t => t.id === payment?.loanId && t.loanPhase === 'principal');
+            if(!loan || !payment) return showToast('Pembayaran tidak ditemukan.');
+            payingLoanId = loan.id;
+            editingLoanPaymentId = id;
+            document.getElementById('loanPaymentHeading').textContent = 'Edit pembayaran';
+            document.getElementById('loanPaymentContext').textContent = `${loan.party} · ${loan.loanKind === 'payable' ? 'Pembayaran mengurangi saldo' : 'Penerimaan menambah saldo'} pada tanggal yang dipilih.`;
+            document.getElementById('loanPaymentAmount').value = formatRupiahStr(payment.amount);
+            document.getElementById('loanPaymentWallet').value = payment.wallet || 'Tunai';
+            document.getElementById('loanPaymentDate').value = parseCustomDateToYMD(payment.date);
+            document.getElementById('loanPaymentNote').value = payment.note || '';
+            document.getElementById('loanPaymentSubmit').textContent = 'Simpan perubahan pembayaran';
+            document.getElementById('loanPaymentCard').hidden = false;
+            document.getElementById('loanPaymentCard').scrollIntoView({behavior:'smooth',block:'start'});
+        }
+
+        function deleteLoanPayment(id) {
+            const payment = transactions.find(t => t.id === id && t.loanPhase === 'payment');
+            if(!payment) return;
+            requireConfirm('Hapus pembayaran ini? Saldo pada tanggal pembayaran dan sisa pinjaman akan dikembalikan.', async () => {
+                try {
+                    const collection = db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions');
+                    const paymentRef = collection.doc(id), loanRef = collection.doc(payment.loanId);
+                    await db.runTransaction(async tx => {
+                        const p = await tx.get(paymentRef), l = await tx.get(loanRef);
+                        if(!p.exists || !l.exists || p.data().loanId !== loanRef.id) throw new Error('Data pembayaran berubah. Muat ulang lalu coba lagi.');
+                        const paid = Number(l.data().paid || 0) - Number(p.data().amount);
+                        if(paid < 0) throw new Error('Total pembayaran tidak konsisten. Muat ulang lalu coba lagi.');
+                        tx.update(loanRef,{paid});
+                        tx.delete(paymentRef);
+                    });
+                    if(editingLoanPaymentId === id) closeLoanPayment();
+                    showToast('Pembayaran dihapus. Saldo dan sisa pinjaman diperbarui.');
+                } catch(error) { showToast(error.message || 'Gagal menghapus pembayaran.'); }
             });
         }
 
@@ -4225,7 +4311,8 @@
                 top.append(title,loanNode('strong','loan-item-amount',formatRupiah(remaining)));
                 card.append(top);
                 const due = loan.dueDate ? new Date(`${loan.dueDate}T12:00:00`).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) : 'Tanpa jatuh tempo';
-                const status = remaining === 0 ? 'Lunas' : loan.dueDate && loan.dueDate < today ? 'Lewat jatuh tempo' : 'Aktif';
+                const hasScheduledPayment = payments.some(p => p.loanId === loan.id && parseCustomDateToYMD(p.date) > today);
+                const status = remaining === 0 ? (hasScheduledPayment ? 'Pembayaran terjadwal' : 'Lunas') : loan.dueDate && loan.dueDate < today ? 'Lewat jatuh tempo' : 'Aktif';
                 card.append(loanNode('p','loan-item-meta',`${loan.loanKind === 'receivable' ? 'Dipinjamkan' : 'Dipinjam'} ${displayDateDDMMYYYY(loan.date)} · ${loan.wallet || 'Tunai'} · ${due} · ${status}`));
                 if(loan.note) card.append(loanNode('p','loan-item-meta',loan.note));
                 const progress = loanNode('div','loan-progress');
@@ -4234,7 +4321,7 @@
                 progress.appendChild(bar);
                 card.append(progress);
                 const foot = loanNode('div','loan-item-foot');
-                foot.append(loanNode('span','',`Terbayar ${formatRupiah(paid)}`),loanNode('span','',`Dari ${formatRupiah(loan.amount)}`));
+                foot.append(loanNode('span','',`${hasScheduledPayment ? 'Pembayaran tercatat' : 'Terbayar'} ${formatRupiah(paid)}`),loanNode('span','',`Dari ${formatRupiah(loan.amount)}`));
                 card.append(foot);
                 const actions = loanNode('div','loan-item-actions');
                 if(remaining > 0) {
@@ -4243,7 +4330,7 @@
                 }
                 const edit = loanNode('button','', 'Ubah catatan');
                 edit.type = 'button'; edit.addEventListener('click',() => editLoan(loan.id)); actions.append(edit);
-                if(paid === 0) {
+                {
                     const remove = loanNode('button','danger','Hapus');
                     remove.type = 'button'; remove.addEventListener('click',() => deleteLoan(loan.id)); actions.append(remove);
                 }
@@ -4254,7 +4341,14 @@
                     details.append(loanNode('summary','',`Riwayat pembayaran (${history.length})`));
                     history.forEach(payment => {
                         const row = loanNode('div','loan-payment-row');
-                        row.append(loanNode('span','',`${displayDateDDMMYYYY(payment.date)} · ${payment.wallet || 'Tunai'}${payment.note ? ' · ' + payment.note : ''}`),loanNode('strong','',formatRupiah(payment.amount)));
+                        row.append(loanNode('span','',`${displayDateDDMMYYYY(payment.date)} · ${payment.wallet || 'Tunai'}${parseCustomDateToYMD(payment.date) > today ? ' · Terjadwal' : ''}${payment.note ? ' · ' + payment.note : ''}`),loanNode('strong','',formatRupiah(payment.amount)));
+                        const paymentActions = loanNode('div','loan-item-actions');
+                        const editPayment = loanNode('button','','Edit');
+                        editPayment.type = 'button'; editPayment.addEventListener('click',() => editLoanPayment(payment.id));
+                        const removePayment = loanNode('button','danger','Hapus');
+                        removePayment.type = 'button'; removePayment.addEventListener('click',() => deleteLoanPayment(payment.id));
+                        paymentActions.append(editPayment,removePayment);
+                        row.append(paymentActions);
                         details.append(row);
                     });
                     card.append(details);
@@ -4284,12 +4378,13 @@
                 if(editingLoanId) {
                     const ref = collection.doc(editingLoanId);
                     await db.runTransaction(async tx => {
-                        const snapshot = await tx.get(ref);
-                        if(!snapshot.exists || snapshot.data().type !== 'loan' || snapshot.data().loanPhase !== 'principal') throw new Error('Catatan tidak ditemukan.');
-                        const saved = snapshot.data();
-                        if(Number(saved.paid) > 0 && (amount !== saved.amount || wallet !== saved.wallet || kind !== saved.loanKind || formatCustomDate(date) !== saved.date)) throw new Error('Nominal, jenis, tanggal, dan rekening tidak bisa diubah setelah ada pembayaran.');
+                        const ledger = await readLoanLedger(tx,collection,editingLoanId);
+                        const saved = ledger.loan;
+                        if(Number(saved.paid) > 0 && kind !== saved.loanKind) throw new Error('Hapus pembayaran terlebih dahulu sebelum mengganti jenis pinjaman.');
                         if(amount < Number(saved.paid || 0)) throw new Error('Nominal tidak boleh lebih kecil dari yang sudah dibayar.');
+                        if(ledger.payments.some(p => parseCustomDateToYMD(p.data.date) < date)) throw new Error('Tanggal pinjaman tidak boleh melewati tanggal pembayaran yang sudah dicatat.');
                         tx.update(ref,{ loanKind:kind,party,amount,wallet,date:formatCustomDate(date),dueDate,note,walletDelta:loanCashDelta(kind,'principal',amount),category:kind === 'receivable' ? 'Dipinjamkan' : 'Saya meminjam' });
+                        ledger.payments.forEach(p => tx.update(p.ref,{party}));
                     });
                     showToast('Catatan diperbarui.');
                 } else {
@@ -4314,14 +4409,20 @@
             try {
                 const collection = db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions');
                 const loanRef = collection.doc(payingLoanId);
-                const paymentRef = collection.doc();
+                const paymentRef = editingLoanPaymentId ? collection.doc(editingLoanPaymentId) : collection.doc();
                 await db.runTransaction(async tx => {
                     const snapshot = await tx.get(loanRef);
                     if(!snapshot.exists || snapshot.data().type !== 'loan' || snapshot.data().loanPhase !== 'principal') throw new Error('Catatan tidak ditemukan.');
                     const loan = snapshot.data();
-                    if(amount > loanOutstanding(loan)) throw new Error('Pembayaran melebihi sisa utang atau piutang.');
+                    let previousAmount = 0;
+                    if(editingLoanPaymentId) {
+                        const previous = await tx.get(paymentRef);
+                        if(!previous.exists || previous.data().loanId !== loanRef.id) throw new Error('Pembayaran tidak ditemukan.');
+                        previousAmount = Number(previous.data().amount) || 0;
+                    }
+                    if(amount > loanOutstanding(loan) + previousAmount) throw new Error('Pembayaran melebihi sisa utang atau piutang.');
                     if(date < parseCustomDateToYMD(loan.date)) throw new Error('Tanggal pembayaran harus setelah tanggal pinjaman.');
-                    tx.update(loanRef,{paid:(Number(loan.paid) || 0) + amount});
+                    tx.update(loanRef,{paid:(Number(loan.paid) || 0) - previousAmount + amount});
                     tx.set(paymentRef,{type:'loan',loanPhase:'payment',loanId:loanRef.id,loanKind:loan.loanKind,party:loan.party,category:loan.loanKind === 'receivable' ? 'Terima pembayaran' : 'Bayar utang',amount,wallet,walletDelta:loanCashDelta(loan.loanKind,'payment',amount),date:formatCustomDate(date),note,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
                 });
                 closeLoanPayment();
@@ -4334,11 +4435,30 @@
 
         resetLoanForm();
 
+        // Keep overlays outside the scrolling app shell, including on desktop.
+        document.body.appendChild(document.getElementById('viewCatat'));
+        document.body.appendChild(document.getElementById('aiModal'));
+        document.body.appendChild(document.getElementById('aiClosePrompt'));
+        document.body.appendChild(document.getElementById('scanSuccessModal'));
+        for(const id of ['aiDeletePopup','aiSelectBar']) document.getElementById('aiModalDrawer').appendChild(document.getElementById(id));
+        document.getElementById('viewCatat').addEventListener('click',event => {
+            if(event.target.id === 'viewCatat') closeTransactionModal();
+        });
+        document.getElementById('viewCatat').addEventListener('keydown',event => {
+            if(event.key === 'Escape') { event.preventDefault(); closeTransactionModal(); }
+            if(event.key !== 'Tab') return;
+            const fields = [...event.currentTarget.querySelectorAll('button,input,select,textarea')].filter(el => !el.disabled && el.getClientRects().length);
+            const first = fields[0], last = fields[fields.length - 1];
+            if(event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+            else if(!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+        });
         const views = { 'transaksi': document.getElementById('viewTransaksi'), 'catat': document.getElementById('viewCatat'), 'utangPiutang': document.getElementById('viewUtangPiutang'), 'tabungan': document.getElementById('viewTabungan'), 'analisis': document.getElementById('viewAnalisis'), 'laporan': document.getElementById('viewLaporan'), 'goals': document.getElementById('viewGoals') };
         const navItems = { 'transaksi': document.getElementById('navTransaksi'), 'catat': document.getElementById('navTransaksi'), 'utangPiutang': document.getElementById('navTransaksi'), 'tabungan': document.getElementById('navTabungan'), 'analisis': document.getElementById('navAnalisis'), 'laporan': document.getElementById('navLaporan'), 'goals': document.getElementById('navTabungan') };
 
         const switchView = (viewName) => { 
+            if(viewName === 'catat') { closeProfileMenu(); openTransactionModal(); return; }
             if(!navItems[viewName] || !views[viewName]) return;
+            document.body.classList.remove('transaction-modal-open');
             Object.values(navItems).forEach(btn => { try{ if(btn) btn.classList.remove('active'); }catch(e){} });
             Object.values(views).forEach(v => { try{ if(v) v.classList.add('hidden'); }catch(e){} });
             try{ views[viewName].classList.remove('hidden'); }catch(e){}
@@ -4382,6 +4502,9 @@
                     if (editingTrxId) {
                         await db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions').doc(editingTrxId).update(dataToSave);
                         cancelEdit();
+                        transactionSaveInProgress = false;
+                        closeTransactionModal();
+                        showToast('Transaksi diperbarui.');
                     } else {
                         dataToSave.timestamp = firebase.firestore.FieldValue.serverTimestamp();
                         const savedRef = await db.collection(DB_COLLECTION).doc(currentProfileId).collection('transactions').add(dataToSave);
@@ -4390,6 +4513,12 @@
                             const scanStatus = document.getElementById('scanNotaStatus');
                             if (scanStatus) scanStatus.style.display = 'none';
                             showScanSuccessModal(savedRef.id, dataToSave);
+                        }
+                        if(!showScanConfirmation) {
+                            // Release the save lock before closing the completed form.
+                            transactionSaveInProgress = false;
+                            closeTransactionModal();
+                            showToast('Transaksi berhasil disimpan.');
                         }
                     }
                 } catch (error) {
@@ -6284,6 +6413,10 @@
         var aiMsgData     = [];
         var aiDeletePopupTarget = null;
         var aiDirty       = false;
+        var aiCloseTimer = null;
+        var aiHistoryGeneration = 0;
+        var aiViewportBound = false;
+        var aiRequestPending = false;
 
         function toggleAiModal() {
             var modal    = document.getElementById('aiModal');
@@ -6291,17 +6424,21 @@
             var backdrop = document.getElementById('aiModalBackdrop');
             if (!modal) return;
             if (!aiModalOpen) {
+                clearTimeout(aiCloseTimer);
                 aiModalOpen = true;
                 modal.style.display = 'block';
                 modal.style.pointerEvents = 'all';
+                modal.dataset.open = 'true';
                 requestAnimationFrame(function() {
                     requestAnimationFrame(function() {
+                        if(!aiModalOpen) return;
                         backdrop.style.opacity = '1';
                         backdrop.style.pointerEvents = 'all';
                         drawer.style.transform = 'translateY(0)';
                     });
                 });
-                if (aiMsgData.length === 0) loadAiHistory();
+                if (aiChatHistory.length === 0 && !aiDirty && !aiRequestPending) loadAiHistory();
+                adjustDrawerForKeyboard();
                 setTimeout(function() {
                     var msgs = document.getElementById('aiChatMessages');
                     if (msgs) msgs.scrollTop = msgs.scrollHeight;
@@ -6323,10 +6460,13 @@
             var backdrop = document.getElementById('aiModalBackdrop');
             if (!modal) return;
             aiModalOpen = false;
+            modal.dataset.open = 'false';
             backdrop.style.opacity = '0';
             backdrop.style.pointerEvents = 'none';
             drawer.style.transform = 'translateY(100%)';
-            setTimeout(function() {
+            clearTimeout(aiCloseTimer);
+            aiCloseTimer = setTimeout(function() {
+                if(aiModalOpen) return;
                 modal.style.display = 'none';
                 modal.style.pointerEvents = 'none';
             }, 320);
@@ -6372,6 +6512,7 @@
         }
 
         function clearAiHistory() {
+            aiHistoryGeneration++;
             aiChatHistory = [];
             aiMsgData = [];
             var container = document.getElementById('aiChatMessages');
@@ -6392,21 +6533,16 @@
         }
 
         function adjustDrawerForKeyboard() {
-            if (!window.visualViewport) return;
-            var vv = window.visualViewport;
-            function onVVChange() {
-                var drawer = document.getElementById('aiModalDrawer');
-                if (!drawer || !aiModalOpen) return;
-                var keyboardH = window.innerHeight - vv.height;
-                if (keyboardH > 100) {
-                    drawer.style.height = (vv.height - 10) + 'px';
-                } else {
-                    drawer.style.height = '82%';
-                }
-                var msgs = document.getElementById('aiChatMessages');
-                if (msgs) setTimeout(function(){ msgs.scrollTop = msgs.scrollHeight; }, 80);
+            const vv = window.visualViewport;
+            if(vv && !aiViewportBound) {
+                vv.addEventListener('resize', adjustDrawerForKeyboard);
+                vv.addEventListener('scroll', adjustDrawerForKeyboard);
+                aiViewportBound = true;
             }
-            vv.addEventListener('resize', onVVChange);
+            if(!aiModalOpen) return;
+            const modal = document.getElementById('aiModal');
+            modal.style.top = (vv?.offsetTop || 0) + 'px';
+            modal.style.height = (vv?.height || window.innerHeight) + 'px';
         }
 
         function getAiUserAvatar() {
@@ -6415,18 +6551,29 @@
             var name    = (profile && profile.name)  ? profile.name  : 'U';
             var initial = name.charAt(0).toUpperCase();
             if (photo) {
-                return '<img loading="lazy" src="' + photo + '" class="ai-user-avatar" onerror="this.style.display=\'none\'">';
+                const image = document.createElement('img');
+                image.src = photo;
+                image.alt = 'Foto profil';
+                image.className = 'ai-user-avatar';
+                return image.outerHTML;
             }
             var colors = ['#6366F1','#8B5CF6','#EC4899','#F59E0B','#10B981','#3B82F6','#EF4444'];
             var ci = name.charCodeAt(0) % colors.length;
-            return '<div class="ai-user-avatar-fallback" style="background:' + colors[ci] + '">' + initial + '</div>';
+            const avatar = document.createElement('div');
+            avatar.className = 'ai-user-avatar-fallback';
+            avatar.style.background = colors[ci];
+            avatar.textContent = initial;
+            return avatar.outerHTML;
         }
 
         function loadAiHistory() {
             if (!currentProfileId || !db) return;
+            var generation = ++aiHistoryGeneration;
+            var profileId = currentProfileId;
             db.collection(DB_COLLECTION).doc(currentProfileId)
               .collection('ai_chat').orderBy('ts').limit(80)
               .get().then(function(snap) {
+                if(generation !== aiHistoryGeneration || profileId !== currentProfileId || aiDirty || aiRequestPending) return;
                 aiMsgData = [];
                 aiChatHistory = [];
                 var container = document.getElementById('aiChatMessages');
@@ -6500,6 +6647,7 @@
         }
 
         function appendBubble(role, text, isTyping, docId) {
+            text = String(text ?? '');
             var container = document.getElementById('aiChatMessages');
             if (!container) return null;
             var div = document.createElement('div');
@@ -6515,7 +6663,7 @@
                         .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
                         .replace(/\n/g,'<br>');
                     div.innerHTML = '<div class="ai-avatar"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#bot"/></svg></div>' +
-                        '<div class="ai-bubble-content" data-text="' + text.replace(/"/g,'&quot;') + '">' + html + '</div>' +
+                        '<div class="ai-bubble-content">' + html + '</div>' +
                         (docId ? '<div class="ai-select-tick" style="display:none"></div>' : '');
                     if (docId) {
                         div.querySelector('.ai-bubble-content').addEventListener('click', function(e){
@@ -6531,7 +6679,7 @@
                 var avatarHtml = getAiUserAvatar();
                 var safeText = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
                 div.innerHTML = (docId ? '<div class="ai-select-tick" style="display:none"></div>' : '') +
-                    '<div class="ai-bubble-content" data-text="' + text.replace(/"/g,'&quot;') + '">' + safeText + '</div>' + avatarHtml;
+                    '<div class="ai-bubble-content">' + safeText + '</div>' + avatarHtml;
                 if (docId) {
                     div.querySelector('.ai-bubble-content').addEventListener('click', function(e){
                         e.stopPropagation();
@@ -6542,6 +6690,8 @@
                     if (tick) tick.addEventListener('click', function(e){ e.stopPropagation(); aiToggleSelect(div); });
                 }
             }
+            const bubbleContent = div.querySelector('.ai-bubble-content');
+            if(bubbleContent && !isTyping) bubbleContent.dataset.text = text;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
             return div;
@@ -6779,9 +6929,11 @@
                 async function sendAiChat() {
             var input   = document.getElementById('aiChatInput');
             var sendBtn = document.getElementById('aiSendBtn');
-            if (!input) return;
+            if (!input || aiRequestPending) return;
             var userText = input.value.trim();
             if (!userText) return;
+            aiRequestPending = true;
+            var requestGeneration = ++aiHistoryGeneration;
             input.value = ''; input.style.height = 'auto';
             sendBtn.disabled = true;
             closeDeletePopup();
@@ -6807,6 +6959,7 @@
                     throw new Error(ed.error || 'HTTP ' + resp.status);
                 }
                 var data = await resp.json();
+                if(requestGeneration !== aiHistoryGeneration) return;
                 var replyText = data.reply || 'Maaf, tidak ada respons.';
 
                 // Render balasan AI (tidak disimpan otomatis)
@@ -6815,10 +6968,13 @@
                 aiChatHistory.push({ role:'assistant', content: replyText });
 
             } catch(err) {
+                if(requestGeneration !== aiHistoryGeneration) return;
                 if (typingBubble && typingBubble.parentNode) {
-                    typingBubble.innerHTML = '<div class="ai-avatar"><svg class="ui-icon" aria-hidden="true"><use href="/app-icons.svg#bot"/></svg></div><div class="ai-bubble-content" style="color:var(--expense)"> ' + (err.message||'Coba lagi') + '</div>';
+                    typingBubble.remove();
+                    appendBubble('bot', 'Gagal mengirim: ' + (err.message || 'Coba lagi'), false, null);
                 }
             } finally {
+                aiRequestPending = false;
                 sendBtn.disabled = false;
             }
         }
@@ -6953,6 +7109,17 @@
 
         // Jalankan Pengecekan Login Saat Aplikasi Dibuka
         loadCategories();
+        let lastLoanBalanceDate = getTodayYMD();
+        function refreshDatedLoanBalances() {
+            const today = getTodayYMD();
+            if(today === lastLoanBalanceDate) return;
+            lastLoanBalanceDate = today;
+            if(currentProfileId) updateUI();
+        }
+        setInterval(refreshDatedLoanBalances, 60000);
+        document.addEventListener('visibilitychange', () => {
+            if(!document.hidden) refreshDatedLoanBalances();
+        });
         checkLoginStatus();
     </script>
 </body>

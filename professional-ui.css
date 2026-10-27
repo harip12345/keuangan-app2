@@ -176,6 +176,30 @@ body.dark-mode .settings-row{color:#e4eaf4;border-color:#344158}body.dark-mode .
 @media(max-width:420px){#viewTabungan{--asset-gutter:16px}}
 
 /* Utang dan piutang. */
+.transaction-modal{position:fixed;inset:0;z-index:1100;display:flex;align-items:flex-end;justify-content:center;padding:16px 12px 0;background:#111c39a8;backdrop-filter:blur(5px)}
+.transaction-dialog{width:min(100%,560px);max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain;background:var(--card-bg);color:var(--text-main);border-radius:22px 22px 0 0;box-shadow:0 20px 80px #111c3940;padding-bottom:env(safe-area-inset-bottom)}
+body.transaction-modal-open{overflow:hidden}
+#viewCatat .catat-header{position:relative;background:var(--primary);padding:24px 54px 24px 22px;border-radius:0;flex-shrink:0}
+#viewCatat .transaction-close{position:absolute;top:18px;right:16px;display:grid;place-items:center;width:36px;height:36px;background:#ffffff25;border:0;border-radius:50%;color:#fff;cursor:pointer}
+#viewCatat .banking-form-panel{margin:0!important;padding:20px!important;border:0;border-radius:0;box-shadow:none;background:var(--card-bg)}
+#viewCatat .form-control{box-sizing:border-box;width:100%;min-height:44px}
+#viewCatat .section-title{display:flex;flex-wrap:wrap;gap:10px}
+#viewCatat .section-title>span{display:none}
+#scanSuccessModal,#aiClosePrompt{position:fixed;z-index:1300}
+#aiModal{position:fixed!important;bottom:auto!important;z-index:1200!important;overflow:hidden}
+#aiModalDrawer{width:min(100%,640px);left:50%!important;right:auto!important;transform:translate(-50%,100%)!important;height:88%!important;max-height:calc(100% - 12px)!important;background:var(--card-bg);min-height:0}
+#aiModal[data-open="true"] #aiModalDrawer{transform:translate(-50%,0)!important}
+#aiChatMessages{min-width:0;min-height:0;scroll-behavior:auto!important}
+#aiChatMessages .ai-bubble{flex-shrink:0;min-width:0}
+#aiChatMessages .ai-bubble-content{min-width:0;overflow-wrap:anywhere;word-break:normal;white-space:pre-wrap}
+#aiChatMessages .ai-bubble-user{flex-direction:row;justify-content:flex-end}
+#aiChatInput{min-width:0;font-size:16px!important;box-sizing:border-box}
+#aiModal #quickPrompts{min-width:0;max-width:100%}
+#aiModal .ai-quick-btn{flex-shrink:0}
+.loan-payment-row{flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border)}
+.loan-payment-row>span{flex:1;min-width:140px;overflow-wrap:anywhere}
+.loan-payment-row .loan-item-actions{margin:0}
+@media(min-width:700px){.transaction-modal{align-items:center;padding:24px}.transaction-dialog{border-radius:22px;max-height:calc(100dvh - 48px)}#aiModalDrawer{border-radius:22px 22px 0 0!important}}
 #viewUtangPiutang .loan-header .header-title{color:#fff!important;font:800 26px 'Poppins',sans-serif!important;letter-spacing:-.05em;text-transform:none}
 #viewUtangPiutang .loan-header p{color:#d9def7;font-size:12px;line-height:1.5;margin:8px 0 0;max-width:560px}
 .loan-page-content{padding:18px 25px 32px;display:grid;gap:16px;min-width:0}
