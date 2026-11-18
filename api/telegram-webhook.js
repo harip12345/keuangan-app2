@@ -4,6 +4,7 @@ import { getDb, BOT_COLLECTION, FieldValue } from './lib/firebaseAdmin.js';
 import { getBindingByChat, getBindingByProfile, setBinding, removeBinding, getPending, deletePending } from './lib/bindings.js';
 import { extractNota } from './lib/scanNota.js';
 import { webhookSecret } from './lib/_telegramWebhook.js';
+import { parseSummaryRequest, summarizePeriod, periodSummaryText, jakartaToday } from './lib/_telegramSummary.js';
 import {
   ymdToCustom, parseAmount, parseDate, detectType, detectCategory, detectWallet,
   isTransferSyntax, parseTransfer, cleanNote, formatRupiah, has
@@ -22,6 +23,9 @@ export function routeIntent(text) {
   const lower = text.toLowerCase().trim();
   const first = lower.split(/\s+/)[0] || '';
   if (first.startsWith('/') || ['start', 'link', 'help', 'bantuan', 'menu', 'panduan', 'status', 'unbind', 'putus', 'riwayat', 'history', 'mutasi'].includes(first)) return 'command';
+  // Date numbers in a report request must never be interpreted as an amount.
+  try { if(parseSummaryRequest(text)) return 'summary'; }
+  catch { return 'summary'; } // Let the report handler explain invalid dates.
   const t = ' ' + lower + ' ';
   if (GREETINGS.includes(first)) return 'greetings';
   if (first === 'ai') return 'ai';
@@ -72,6 +76,10 @@ Kirim pesan singkat, contoh:
 Perintah lain:
 • <code>/ai pertanyaan</code> — tanya asisten AI (bisa cari data terkini di web)
 • <code>saldo</code> — ringkasan keuangan
+• <code>saldo dari 26 Oktober sampai hari ini</code> — sisa uang periode
+• <code>pemasukan 01/11/2026 sampai 18/11/2026</code> — pemasukan periode
+• <code>pengeluaran bulan ini</code> — pengeluaran periode
+  Arus utang-piutang ditampilkan terpisah, sesuai tanggal transaksi/pembayaran.
 • <code>riwayat</code> — 10 transaksi terakhir
 • <code>status</code> — profil yang terhubung
 • <code>unbind</code> — putuskan koneksi
@@ -117,43 +125,23 @@ async function saveTransaction(profileId, data) {
   });
 }
 
-async function getSummary(profileId) {
-  const snap = await getDb().collection(BOT_COLLECTION).doc(profileId).collection('transactions').get();
-  let totalIncome = 0, totalExpense = 0;
-  const perWallet = {};
-  for (const doc of snap.docs) {
-    const d = doc.data();
-    const amount = Number(d.amount) || 0;
-    if (d.type === 'income') {
-      totalIncome += amount;
-      perWallet[d.wallet || 'Tunai'] = (perWallet[d.wallet || 'Tunai'] || 0) + amount;
-    } else if (d.type === 'expense') {
-      totalExpense += amount;
-      perWallet[d.wallet || 'Tunai'] = (perWallet[d.wallet || 'Tunai'] || 0) - amount;
+async function handlePeriodSummary(chatId, text, binding) {
+  const today = jakartaToday();
+  let request;
+  try { request = parseSummaryRequest(text, today); }
+  catch(error) { await sendMessage(chatId, escapeHtml(error.message)); return true; }
+  if(!request) {
+    if(/^\/(?:saldo|pemasukan|pengeluaran|penghasilan|pendapatan)\b|\bsaldo\b/i.test(text)) {
+      await sendMessage(chatId, 'Periode belum jelas. Contoh: <code>saldo dari 26 Oktober 2026 sampai hari ini</code> atau <code>pengeluaran bulan ini</code>.');
+      return true;
     }
+    return false;
   }
-  return { totalIncome, totalExpense, saldo: totalIncome - totalExpense, perWallet };
+  const snap = await getDb().collection(BOT_COLLECTION).doc(binding.profileId).collection('transactions').get();
+  const summary = summarizePeriod(snap.docs.map(doc => doc.data()), request, today);
+  await sendMessage(chatId, periodSummaryText(summary, request, today));
+  return true;
 }
-
-function summaryText(sum, wsEntries) {
-  const lines = [
-    '💰 <b>Ringkasan Keuangan</b>',
-    `• Pemasukan: <b>${formatRupiah(sum.totalIncome)}</b>`,
-    `• Pengeluaran: <b>-${formatRupiah(sum.totalExpense)}</b>`,
-    `• Saldo Total: <b>${formatRupiah(sum.saldo)}</b>`,
-    ''
-  ];
-  if (wsEntries.length) {
-    lines.push('<b>Saldo per Wallet:</b>');
-    for (const [w, v] of wsEntries) {
-      lines.push(`• ${escapeHtml(w)}: <b>${formatRupiah(v)}</b>`);
-    }
-  } else {
-    lines.push('Belum ada transaksi tercatat.');
-  }
-  return lines.join('\n');
-}
-
 const MONTH_NUM = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, Mei: 5, Jun: 6, Jul: 7, Agt: 8, Sep: 9, Okt: 10, Nov: 11, Des: 12 };
 
 // Ringkasan keuangan profil — dikirim sebagai konteks ke asisten AI (mirip buatRingkasanKeuangan di app).
@@ -392,14 +380,10 @@ async function handleCommand(chatId, text, binding) {
     await removeBinding(chatId);
     return sendMessage(chatId, '🔌 Koneksi diputus. Chat ini tidak lagi terikat ke profil mana pun.');
   }
+  if (await handlePeriodSummary(chatId,text,binding)) return;
   if (cmd === '/ai' || cmd === 'ai' || (cmd === 'cek' && arg)) {
     if (!binding) return sendMessage(chatId, '⚠️ Chat ini belum terhubung ke profil mana pun.');
     return handleAI(chatId, arg || text, binding);
-  }
-  if (cmd === '/saldo' || cmd === 'saldo' || (cmd === 'cek' && (!arg || arg === 'saldo'))) {
-    const sum = await getSummary(binding.profileId);
-    const wsEntries = Object.entries(sum.perWallet).sort((a, b) => b[1] - a[1]);
-    return sendMessage(chatId, summaryText(sum, wsEntries));
   }
   if (cmd === '/riwayat' || cmd === 'riwayat' || cmd === 'history' || cmd === 'mutasi' || cmd === '/history') {
     const snap = await getDb().collection(BOT_COLLECTION).doc(binding.profileId).collection('transactions')
@@ -462,10 +446,8 @@ export default async function handler(req, res) {
       await sendMessage(chatId, '⚠️ Chat ini belum terhubung ke profil mana pun.\n\nBuka app → Pengaturan → <b>Hubungkan Bot</b>, lalu kirim kodenya dengan: <code>link 123456</code>');
     } else if (intent === 'ai') {
       await handleAI(chatId, text, binding);
-    } else if (intent === 'saldo') {
-      const sum = await getSummary(binding.profileId);
-      const wsEntries = Object.entries(sum.perWallet).sort((a, b) => b[1] - a[1]);
-      await sendMessage(chatId, summaryText(sum, wsEntries));
+    } else if (intent === 'summary' || intent === 'saldo') {
+      await handlePeriodSummary(chatId,text,binding);
     } else {
       await handleTransaction(chatId, text, binding);
     }
